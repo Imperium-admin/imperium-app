@@ -392,21 +392,26 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <i class="ti ti-ticket" style="font-size:24px;color:var(--gold)"></i>
       <div style="margin-top:7px;font-size:12px;font-weight:600">Buy Passes</div>
     </div>
+    <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('timetable')">
+      <i class="ti ti-calendar" style="font-size:24px;color:var(--blue)"></i>
+      <div style="margin-top:7px;font-size:12px;font-weight:600">Timetable</div>
+    </div>
     <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('waiver')">
-      <i class="ti ti-file-text" style="font-size:24px;color:var(--blue)"></i>
+      <i class="ti ti-file-text" style="font-size:24px;color:#4caf50"></i>
       <div style="margin-top:7px;font-size:12px;font-weight:600">Waivers</div>
     </div>
     <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('messages')">
-      <i class="ti ti-message-circle" style="font-size:24px;color:#4caf50"></i>
+      <i class="ti ti-message-circle" style="font-size:24px;color:var(--muted)"></i>
       <div style="margin-top:7px;font-size:12px;font-weight:600">Message Us</div>
     </div>
     <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('community')">
       <i class="ti ti-brand-whatsapp" style="font-size:24px;color:var(--wa)"></i>
       <div style="margin-top:7px;font-size:12px;font-weight:600">WhatsApp</div>
     </div>
-    <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('timetable')">
-      <i class="ti ti-calendar" style="font-size:24px;color:var(--muted)"></i>
-      <div style="margin-top:7px;font-size:12px;font-weight:600">Timetable</div>
+    <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px;grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:12px" onclick="switchScreen('comps')">
+      <i class="ti ti-trophy" style="font-size:22px;color:var(--gold)"></i>
+      <div style="font-size:13px;font-weight:600">Upcoming Competitions</div>
+      <i class="ti ti-chevron-right" style="font-size:16px;color:var(--muted);margin-left:auto"></i>
     </div>
   </div>
 
@@ -792,45 +797,95 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 ════════════════════════════════════ -->
 <div class="screen" id="screen-admin-comps">
   <button class="back-btn" onclick="switchScreen('comps')"><i class="ti ti-arrow-left"></i> Back to Competitions</button>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MANAGE COMPS</h2>
-    <span class="badge-staff">ADMIN</span>
+
+  <!-- COMP ADMIN PIN LOCK -->
+  <div id="compAdminLock">
+    <div class="staff-lock">
+      <i class="ti ti-trophy" style="color:var(--gold)"></i>
+      <h3>ADMIN ACCESS</h3>
+      <p>Enter your admin PIN to manage competitions.</p>
+      <div class="pin-row" id="compPinDots">
+        <div class="pin-dot" id="cpd0"></div>
+        <div class="pin-dot" id="cpd1"></div>
+        <div class="pin-dot" id="cpd2"></div>
+        <div class="pin-dot" id="cpd3"></div>
+      </div>
+      <div class="pin-keypad">
+        <button class="pin-key" onclick="compPinPress('1')">1</button>
+        <button class="pin-key" onclick="compPinPress('2')">2</button>
+        <button class="pin-key" onclick="compPinPress('3')">3</button>
+        <button class="pin-key" onclick="compPinPress('4')">4</button>
+        <button class="pin-key" onclick="compPinPress('5')">5</button>
+        <button class="pin-key" onclick="compPinPress('6')">6</button>
+        <button class="pin-key" onclick="compPinPress('7')">7</button>
+        <button class="pin-key" onclick="compPinPress('8')">8</button>
+        <button class="pin-key" onclick="compPinPress('9')">9</button>
+        <button class="pin-key" onclick="compPinPress('clr')" style="font-size:13px;color:var(--muted)">CLR</button>
+        <button class="pin-key" onclick="compPinPress('0')">0</button>
+        <button class="pin-key" onclick="compPinPress('del')" style="font-size:16px">⌫</button>
+      </div>
+      <div class="pin-error" id="compPinError"></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:16px">Demo PIN: 1234 &nbsp;·&nbsp; Uses Clubworx staff role once connected</p>
+    </div>
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Add, edit or remove competitions. Changes go live instantly.</p>
-  <div id="adminCompList"></div>
-  <button class="add-comp-btn" onclick="addComp()"><i class="ti ti-plus"></i> Add Competition</button>
-  <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Paste a registration URL (e.g. Smoothcomp, IBJJF, Fightmaster) to add a Register button. Leave blank for info-only posts.</div>
+
+  <!-- COMP ADMIN CONTENT (hidden until PIN entered) -->
+  <div id="compAdminContent" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MANAGE COMPS</h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="badge-staff">ADMIN</span>
+        <button onclick="lockCompAdmin()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px" title="Lock"><i class="ti ti-lock"></i></button>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Add, edit or remove competitions. Changes go live instantly.</p>
+    <div id="adminCompList"></div>
+    <button class="add-comp-btn" onclick="addComp()"><i class="ti ti-plus"></i> Add Competition</button>
+    <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Paste a registration URL (e.g. Smoothcomp, IBJJF, Fightmaster) to add a Register button. Leave blank for info-only posts.</div>
+  </div>
 </div>
 
 
 <div class="toast" id="toast"></div>
 
 <script>
-// ══ MEMBER STATE (Clubworx login populates these in production) ══
-let member = {name:'Jake Davidson',initials:'JD',belt:'BJJ Blue Belt',since:'Jan 2022',id:'IMP-0042'};
+// ══════════════════════════════════════════════
+// IMPERIUM MMA APP — JAVASCRIPT
+// ══════════════════════════════════════════════
 
-function setMember(name,ini,belt){
-  member={name,initials:ini,belt,since:'Jan 2022',id:'IMP-0042'};
-  const first=name.split(' ')[0].toUpperCase();
-  document.getElementById('heroGreeting').innerHTML='WELCOME BACK,<br>'+first;
-  document.getElementById('heroSub').textContent='Mordialloc · '+belt+' · Member since 2022';
-  document.getElementById('topAvatar').textContent=ini;
-  document.getElementById('profileAvatar').textContent=ini;
-  document.getElementById('profileName').textContent=name.toUpperCase();
-  showToast('Switched to '+name,'info');
+// ── MEMBER / FAMILY STATE ──
+const familyMembers = [
+  {name:'Jake Davidson', short:'Jake (You)',   initials:'JD', belt:'BJJ Blue Belt',     color:'#c0392b', type:'adult'},
+  {name:'Lila Davidson', short:'Lila (Age 9)', initials:'LJ', belt:'Kids BJJ · Minis',  color:'#27ae60', type:'kids'},
+  {name:'Tom Davidson',  short:'Tom (Age 12)', initials:'TJ', belt:'Kids BJJ · Teens',  color:'#2980b9', type:'kids'},
+];
+let activeFamilyIdx = 0;
+
+function setActiveMember(idx) {
+  activeFamilyIdx = idx;
+  const m = familyMembers[idx];
+  document.querySelectorAll('.family-pill').forEach((p,i) => p.classList.toggle('active', i===idx));
+  const first = m.name.split(' ')[0].toUpperCase();
+  const isYou = idx === 0;
+  document.getElementById('heroGreeting').innerHTML = (isYou ? 'WELCOME BACK,<br>' : 'VIEWING PROFILE:<br>') + first;
+  document.getElementById('heroSub').textContent = 'Mordialloc · ' + m.belt + ' · Member since 2022';
+  document.getElementById('topAvatar').textContent = m.initials;
+  document.getElementById('topAvatar').style.background = m.color;
+  document.getElementById('memberBadge').textContent = isYou ? 'ACTIVE MEMBER' : 'FAMILY MEMBER';
+  showToast('Switched to ' + m.name, 'info');
 }
 
-// ══ WAIVER CONFIG (edit via Admin panel — no code needed) ══
+// ── WAIVER CONFIG ──
 let waivers = [
-  {id:'w1',title:'General Membership Waiver',desc:'Required for all new members. Covers participation risks, liability release & emergency contact.',type:'form',required:true,completed:true,visible:true},
-  {id:'w2',title:'Minor Consent Form',desc:'Required for members under 18. Must be signed by a parent or guardian.',type:'external',url:'https://YOUR-CLUBWORX-FORM-URL-HERE',required:false,completed:false,visible:true},
-  {id:'w3',title:'Suspension Request',desc:'Pause your membership for travel, injury or personal reasons.',type:'form',required:false,completed:false,visible:true},
-  {id:'w4',title:'Competition Consent Waiver',desc:'Required before entering any competition or grading event.',type:'external',url:'https://YOUR-COMP-WAIVER-URL-HERE',required:false,completed:false,visible:true},
+  {id:'w1', title:'General Membership Waiver',  desc:'Required for all new members. Covers participation risks, liability release & emergency contact.', type:'form',     required:true,  completed:true,  visible:true},
+  {id:'w2', title:'Minor Consent Form',          desc:'Required for members under 18. Must be signed by a parent or guardian.',                            type:'external', url:'https://YOUR-CLUBWORX-FORM-URL-HERE',  required:false, completed:false, visible:true},
+  {id:'w3', title:'Suspension Request',          desc:'Pause your membership for travel, injury or personal reasons.',                                      type:'form',     required:false, completed:false, visible:true},
+  {id:'w4', title:'Competition Consent Waiver',  desc:'Required before entering any competition or grading event.',                                         type:'external', url:'https://YOUR-COMP-WAIVER-URL-HERE',    required:false, completed:false, visible:true},
 ];
 
-function renderWaiverList(){
-  const vis=waivers.filter(w=>w.visible);
-  document.getElementById('waiverListItems').innerHTML=vis.map(w=>`
+function renderWaiverList() {
+  const vis = waivers.filter(w => w.visible);
+  document.getElementById('waiverListItems').innerHTML = vis.map(w => `
     <div class="waiver-item${w.completed?' done':''}" onclick="openWaiver('${w.id}')">
       <div class="waiver-icon ${w.completed?'wi-done':w.type==='external'?'wi-ext':'wi-pending'}">
         <i class="ti ${w.completed?'ti-circle-check':w.type==='external'?'ti-external-link':'ti-file-text'}"></i>
@@ -843,13 +898,13 @@ function renderWaiverList(){
     </div>`).join('');
 }
 
-function openWaiver(id){
-  const w=waivers.find(x=>x.id===id);
-  if(!w)return;
-  if(w.type==='external'){window.open(w.url,'_blank');return;}
-  let html='';
-  if(w.id==='w1'){
-    html=`<div class="card wform">
+function openWaiver(id) {
+  const w = waivers.find(x => x.id===id);
+  if (!w) return;
+  if (w.type === 'external') { window.open(w.url, '_blank'); return; }
+  let html = '';
+  if (w.id === 'w1') {
+    html = `<div class="card wform">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><i class="ti ti-file-certificate" style="font-size:18px;color:var(--gold)"></i><span style="font-family:var(--head);font-size:15px;letter-spacing:1px">GENERAL MEMBERSHIP WAIVER</span></div>
       <label>Full Legal Name</label><input type="text" placeholder="Your full name">
       <label>Date of Birth</label><input type="date">
@@ -863,8 +918,8 @@ function openWaiver(id){
       <div class="check-row"><input type="checkbox"><span>I consent to this waiver being stored in my Clubworx member record.</span></div>
       <button class="btn-submit" onclick="submitWaiver('w1')">SIGN & SUBMIT</button>
     </div>`;
-  } else if(w.id==='w3'){
-    html=`<div class="card wform">
+  } else if (w.id === 'w3') {
+    html = `<div class="card wform">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><i class="ti ti-player-pause" style="font-size:18px;color:var(--red2)"></i><span style="font-family:var(--head);font-size:15px;letter-spacing:1px">SUSPENSION REQUEST</span></div>
       <label>Full Name</label><input type="text" placeholder="Your name">
       <label>Member ID</label><input type="text" placeholder="IMP-XXXX">
@@ -876,26 +931,26 @@ function openWaiver(id){
       <button class="btn-submit" onclick="submitWaiver('w3')">SUBMIT REQUEST</button>
     </div>`;
   }
-  document.getElementById('waiverFormContent').innerHTML=`<h2 style="font-family:var(--head);letter-spacing:2px;font-size:18px;margin-bottom:16px">${w.title.toUpperCase()}</h2>${html}`;
+  document.getElementById('waiverFormContent').innerHTML = `<h2 style="font-family:var(--head);letter-spacing:2px;font-size:18px;margin-bottom:16px">${w.title.toUpperCase()}</h2>${html}`;
   switchScreen('waiver-form');
 }
 
-function submitWaiver(id){
-  const w=waivers.find(x=>x.id===id);
-  if(w)w.completed=true;
-  showToast('Waiver signed & saved ✓','success');
-  setTimeout(()=>switchScreen('waiver'),1600);
+function submitWaiver(id) {
+  const w = waivers.find(x => x.id===id);
+  if (w) w.completed = true;
+  showToast('Waiver signed & saved ✓', 'success');
+  setTimeout(() => switchScreen('waiver'), 1600);
 }
 
-function renderAdminWaivers(){
-  document.getElementById('adminWaiverList').innerHTML=waivers.map((w,i)=>`
+function renderAdminWaivers() {
+  document.getElementById('adminWaiverList').innerHTML = waivers.map((w,i) => `
     <div class="admin-waiver-item">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <span class="tag ${w.type==='external'?'tag-ext':'tag-form'}">${w.type==='external'?'External Link':'In-app Form'}</span>
         ${w.required?'<span class="tag tag-req">Required</span>':''}
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
           <span style="font-size:12px;color:var(--muted)">${w.visible?'Visible':'Hidden'}</span>
-          <label class="mtoggle"><input type="checkbox" ${w.visible?'checked':''} onchange="toggleWaiver(${i},this.checked)"><span class="mtrack"></span><span class="mthumb"></span></label>
+          <label class="mtoggle"><input type="checkbox" ${w.visible?'checked':''} onchange="waivers[${i}].visible=this.checked;renderWaiverList()"><span class="mtrack"></span><span class="mthumb"></span></label>
         </div>
       </div>
       <div class="admin-row"><input type="text" value="${w.title}" placeholder="Waiver name" onchange="waivers[${i}].title=this.value;renderWaiverList()"></div>
@@ -903,23 +958,47 @@ function renderAdminWaivers(){
     </div>`).join('');
 }
 
-function toggleWaiver(i,v){waivers[i].visible=v;renderWaiverList();renderAdminWaivers();showToast(v?'Waiver visible to members':'Waiver hidden','info');}
-function addWaiver(){waivers.push({id:'w'+Date.now(),title:'New Waiver',desc:'Description',type:'external',url:'',required:false,completed:false,visible:false});renderAdminWaivers();renderWaiverList();showToast('Waiver added — edit name & URL above','info');}
+function toggleWaiver(i, v) { waivers[i].visible=v; renderWaiverList(); renderAdminWaivers(); showToast(v?'Waiver visible to members':'Waiver hidden','info'); }
+function addWaiver() { waivers.push({id:'w'+Date.now(),title:'New Waiver',desc:'Description',type:'external',url:'',required:false,completed:false,visible:false}); renderAdminWaivers(); renderWaiverList(); showToast('Waiver added — edit name & URL above','info'); }
 
-// ══ PASSES ══
-const passData={
-  adult:[{id:'a10',name:'10 Class Pass',detail:'Adult · Valid 6 months · BJJ & Muay Thai',popular:true},{id:'acasual',name:'Casual Class',detail:'Adult · Single visit · Any class',popular:false}],
-  kids:[{id:'k10',name:'10 Class Pass',detail:'Kids · Valid 6 months · BJJ or Muay Thai',popular:true},{id:'kcasual',name:'Casual Class',detail:'Kids · Single visit',popular:false}],
-  casual:[{id:'ca',name:'Adult Casual',detail:'Single adult class',popular:false},{id:'ck',name:'Kids Casual',detail:'Single kids class',popular:false},{id:'cf',name:'Family Casual',detail:'2 adults + up to 3 kids',popular:true}]
+// ── PASSES ──
+const passData = {
+  adult:  [{id:'a10',name:'10 Class Pass',detail:'Adult · Valid 6 months · BJJ & Muay Thai',popular:true},{id:'acasual',name:'Casual Class',detail:'Adult · Single visit · Any class',popular:false}],
+  kids:   [{id:'k10',name:'10 Class Pass',detail:'Kids · Valid 6 months · BJJ or Muay Thai',popular:true},{id:'kcasual',name:'Casual Class',detail:'Kids · Single visit',popular:false}],
+  casual: [{id:'ca',name:'Adult Casual',detail:'Single adult class',popular:false},{id:'ck',name:'Kids Casual',detail:'Single kids class',popular:false},{id:'cf',name:'Family Casual',detail:'2 adults + up to 3 kids',popular:true}]
 };
-let selPass=null,curPassType='adult';
-function setPassType(el,type){document.querySelectorAll('.pass-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');curPassType=type;selPass=null;document.getElementById('checkoutBar').style.display='none';renderPasses(type);}
-function renderPasses(type){document.getElementById('passCards').innerHTML=passData[type].map(p=>`<div class="pass-card${p.popular?' popular':''}" id="pc-${p.id}" onclick="selectPass('${p.id}')"><div class="pass-row"><div class="pass-icon-wrap"><i class="ti ti-ticket" style="font-size:22px;color:var(--gold)"></i></div><div style="flex:1"><div class="pass-name">${p.name}</div><div class="pass-detail">${p.detail}</div></div><div class="badge-green" style="font-size:10px"><i class="ti ti-refresh" style="font-size:10px"></i>Live Price</div></div></div>`).join('');}
-function selectPass(id){const all=[...passData.adult,...passData.kids,...passData.casual];selPass=all.find(p=>p.id===id);document.querySelectorAll('.pass-card').forEach(c=>c.classList.remove('selected'));document.getElementById('pc-'+id).classList.add('selected');const bar=document.getElementById('checkoutBar');bar.style.display='flex';document.getElementById('checkoutLabel').textContent=selPass.name;document.getElementById('checkoutPrice').textContent='From Clubworx';}
-function buyPass(){showToast('Opening Clubworx checkout...','info');setTimeout(()=>showToast('Pass activated — credits added ✓','success'),2200);}
+let selPass = null, curPassType = 'adult';
 
-// ══ TIMETABLE ══
-const ttData={
+function setPassType(el, type) {
+  document.querySelectorAll('.pass-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active'); curPassType = type; selPass = null;
+  document.getElementById('checkoutBar').style.display = 'none';
+  renderPasses(type);
+}
+function renderPasses(type) {
+  document.getElementById('passCards').innerHTML = passData[type].map(p =>
+    `<div class="pass-card${p.popular?' popular':''}" id="pc-${p.id}" onclick="selectPass('${p.id}')">
+      <div class="pass-row">
+        <div class="pass-icon-wrap"><i class="ti ti-ticket" style="font-size:22px;color:var(--gold)"></i></div>
+        <div style="flex:1"><div class="pass-name">${p.name}</div><div class="pass-detail">${p.detail}</div></div>
+        <div class="badge-green" style="font-size:10px"><i class="ti ti-refresh" style="font-size:10px"></i>Live Price</div>
+      </div>
+    </div>`).join('');
+}
+function selectPass(id) {
+  const all = [...passData.adult,...passData.kids,...passData.casual];
+  selPass = all.find(p => p.id===id);
+  document.querySelectorAll('.pass-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('pc-'+id).classList.add('selected');
+  const bar = document.getElementById('checkoutBar');
+  bar.style.display = 'flex';
+  document.getElementById('checkoutLabel').textContent = selPass.name;
+  document.getElementById('checkoutPrice').textContent = 'From Clubworx';
+}
+function buyPass() { showToast('Opening Clubworx checkout...','info'); setTimeout(()=>showToast('Pass activated — credits added ✓','success'),2200); }
+
+// ── TIMETABLE ──
+const ttData = {
   Mon:[{time:'6:00 AM',dur:'60min',name:'BJJ Fundamentals',coach:'Coach Marcus',type:'bjj',spots:6},{time:'9:30 AM',dur:'60min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:4},{time:'6:30 PM',dur:'75min',name:'BJJ Fundamentals',coach:'Coach Marcus',type:'bjj',spots:2},{time:'7:30 PM',dur:'60min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:8}],
   Tue:[{time:'6:00 AM',dur:'60min',name:'No-Gi BJJ',coach:'Coach Marcus',type:'bjj',spots:10},{time:'6:30 PM',dur:'75min',name:'Kids BJJ',coach:'Coach Emma',type:'kids',spots:5},{time:'7:30 PM',dur:'60min',name:'Muay Thai Adv',coach:'Coach Sam',type:'muay',spots:3}],
   Wed:[{time:'6:00 AM',dur:'60min',name:'BJJ Fundamentals',coach:'Coach Marcus',type:'bjj',spots:7},{time:'5:30 PM',dur:'60min',name:'Kids Muay Thai',coach:'Coach Emma',type:'kids',spots:4},{time:'6:30 PM',dur:'75min',name:'BJJ Comp',coach:'Coach Marcus',type:'bjj',spots:0},{time:'7:30 PM',dur:'60min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:5}],
@@ -928,142 +1007,89 @@ const ttData={
   Sat:[{time:'8:00 AM',dur:'60min',name:'Kids BJJ',coach:'Coach Emma',type:'kids',spots:3},{time:'9:00 AM',dur:'75min',name:'BJJ All Levels',coach:'Coach Marcus',type:'bjj',spots:1},{time:'10:30 AM',dur:'60min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:6},{time:'11:30 AM',dur:'90min',name:'No-Gi Open Mat',coach:'All Coaches',type:'bjj',spots:18}],
   Sun:[{time:'10:00 AM',dur:'90min',name:'BJJ Open Mat',coach:'Coach Marcus',type:'bjj',spots:20}]
 };
-const bkd=new Set();let curDay='Mon';
-function renderTT(day){const c=document.getElementById('ttClasses'),cl=ttData[day]||[];c.innerHTML=cl.map((x,i)=>{const k=day+'-'+i,b=bkd.has(k);const sp=x.spots===0?`<span class="spots spots-full">Full</span>`:x.spots<=3?`<span class="spots spots-few">${x.spots} left</span>`:`<span class="spots spots-ok">${x.spots} spots</span>`;return `<div class="tt-class ${x.type}"><div class="tt-time-col"><div class="tt-time">${x.time}</div><div class="tt-dur">${x.dur}</div></div><div class="tt-info"><div class="tt-name">${x.name}</div><div class="tt-coach">${x.coach}</div></div>${b?'<span class="booked-pill">Booked</span>':x.spots===0?sp:`<button class="tt-book-btn" onclick="bookTT('${k}','${x.name}',this)">Book</button>`}</div>`;}).join('');}
-function setDay(el,day){document.querySelectorAll('.tt-day').forEach(d=>d.classList.remove('active'));el.classList.add('active');curDay=day;renderTT(day);}
-function bookTT(k,name,btn){bkd.add(k);btn.outerHTML='<span class="booked-pill">Booked ✓</span>';showToast('Booked: '+name,'success');}
+const bkd = new Set(); let curDay = 'Mon';
 
-// ══ NAVIGATION ══
-function switchScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  const sc=document.getElementById('screen-'+id);
-  if(sc)sc.classList.add('active');
-  const baseId=id.split('-')[0];
-  const nb=document.getElementById('nav-'+baseId);
-  if(nb)nb.classList.add('active');
-  if(id==='timetable')renderTT(curDay);
-  if(id==='passes')renderPasses(curPassType);
-  if(id==='waiver')renderWaiverList();
-  if(id==='admin-waivers')renderAdminWaivers();
-  if(id==='comps')renderCompList();
-  if(id==='admin-comps')renderAdminComps();
-  window.scrollTo(0,0);
+function renderTT(day) {
+  const c = document.getElementById('ttClasses'), cl = ttData[day]||[];
+  c.innerHTML = cl.map((x,i) => {
+    const k=day+'-'+i, b=bkd.has(k);
+    const sp = x.spots===0?`<span class="spots spots-full">Full</span>`:x.spots<=3?`<span class="spots spots-few">${x.spots} left</span>`:`<span class="spots spots-ok">${x.spots} spots</span>`;
+    return `<div class="tt-class ${x.type}"><div class="tt-time-col"><div class="tt-time">${x.time}</div><div class="tt-dur">${x.dur}</div></div><div class="tt-info"><div class="tt-name">${x.name}</div><div class="tt-coach">${x.coach}</div></div>${b?'<span class="booked-pill">Booked</span>':x.spots===0?sp:`<button class="tt-book-btn" onclick="bookTT('${k}','${x.name}',this)">Book</button>`}</div>`;
+  }).join('');
 }
+function setDay(el, day) { document.querySelectorAll('.tt-day').forEach(d=>d.classList.remove('active')); el.classList.add('active'); curDay=day; renderTT(day); }
+function bookTT(k, name, btn) { bkd.add(k); btn.outerHTML='<span class="booked-pill">Booked ✓</span>'; showToast('Booked: '+name,'success'); }
 
-// Logo tap = go home from anywhere
-document.addEventListener('DOMContentLoaded',function(){
-  document.querySelector('.logo').addEventListener('click',function(){
-    switchScreen('home');
-  });
-});
+// ── PIN LOCK ──
+const STAFF_PIN = '1234'; // ← Change this to your real PIN
+let pinEntry = '';
+let staffUnlocked = false;
 
-// ══ MESSAGES ══
-function setMsgTab(el,tab){document.querySelectorAll('.msg-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('msgReception').style.display=tab==='reception'?'block':'none';document.getElementById('msgBroadcast').style.display=tab==='broadcast'?'block':'none';}
-function updateCount(){const s=document.getElementById('bcastAudience');const m=s.options[s.selectedIndex].text.match(/\((\d+)\)/);document.getElementById('bcastCount').textContent=(m?m[1]:87)+' members';}
-function sendBroadcast(){const t=document.getElementById('bcastTitle').value.trim(),m=document.getElementById('bcastMsg').value.trim();if(!t||!m){showToast('Add a title and message first','warn');return;}showToast('Broadcast sent to '+document.getElementById('bcastCount').textContent+' ✓','success');document.getElementById('bcastTitle').value='';document.getElementById('bcastMsg').value='';}
-function sendReception(){const i=document.getElementById('receptionInput'),txt=i.value.trim();if(!txt)return;const b=document.getElementById('receptionMsgs');const d=document.createElement('div');d.className='msg sent';d.innerHTML=txt+'<div class="msg-time">Now</div>';b.appendChild(d);i.value='';b.scrollTop=b.scrollHeight;setTimeout(()=>{const r=document.createElement('div');r.className='msg recv';r.innerHTML='Thanks! A team member will reply shortly.<div class="msg-time">Now</div>';b.appendChild(r);b.scrollTop=b.scrollHeight;},1100);}
-
-// ══ COACHES ══
-function sendCoach(){const i=document.getElementById('coachInput'),txt=i.value.trim();if(!txt)return;const b=document.getElementById('coachMsgs');const d=document.createElement('div');d.className='msg sent';d.innerHTML=txt+'<div class="msg-time">Now</div>';b.appendChild(d);i.value='';b.scrollTop=b.scrollHeight;}
-function setCtab(el){document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
-
-// ══ MISC ══
-let checkedIn=false;
-function doCheckin(){if(!checkedIn){checkedIn=true;const b=document.getElementById('checkinBtn');b.textContent='✓ CHECKED IN';b.classList.add('done');showToast('Checked in to BJJ Fundamentals ✓','success');}}
-function bookClass(el,name){const sp=el.querySelector('.spots');if(sp&&sp.classList.contains('spots-full'))return;if(sp)sp.outerHTML='<span class="booked-pill">Booked ✓</span>';showToast('Booked: '+name,'success');}
-function openNotif(){document.getElementById('notifPanel').classList.add('open');document.getElementById('overlay').classList.add('open');}
-function closeNotif(){document.getElementById('notifPanel').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
-function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
-
-// ══ INIT ══
-renderTT('Mon');
-renderPasses('adult');
-renderWaiverList();
-renderCompList();
-
-// ══ SHAKE KEYFRAME ══
-(function(){const s=document.createElement('style');s.textContent='@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}';document.head.appendChild(s);})();
-
-// ══ PIN LOCK ══
-const STAFF_PIN='1234';
-let pinEntry='',staffUnlocked=false;
-function pinPress(key){
-  if(key==='clr'){pinEntry='';updatePinDots();document.getElementById('pinError').textContent='';return;}
-  if(key==='del'){pinEntry=pinEntry.slice(0,-1);updatePinDots();return;}
-  if(pinEntry.length>=4)return;
-  pinEntry+=key;updatePinDots();
-  if(pinEntry.length===4)setTimeout(checkPin,150);
+function pinPress(key) {
+  if (key === 'clr') { pinEntry = ''; updatePinDots(); document.getElementById('pinError').textContent = ''; return; }
+  if (key === 'del') { pinEntry = pinEntry.slice(0,-1); updatePinDots(); return; }
+  if (pinEntry.length >= 4) return;
+  pinEntry += key;
+  updatePinDots();
+  if (pinEntry.length === 4) setTimeout(checkPin, 180);
 }
-function updatePinDots(){for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);if(d)d.classList.toggle('filled',i<pinEntry.length);}}
-function checkPin(){
-  if(pinEntry===STAFF_PIN){
-    staffUnlocked=true;
-    document.getElementById('staffLock').style.display='none';
-    document.getElementById('staffContent').style.display='block';
-    document.getElementById('pinError').textContent='';
-  } else {
-    document.getElementById('pinError').textContent='Incorrect PIN. Try again.';
-    pinEntry='';updatePinDots();
-    const dots=document.getElementById('pinDots');
-    dots.style.animation='shake .3s ease';
-    setTimeout(()=>dots.style.animation='',400);
+function updatePinDots() {
+  for (let i=0; i<4; i++) {
+    const d = document.getElementById('pd'+i);
+    if (d) d.classList.toggle('filled', i < pinEntry.length);
   }
 }
-function lockStaff(){
-  staffUnlocked=false;pinEntry='';updatePinDots();
-  document.getElementById('staffLock').style.display='block';
-  document.getElementById('staffContent').style.display='none';
-  document.getElementById('pinError').textContent='';
+function checkPin() {
+  if (pinEntry === STAFF_PIN) {
+    staffUnlocked = true;
+    document.getElementById('staffLock').style.display = 'none';
+    document.getElementById('staffContent').style.display = 'block';
+    document.getElementById('pinError').textContent = '';
+  } else {
+    document.getElementById('pinError').textContent = 'Incorrect PIN — try again';
+    pinEntry = ''; updatePinDots();
+    const dots = document.getElementById('pinDots');
+    dots.style.animation = 'shake .35s ease';
+    setTimeout(() => dots.style.animation = '', 400);
+  }
+}
+function lockStaff() {
+  staffUnlocked = false; pinEntry = ''; updatePinDots();
+  document.getElementById('staffLock').style.display = 'block';
+  document.getElementById('staffContent').style.display = 'none';
+  document.getElementById('pinError').textContent = '';
 }
 
-// ══ FAMILY SWITCHER ══
-const familyMembers=[
-  {name:'Jake Davidson',short:'Jake (You)',initials:'JD',belt:'BJJ Blue Belt',color:'#c0392b',type:'adult'},
-  {name:'Lila Davidson',short:'Lila (Age 9)',initials:'LJ',belt:'Kids BJJ · Minis',color:'#27ae60',type:'kids'},
-  {name:'Tom Davidson',short:'Tom (Age 12)',initials:'TJ',belt:'Kids BJJ · Teens',color:'#2980b9',type:'kids'},
+// ── COMPETITIONS ──
+let competitions = [
+  {id:'c1',title:'Grappling Industries Melbourne',date:'2026-07-12',location:'Melbourne Showgrounds',     type:'bjj', tags:['BJJ','Gi & No-Gi','All Levels'],           regUrl:'https://grapplingindustries.com', regOpen:true,  notes:'Team reg closes 2 weeks prior. Speak to Coach Marcus about weight categories.',featured:true, visible:true},
+  {id:'c2',title:'IBJJF Sydney Open',             date:'2026-08-23',location:'Sydney Olympic Park',       type:'bjj', tags:['BJJ','Gi','IBJJF Rules','Adults & Juveniles'],regUrl:'https://ibjjf.com',               regOpen:true,  notes:'IBJJF membership required. Medical certificate needed.',                         featured:false,visible:true},
+  {id:'c3',title:'Fightmaster Muay Thai — Rd 4',  date:'2026-09-06',location:'Dallas Brooks Centre, Melb',type:'muay',tags:['Muay Thai','Amateur','C & B Class'],         regUrl:'https://fightmaster.com.au',      regOpen:false, notes:'Registration opens 6 weeks out. Speak to Coach Sam first.',                      featured:false,visible:true},
+  {id:'c4',title:'Kids Grappling League — Rd 3',  date:'2026-07-26',location:'Frankston Sports Centre',   type:'kids',tags:['Kids BJJ','Ages 5–15','No-Gi'],              regUrl:'',                                regOpen:true,  notes:'Great first comp for kids. Medals for all participants.',                        featured:true, visible:true},
 ];
-let activeFamilyIdx=0;
-function setActiveMember(idx){
-  activeFamilyIdx=idx;
-  const m=familyMembers[idx];
-  document.querySelectorAll('.family-pill').forEach((p,i)=>p.classList.toggle('active',i===idx));
-  const first=m.name.split(' ')[0].toUpperCase();
-  const isYou=idx===0;
-  document.getElementById('heroGreeting').innerHTML=(isYou?'WELCOME BACK,<br>':'VIEWING PROFILE:<br>')+first;
-  document.getElementById('heroSub').textContent='Mordialloc · '+m.belt+' · Member since 2022';
-  document.getElementById('topAvatar').textContent=m.initials;
-  document.getElementById('topAvatar').style.background=m.color;
-  document.getElementById('memberBadge').textContent=isYou?'ACTIVE MEMBER':'FAMILY MEMBER';
-  showToast('Switched to '+m.name,'info');
-}
 
-// ══ COMPETITIONS ══
-let competitions=[
-  {id:'c1',title:'Grappling Industries Melbourne',date:'2026-07-12',location:'Melbourne Showgrounds',type:'bjj',tags:['BJJ','Gi & No-Gi','All Levels'],regUrl:'https://grapplingindustries.com',regOpen:true,notes:'Team registration closes 2 weeks prior. Speak to Coach Marcus about weight categories.',featured:true,visible:true},
-  {id:'c2',title:'IBJJF Sydney Open',date:'2026-08-23',location:'Sydney Olympic Park',type:'bjj',tags:['BJJ','Gi','IBJJF Rules','Adults & Juveniles'],regUrl:'https://ibjjf.com',regOpen:true,notes:'IBJJF membership required. Medical certificate needed.',featured:false,visible:true},
-  {id:'c3',title:'Fightmaster Muay Thai — Rd 4',date:'2026-09-06',location:'Dallas Brooks Centre, Melbourne',type:'muay',tags:['Muay Thai','Amateur','C & B Class'],regUrl:'https://fightmaster.com.au',regOpen:false,notes:'Registration opens 6 weeks out. Speak to Coach Sam first.',featured:false,visible:true},
-  {id:'c4',title:'Kids Grappling League — Rd 3',date:'2026-07-26',location:'Frankston Sports Centre',type:'kids',tags:['Kids BJJ','Ages 5–15','No-Gi'],regUrl:'',regOpen:true,notes:'Great first comp experience for kids. Medals for all participants.',featured:true,visible:true},
-];
-function daysUntil(dateStr){const d=new Date(dateStr),n=new Date();n.setHours(0,0,0,0);d.setHours(0,0,0,0);return Math.round((d-n)/(1000*60*60*24));}
-function renderCompList(){
-  const el=document.getElementById('compListItems');if(!el)return;
-  const vis=competitions.filter(c=>c.visible);
-  if(!vis.length){el.innerHTML='<div class="info-box" style="text-align:center"><i class="ti ti-trophy" style="font-size:24px;color:var(--muted);display:block;margin-bottom:8px"></i><div style="font-size:13px;font-weight:600;margin-bottom:4px">No competitions posted yet</div><div style="font-size:12px">Tap Admin to add events.</div></div>';return;}
-  el.innerHTML=vis.map(c=>{
-    const days=daysUntil(c.date);
-    const past=days<0;
-    const dateStr=new Date(c.date).toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
-    let badgeClass=days<=14&&!past?'soon':c.regOpen&&!past?'open':'upcoming';
-    const badgeText=past?'Completed':days<=14?days+' days away':dateStr;
+function daysUntil(dateStr) {
+  const d=new Date(dateStr), n=new Date(); n.setHours(0,0,0,0); d.setHours(0,0,0,0);
+  return Math.round((d-n)/(1000*60*60*24));
+}
+function renderCompList() {
+  const el = document.getElementById('compListItems'); if (!el) return;
+  const vis = competitions.filter(c => c.visible);
+  if (!vis.length) { el.innerHTML='<div class="info-box" style="text-align:center"><i class="ti ti-trophy" style="font-size:24px;color:var(--muted);display:block;margin-bottom:8px"></i><div style="font-size:13px;font-weight:600;margin-bottom:4px">No competitions posted yet</div><div style="font-size:12px">Tap Admin to add events.</div></div>'; return; }
+  el.innerHTML = vis.map(c => {
+    const days=daysUntil(c.date), past=days<0;
+    const dateStr=new Date(c.date).toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const shortDate=new Date(c.date).toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+    let badgeClass=past?'':days<=14?'soon':c.regOpen?'open':'upcoming';
+    const badgeText=past?'Completed':days<=14?(days===0?'Today!':days===1?'Tomorrow':days+' days away'):shortDate;
     const typeColor=c.type==='bjj'?'#3498db':c.type==='muay'?'var(--red2)':'#4caf50';
     return `<div class="comp-card ${c.featured&&!past?'featured':'upcoming'} ${past?'comp-past':''}">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
         <div class="comp-date-badge ${badgeClass}"><i class="ti ti-calendar" style="font-size:12px"></i> ${badgeText}</div>
         ${c.featured&&!past?'<span style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px">★ FEATURED</span>':''}
       </div>
       <div class="comp-title">${c.title}</div>
-      <div class="comp-meta"><i class="ti ti-map-pin" style="font-size:12px;vertical-align:-1px"></i> ${c.location}<br><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> ${new Date(c.date).toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+      <div class="comp-meta"><i class="ti ti-map-pin" style="font-size:12px;vertical-align:-1px"></i> ${c.location}<br><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> ${dateStr}</div>
       <div class="comp-tags">${c.tags.map(t=>'<span class="comp-tag">'+t+'</span>').join('')}</div>
       ${c.notes?`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;border-left:2px solid ${typeColor}">${c.notes}</div>`:''}
       <div class="comp-actions">
@@ -1073,12 +1099,12 @@ function renderCompList(){
     </div>`;
   }).join('');
 }
-function renderAdminComps(){
-  const el=document.getElementById('adminCompList');if(!el)return;
-  el.innerHTML=competitions.map((c,i)=>`
+function renderAdminComps() {
+  const el = document.getElementById('adminCompList'); if (!el) return;
+  el.innerHTML = competitions.map((c,i) => `
     <div class="comp-admin-item">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <span class="tag tag-form" style="background:rgba(52,152,219,0.15);color:#3498db">${c.type.toUpperCase()}</span>
+        <span class="tag" style="background:rgba(52,152,219,0.15);color:#3498db">${c.type.toUpperCase()}</span>
         ${c.featured?'<span class="tag tag-req">Featured</span>':''}
         <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
           <span style="font-size:12px;color:var(--muted)">${c.visible?'Visible':'Hidden'}</span>
@@ -1094,12 +1120,154 @@ function renderAdminComps(){
       <div class="comp-admin-row"><input class="comp-admin-input" type="text" value="${c.notes}" placeholder="Notes for members" onchange="competitions[${i}].notes=this.value;renderCompList()"></div>
     </div>`).join('');
 }
-function addComp(){
-  const today=new Date().toISOString().split('T')[0];
+function addComp() {
+  const today = new Date().toISOString().split('T')[0];
   competitions.push({id:'c'+Date.now(),title:'New Competition',date:today,location:'',type:'bjj',tags:['BJJ'],regUrl:'',regOpen:true,notes:'',featured:false,visible:false});
-  renderAdminComps();renderCompList();
+  renderAdminComps(); renderCompList();
   showToast('Competition added — fill in details above','info');
 }
+
+// ── NAVIGATION ──
+function switchScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const sc = document.getElementById('screen-'+id);
+  if (sc) sc.classList.add('active');
+  const baseId = id.split('-')[0];
+  const nb = document.getElementById('nav-'+baseId);
+  if (nb) nb.classList.add('active');
+  if (id==='timetable')   renderTT(curDay);
+  if (id==='passes')      renderPasses(curPassType);
+  if (id==='waiver')      renderWaiverList();
+  if (id==='admin-waivers') renderAdminWaivers();
+  if (id==='comps')       renderCompList();
+  if (id==='admin-comps') {
+    // Reset lock each time admin-comps is opened
+    compAdminUnlocked = false; compPinEntry = '';
+    updateCompPinDots && updateCompPinDots();
+    const lk=document.getElementById('compAdminLock');
+    const ct=document.getElementById('compAdminContent');
+    if(lk) lk.style.display='block';
+    if(ct) ct.style.display='none';
+    const ce=document.getElementById('compPinError');
+    if(ce) ce.textContent='';
+  }
+  window.scrollTo(0,0);
+}
+
+// Logo taps home
+window.addEventListener('DOMContentLoaded', function() {
+  const logo = document.querySelector('.logo');
+  if (logo) logo.addEventListener('click', () => switchScreen('home'));
+});
+
+// ── MESSAGES ──
+function setMsgTab(el, tab) {
+  document.querySelectorAll('.msg-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('msgReception').style.display  = tab==='reception'?'block':'none';
+  document.getElementById('msgBroadcast').style.display = tab==='broadcast'?'block':'none';
+}
+function updateCount() {
+  const s=document.getElementById('bcastAudience');
+  const m=s.options[s.selectedIndex].text.match(/\((\d+)\)/);
+  document.getElementById('bcastCount').textContent=(m?m[1]:87)+' members';
+}
+function sendBroadcast() {
+  const t=document.getElementById('bcastTitle').value.trim(), m=document.getElementById('bcastMsg').value.trim();
+  if(!t||!m){showToast('Add a title and message first','warn');return;}
+  showToast('Broadcast sent to '+document.getElementById('bcastCount').textContent+' ✓','success');
+  document.getElementById('bcastTitle').value=''; document.getElementById('bcastMsg').value='';
+}
+function sendReception() {
+  const i=document.getElementById('receptionInput'), txt=i.value.trim(); if(!txt)return;
+  const b=document.getElementById('receptionMsgs');
+  const d=document.createElement('div'); d.className='msg sent'; d.innerHTML=txt+'<div class="msg-time">Now</div>';
+  b.appendChild(d); i.value=''; b.scrollTop=b.scrollHeight;
+  setTimeout(()=>{const r=document.createElement('div');r.className='msg recv';r.innerHTML='Thanks! A team member will reply shortly.<div class="msg-time">Now</div>';b.appendChild(r);b.scrollTop=b.scrollHeight;},1100);
+}
+
+// ── COACHES ──
+function sendCoach() {
+  const i=document.getElementById('coachInput'), txt=i.value.trim(); if(!txt)return;
+  const b=document.getElementById('coachMsgs');
+  const d=document.createElement('div'); d.className='msg sent'; d.innerHTML=txt+'<div class="msg-time">Now</div>';
+  b.appendChild(d); i.value=''; b.scrollTop=b.scrollHeight;
+}
+function setCtab(el) { document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
+
+// ── CHECKIN & MISC ──
+let checkedIn = false;
+function doCheckin() {
+  if (!checkedIn) { checkedIn=true; const b=document.getElementById('checkinBtn'); b.textContent='✓ CHECKED IN'; b.classList.add('done'); showToast('Checked in to BJJ Fundamentals ✓','success'); }
+}
+function bookClass(el, name) {
+  const sp=el.querySelector('.spots'); if(sp&&sp.classList.contains('spots-full'))return;
+  if(sp) sp.outerHTML='<span class="booked-pill">Booked ✓</span>'; showToast('Booked: '+name,'success');
+}
+function openNotif()  { document.getElementById('notifPanel').classList.add('open');    document.getElementById('overlay').classList.add('open'); }
+function closeNotif() { document.getElementById('notifPanel').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+function joinWA(g)    { showToast('Opening WhatsApp: '+g,'info'); }
+
+function showToast(msg, type) {
+  const t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+(type||''); t.classList.add('show');
+  clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ── SHAKE ANIMATION ──
+(function(){
+  const s=document.createElement('style');
+  s.textContent='@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}';
+  document.head.appendChild(s);
+})();
+
+// ── COMP ADMIN PIN ──
+const COMP_ADMIN_PIN = '1234'; // ← Change this to your admin PIN (can differ from staff PIN)
+let compPinEntry = '';
+let compAdminUnlocked = false;
+
+function compPinPress(key) {
+  if (key === 'clr') { compPinEntry = ''; updateCompPinDots(); document.getElementById('compPinError').textContent = ''; return; }
+  if (key === 'del') { compPinEntry = compPinEntry.slice(0,-1); updateCompPinDots(); return; }
+  if (compPinEntry.length >= 4) return;
+  compPinEntry += key;
+  updateCompPinDots();
+  if (compPinEntry.length === 4) setTimeout(checkCompPin, 180);
+}
+function updateCompPinDots() {
+  for (let i=0; i<4; i++) {
+    const d = document.getElementById('cpd'+i);
+    if (d) d.classList.toggle('filled', i < compPinEntry.length);
+  }
+}
+function checkCompPin() {
+  if (compPinEntry === COMP_ADMIN_PIN) {
+    compAdminUnlocked = true;
+    document.getElementById('compAdminLock').style.display = 'none';
+    document.getElementById('compAdminContent').style.display = 'block';
+    document.getElementById('compPinError').textContent = '';
+    renderAdminComps();
+  } else {
+    document.getElementById('compPinError').textContent = 'Incorrect PIN — try again';
+    compPinEntry = ''; updateCompPinDots();
+    const dots = document.getElementById('compPinDots');
+    dots.style.animation = 'shake .35s ease';
+    setTimeout(() => dots.style.animation = '', 400);
+  }
+}
+function lockCompAdmin() {
+  compAdminUnlocked = false; compPinEntry = ''; updateCompPinDots();
+  document.getElementById('compAdminLock').style.display = 'block';
+  document.getElementById('compAdminContent').style.display = 'none';
+  document.getElementById('compPinError').textContent = '';
+}
+
+// ── INIT ──
+renderTT('Mon');
+renderPasses('adult');
+renderWaiverList();
+renderCompList();
 </script>
+
 </body>
 </html>
