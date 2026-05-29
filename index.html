@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Imperium MMA">
+<meta name="theme-color" content="#0a0a0a">
+<title>Imperium MMA Member App</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<style>
+/* ─── RESET & ROOT ─── */
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --black:#0a0a0a;--dark:#111;--card:#1a1a1a;--card2:#222;
+  --red:#c0392b;--red2:#e74c3c;--gold:#d4a017;--wa:#25D366;
+  --blue:#3498db;--green:#27ae60;
+  --text:#f0f0f0;--muted:#888;--border:#2a2a2a;
+  --radius:12px;--font:'DM Sans',sans-serif;--head:'Bebas Neue',sans-serif;
+}
+html,body{height:100%;background:var(--black);color:var(--text);font-family:var(--font);overscroll-behavior:none}
+body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
+
+/* ─── TOPBAR ─── */
+.topbar{width:100%;max-width:480px;background:var(--dark);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:14px 20px;position:sticky;top:0;z-index:100}
+.logo{font-family:var(--head);font-size:22px;letter-spacing:2px}
+.logo span{color:var(--red2)}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.notif-btn{position:relative;background:none;border:none;cursor:pointer;color:var(--muted);font-size:20px;padding:4px}
+.notif-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;background:var(--red2);border-radius:50%}
+.top-avatar{width:34px;height:34px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;cursor:pointer;border:none}
+
+/* ─── NAV ─── */
+.nav{display:flex;width:100%;max-width:480px;background:var(--dark);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:53px;z-index:99}
+.nav::-webkit-scrollbar{display:none}
+.nav-btn{flex:1;min-width:58px;padding:9px 2px;background:none;border:none;color:var(--muted);font-family:var(--font);font-size:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.nav-btn i{font-size:17px}
+.nav-btn.active{color:var(--red2);border-bottom-color:var(--red2)}
+
+/* ─── SCREENS ─── */
+.screen{display:none;width:100%;max-width:480px;padding:16px;animation:fadeIn .15s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── SHARED COMPONENTS ─── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.sl{font-size:11px;font-weight:600;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin:16px 0 8px}
+.mr{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+.mr:last-child{border-bottom:none}
+.back-btn{display:flex;align-items:center;gap:8px;background:none;border:none;color:var(--muted);font-size:14px;cursor:pointer;padding:0;margin-bottom:16px;font-family:var(--font)}
+.back-btn:hover{color:var(--text)}
+.badge-red{display:inline-block;background:rgba(192,57,43,0.2);color:var(--red2);border:1px solid rgba(231,76,60,0.3);border-radius:6px;padding:3px 10px;font-size:11px;font-weight:600;letter-spacing:1px}
+.badge-green{display:inline-flex;align-items:center;gap:5px;background:rgba(26,107,42,0.12);border:1px solid rgba(76,175,80,0.2);border-radius:20px;padding:3px 9px;font-size:11px;color:#4caf50;font-weight:600}
+.badge-staff{font-size:11px;background:rgba(192,57,43,0.2);color:var(--red2);padding:3px 10px;border-radius:20px;font-weight:600}
+
+/* ─── HERO ─── */
+.hero{background:linear-gradient(135deg,var(--dark) 0%,#1a0505 100%);border:1px solid #3a1010;border-radius:var(--radius);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.hero::before{content:'IMPERIUM';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-family:var(--head);font-size:80px;color:rgba(192,57,43,0.06);letter-spacing:4px;pointer-events:none}
+.hero h2{font-family:var(--head);font-size:26px;letter-spacing:2px;margin-bottom:4px}
+.hero p{color:var(--muted);font-size:13px}
+
+/* ─── TIMETABLE ─── */
+.tt-day-tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none}
+.tt-day-tabs::-webkit-scrollbar{display:none}
+.tt-day{flex-shrink:0;padding:6px 12px;background:var(--card2);border:1px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;color:var(--muted);transition:all .15s}
+.tt-day.active{background:rgba(192,57,43,0.15);border-color:rgba(231,76,60,0.3);color:var(--red2);font-weight:600}
+.tt-class{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card2);border-radius:8px;margin-bottom:8px;border-left:3px solid var(--red2)}
+.tt-class.bjj{border-left-color:var(--blue)}
+.tt-class.muay{border-left-color:var(--red2)}
+.tt-class.kids{border-left-color:var(--green)}
+.tt-time-col{min-width:58px}
+.tt-time{font-family:var(--head);font-size:15px;letter-spacing:.5px}
+.tt-dur{font-size:11px;color:var(--muted)}
+.tt-info{flex:1}
+.tt-name{font-weight:600;font-size:13px}
+.tt-coach{font-size:11px;color:var(--muted);margin-top:2px}
+.tt-book-btn{padding:6px 12px;border:1px solid var(--border);border-radius:6px;background:none;color:var(--muted);font-size:11px;cursor:pointer;font-weight:600;font-family:var(--font);transition:all .15s}
+.tt-book-btn:hover{background:var(--red);border-color:var(--red);color:#fff}
+
+/* ─── CLASS ITEMS ─── */
+.class-item{display:flex;align-items:center;gap:12px;padding:12px;background:var(--card2);border-radius:8px;margin-bottom:8px;cursor:pointer;border:1px solid var(--border);transition:background .15s}
+.class-item:hover{background:#2a2a2a}
+.class-time{font-family:var(--head);font-size:18px;min-width:60px;color:var(--red2)}
+.class-info{flex:1}
+.class-name{font-weight:600;font-size:14px}
+.class-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.spots{font-size:12px;font-weight:600;padding:3px 8px;border-radius:20px}
+.spots-ok{background:rgba(26,107,42,0.25);color:#4caf50}
+.spots-few{background:rgba(212,160,23,0.2);color:var(--gold)}
+.spots-full{background:rgba(192,57,43,0.2);color:var(--red2)}
+.booked-pill{background:rgba(26,107,42,0.25);color:#4caf50;font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600}
+
+/* ─── CHECK IN ─── */
+.checkin-big{width:100%;padding:20px;background:var(--red);border:none;border-radius:var(--radius);font-family:var(--head);font-size:28px;letter-spacing:3px;color:#fff;cursor:pointer;transition:background .15s;margin-bottom:16px}
+.checkin-big:hover{background:var(--red2)}
+.checkin-big.done{background:#1a6b2a}
+
+/* ─── PASSES ─── */
+.pass-tabs{display:flex;gap:6px;margin-bottom:14px}
+.pass-tab{flex:1;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;font-weight:600;text-align:center;transition:all .15s}
+.pass-tab.active{background:rgba(192,57,43,0.15);border-color:rgba(231,76,60,0.3);color:var(--red2)}
+.pass-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;margin-bottom:10px}
+.pass-card:hover{border-color:#555}
+.pass-card.selected{border-color:var(--red2);background:rgba(192,57,43,0.08)}
+.pass-card.popular::after{content:'POPULAR';position:absolute;top:10px;right:-18px;background:var(--gold);color:#000;font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 26px;transform:rotate(35deg)}
+.pass-row{display:flex;align-items:center;gap:12px}
+.pass-icon-wrap{width:44px;height:44px;border-radius:8px;background:rgba(212,160,23,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pass-name{font-family:var(--head);font-size:17px;letter-spacing:1px}
+.pass-detail{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+.checkout-bar{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;align-items:center;justify-content:space-between;margin-top:4px;display:none}
+.btn-buy{padding:11px 22px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:var(--head);font-size:16px;letter-spacing:1px;cursor:pointer;transition:background .15s}
+.btn-buy:hover{background:var(--red2)}
+
+/* ─── WAIVERS ─── */
+.waiver-item{display:flex;align-items:center;gap:14px;padding:14px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;transition:all .15s}
+.waiver-item:hover{border-color:#555}
+.waiver-item.done{border-color:rgba(76,175,80,0.3);background:rgba(26,107,42,0.05)}
+.waiver-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px}
+.wi-pending{background:rgba(212,160,23,0.15);color:var(--gold)}
+.wi-done{background:rgba(26,107,42,0.15);color:#4caf50}
+.wi-ext{background:rgba(52,152,219,0.15);color:var(--blue)}
+.waiver-info{flex:1}
+.waiver-title{font-weight:600;font-size:14px;margin-bottom:3px}
+.waiver-desc{font-size:12px;color:var(--muted);line-height:1.4}
+.ws{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap}
+.ws-done{background:rgba(26,107,42,0.2);color:#4caf50}
+.ws-req{background:rgba(212,160,23,0.15);color:var(--gold)}
+.ws-ext{background:rgba(52,152,219,0.15);color:var(--blue)}
+.wform label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px;margin-top:14px}
+.wform input,.wform select,.wform textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none}
+.wform input:focus,.wform select:focus,.wform textarea:focus{border-color:#555}
+.wform textarea{resize:vertical;min-height:72px}
+.wform select option{background:var(--card)}
+.waiver-text-box{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px;margin-top:12px;font-size:12px;color:var(--muted);line-height:1.7;max-height:110px;overflow-y:auto}
+.check-row{display:flex;align-items:flex-start;gap:10px;margin-top:12px}
+.check-row input[type=checkbox]{width:17px;height:17px;accent-color:var(--red2);margin-top:2px;flex-shrink:0}
+.check-row span{font-size:12px;color:var(--muted);line-height:1.5}
+.btn-submit{width:100%;margin-top:14px;padding:13px;background:var(--red);border:none;border-radius:var(--radius);color:#fff;font-family:var(--head);font-size:19px;letter-spacing:2px;cursor:pointer;transition:background .15s}
+.btn-submit:hover{background:var(--red2)}
+
+/* ─── ADMIN WAIVER PANEL ─── */
+.admin-waiver-item{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.admin-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.admin-row input[type=text]{flex:1;background:#2a2a2a;border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none}
+.admin-row input[type=text]:focus{border-color:#555}
+.tag{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600}
+.tag-ext{background:rgba(52,152,219,0.15);color:var(--blue)}
+.tag-form{background:rgba(192,57,43,0.15);color:var(--red2)}
+.tag-req{background:rgba(212,160,23,0.15);color:var(--gold)}
+.add-waiver-btn{width:100%;padding:12px;background:none;border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted);font-family:var(--font);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;margin-bottom:12px}
+.add-waiver-btn:hover{border-color:#555;color:var(--text)}
+
+/* ─── MINI TOGGLE ─── */
+.mtoggle{position:relative;display:inline-block;width:32px;height:18px;cursor:pointer}
+.mtoggle input{opacity:0;width:0;height:0}
+.mtrack{position:absolute;inset:0;border-radius:18px;transition:.2s}
+.mthumb{position:absolute;height:12px;width:12px;top:3px;border-radius:50%;background:white;transition:.2s;pointer-events:none}
+.mtoggle input:checked+.mtrack{background:#4caf50}
+.mtoggle input:not(:checked)+.mtrack{background:#444}
+.mtoggle input:checked~.mthumb{left:17px}
+.mtoggle input:not(:checked)~.mthumb{left:3px}
+
+/* ─── MESSAGES ─── */
+.msg-tabs{display:flex;gap:6px;margin-bottom:14px}
+.msg-tab{flex:1;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;font-weight:600;text-align:center;transition:all .15s}
+.msg-tab.active{background:rgba(192,57,43,0.15);border-color:rgba(231,76,60,0.3);color:var(--red2)}
+.chat-msgs{background:var(--card2);border-radius:var(--radius);border:1px solid var(--border);padding:12px;min-height:200px;max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.msg{max-width:80%;padding:8px 12px;border-radius:12px;font-size:13px;line-height:1.5}
+.msg.recv{background:#2a2a2a;align-self:flex-start;border-bottom-left-radius:4px}
+.msg.sent{background:var(--red);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.msg-time{font-size:10px;opacity:.6;margin-top:3px}
+.chat-row{display:flex;gap:8px}
+.chat-row input{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none}
+.chat-row input:focus{border-color:#555}
+.send-btn{background:var(--red);border:none;border-radius:8px;padding:0 14px;color:#fff;font-size:17px;cursor:pointer;transition:background .15s}
+.send-btn:hover{background:var(--red2)}
+.bcast-label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px;margin-top:14px}
+.bcast-input{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;margin-bottom:0}
+.bcast-input:focus{border-color:#555}
+.ch-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.ch{display:flex;align-items:center;gap:6px;padding:7px 12px;background:var(--card2);border:1px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;font-weight:600;color:var(--muted);transition:all .15s;user-select:none}
+.ch.on.push{border-color:var(--blue);background:rgba(52,152,219,0.1);color:var(--blue)}
+.ch.on.sms{border-color:var(--gold);background:rgba(212,160,23,0.1);color:var(--gold)}
+.ch.on.email{border-color:var(--red2);background:rgba(231,76,60,0.1);color:var(--red2)}
+
+/* ─── WHATSAPP ─── */
+.wa-card{background:linear-gradient(135deg,#0a1f0e 0%,#0d2b12 100%);border:1px solid rgba(37,211,102,0.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:border-color .15s}
+.wa-card:hover{border-color:rgba(37,211,102,0.45)}
+.wa-icon{width:42px;height:42px;border-radius:50%;background:var(--wa);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wa-info{flex:1}
+.wa-name{font-weight:600;font-size:14px;margin-bottom:2px}
+.wa-desc{font-size:12px;color:var(--muted)}
+.wa-join{font-size:12px;font-weight:600;color:var(--wa);padding:6px 14px;border:1px solid rgba(37,211,102,0.3);border-radius:20px;background:rgba(37,211,102,0.08);white-space:nowrap}
+
+/* ─── COACHES ─── */
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-card{background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.stat-num{font-family:var(--head);font-size:28px;color:var(--red2)}
+.stat-label{font-size:11px;color:var(--muted);margin-top:2px}
+.trial-item{display:flex;align-items:center;gap:10px;padding:10px;background:var(--card2);border-radius:8px;border:1px solid rgba(212,160,23,0.2);margin-bottom:8px}
+.trial-avatar{width:36px;height:36px;border-radius:50%;background:rgba(212,160,23,0.2);color:var(--gold);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:13px}
+.trial-info{flex:1}
+.trial-name{font-weight:600;font-size:13px}
+.trial-meta{font-size:11px;color:var(--muted)}
+.trial-badge{font-size:11px;padding:3px 8px;border-radius:20px;background:rgba(212,160,23,0.15);color:var(--gold);font-weight:600}
+.ctab-row{display:flex;gap:6px;margin-bottom:12px}
+.ctab{flex:1;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;font-weight:500;font-family:var(--font);transition:all .15s}
+.ctab.active{background:rgba(192,57,43,0.15);border-color:rgba(231,76,60,0.3);color:var(--red2)}
+
+/* ─── NOTIF PANEL ─── */
+.notif-panel{position:fixed;top:0;right:0;width:290px;height:100%;background:var(--dark);border-left:1px solid var(--border);z-index:200;transform:translateX(100%);transition:transform .3s;padding:16px;overflow-y:auto}
+.notif-panel.open{transform:translateX(0)}
+.np-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.close-btn{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer}
+.notif-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.ni{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ni-r{background:rgba(192,57,43,0.2);color:var(--red2)}
+.ni-g{background:rgba(26,107,42,0.2);color:#4caf50}
+.ni-o{background:rgba(212,160,23,0.15);color:var(--gold)}
+.ni-b{background:rgba(52,152,219,0.15);color:var(--blue)}
+.nt{font-size:13px;line-height:1.5}
+.nt b{font-weight:600}
+.nt p{color:var(--muted);font-size:11px;margin-top:2px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:150;display:none}
+.overlay.open{display:block}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:12px 20px;font-size:14px;z-index:300;transition:transform .25s;white-space:nowrap;max-width:90vw;text-align:center;pointer-events:none;opacity:0}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.success{border-color:#4caf50;color:#4caf50}
+.toast.info{border-color:var(--blue);color:var(--blue)}
+.toast.warn{border-color:var(--gold);color:var(--gold)}
+
+/* ─── INFO BOX ─── */
+.info-box{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:12px;color:var(--muted);line-height:1.6;margin-top:12px}
+</style>
+</head>
+<body>
+
+<!-- ── OVERLAY ── -->
+<div class="overlay" id="overlay" onclick="closeNotif()"></div>
+
+<!-- ── NOTIFICATION PANEL ── -->
+<div class="notif-panel" id="notifPanel">
+  <div class="np-header">
+    <span style="font-family:var(--head);letter-spacing:1px;font-size:18px">NOTIFICATIONS</span>
+    <button class="close-btn" onclick="closeNotif()"><i class="ti ti-x"></i></button>
+  </div>
+  <div class="notif-item"><div class="ni ni-r"><i class="ti ti-bell"></i></div><div class="nt"><b>Class Reminder</b> — BJJ Fundamentals in 1 hour<p>Today, 5:28 PM</p></div></div>
+  <div class="notif-item"><div class="ni ni-g"><i class="ti ti-check"></i></div><div class="nt"><b>Booking confirmed</b> — BJJ Fundamentals 6:30 PM<p>Today, 2:10 PM</p></div></div>
+  <div class="notif-item"><div class="ni ni-o"><i class="ti ti-users"></i></div><div class="nt"><b>Class almost full</b> — No-Gi Sat has 2 spots left<p>Today, 9:14 AM</p></div></div>
+  <div class="notif-item"><div class="ni ni-b"><i class="ti ti-speakerphone"></i></div><div class="nt"><b>From Imperium</b> — Grading night this Friday 7 PM!<p>Yesterday, 10:00 AM</p></div></div>
+  <div class="notif-item"><div class="ni ni-g"><i class="ti ti-file-check"></i></div><div class="nt"><b>Waiver signed</b> — General Membership Waiver stored<p>3 days ago</p></div></div>
+</div>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div class="logo">IMPERIUM <span>MMA</span></div>
+  <div class="topbar-right">
+    <button class="notif-btn" onclick="openNotif()"><i class="ti ti-bell"></i><div class="notif-dot"></div></button>
+    <button class="top-avatar" id="topAvatar" onclick="switchScreen('profile')">JD</button>
+  </div>
+</div>
+
+<!-- ── BOTTOM NAV ── -->
+<nav class="nav">
+  <button class="nav-btn active" onclick="switchScreen('home')" id="nav-home"><i class="ti ti-home"></i>Home</button>
+  <button class="nav-btn" onclick="switchScreen('timetable')" id="nav-timetable"><i class="ti ti-calendar"></i>Timetable</button>
+  <button class="nav-btn" onclick="switchScreen('checkin')" id="nav-checkin"><i class="ti ti-scan"></i>Check In</button>
+  <button class="nav-btn" onclick="switchScreen('passes')" id="nav-passes"><i class="ti ti-ticket"></i>Passes</button>
+  <button class="nav-btn" onclick="switchScreen('waiver')" id="nav-waiver"><i class="ti ti-file-text"></i>Waivers</button>
+  <button class="nav-btn" onclick="switchScreen('messages')" id="nav-messages"><i class="ti ti-message-circle"></i>Messages</button>
+  <button class="nav-btn" onclick="switchScreen('community')" id="nav-community"><i class="ti ti-brand-whatsapp"></i>Community</button>
+  <button class="nav-btn" onclick="switchScreen('coaches')" id="nav-coaches"><i class="ti ti-shield"></i>Coaches</button>
+</nav>
+
+<!-- ════════════════════════════════════
+     SCREEN: HOME
+════════════════════════════════════ -->
+<div class="screen active" id="screen-home">
+  <div class="hero">
+    <div class="badge-red" style="margin-bottom:10px">ACTIVE MEMBER</div>
+    <h2 id="heroGreeting">WELCOME BACK,<br>JAKE</h2>
+    <p id="heroSub">Mordialloc · BJJ Blue Belt · Member since 2022</p>
+  </div>
+
+  <div class="sl">Next Class</div>
+  <div class="class-item" onclick="switchScreen('checkin')">
+    <div class="class-time">6:30</div>
+    <div class="class-info"><div class="class-name">BJJ Fundamentals</div><div class="class-meta">Tonight · Coach Marcus · Gi</div></div>
+    <span class="booked-pill">Booked</span>
+  </div>
+
+  <div class="sl">Quick Actions</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div class="card" style="cursor:pointer;text-align:center;padding:16px 12px" onclick="switchScreen('checkin')">
+      <i class="ti ti-scan" style="font-size:26px;color:var(--red2)"></i>
+      <div style="margin-top:8px;font-size:13px;font-weight:600">Check In</div>
+    </div>
+    <div class="card" style="cursor:pointer;text-align:center;padding:16px 12px" onclick="switchScreen('passes')">
+      <i class="ti ti-ticket" style="font-size:26px;color:var(--gold)"></i>
+      <div style="margin-top:8px;font-size:13px;font-weight:600">Buy Passes</div>
+    </div>
+    <div class="card" style="cursor:pointer;text-align:center;padding:16px 12px" onclick="switchScreen('messages')">
+      <i class="ti ti-message-circle" style="font-size:26px;color:#4caf50"></i>
+      <div style="margin-top:8px;font-size:13px;font-weight:600">Message Reception</div>
+    </div>
+    <div class="card" style="cursor:pointer;text-align:center;padding:16px 12px" onclick="switchScreen('community')">
+      <i class="ti ti-brand-whatsapp" style="font-size:26px;color:var(--wa)"></i>
+      <div style="margin-top:8px;font-size:13px;font-weight:600">WhatsApp Groups</div>
+    </div>
+  </div>
+
+  <div class="sl">Your Account</div>
+  <div class="card">
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50">Unlimited · Active</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600;color:var(--red2)">7 remaining</span></div>
+    <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">Classes This Month</span><span style="font-size:13px;font-weight:600">11</span></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: TIMETABLE
+════════════════════════════════════ -->
+<div class="screen" id="screen-timetable">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">LIVE TIMETABLE</h2>
+    <div class="badge-green"><span style="width:6px;height:6px;background:#4caf50;border-radius:50%;display:inline-block"></span>LIVE</div>
+  </div>
+  <div class="tt-day-tabs">
+    <div class="tt-day active" onclick="setDay(this,'Mon')">Mon</div>
+    <div class="tt-day" onclick="setDay(this,'Tue')">Tue</div>
+    <div class="tt-day" onclick="setDay(this,'Wed')">Wed</div>
+    <div class="tt-day" onclick="setDay(this,'Thu')">Thu</div>
+    <div class="tt-day" onclick="setDay(this,'Fri')">Fri</div>
+    <div class="tt-day" onclick="setDay(this,'Sat')">Sat</div>
+    <div class="tt-day" onclick="setDay(this,'Sun')">Sun</div>
+  </div>
+  <div id="ttClasses"></div>
+  <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Timetable connects to your live Clubworx schedule once the backend is set up.</div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: CHECK IN
+════════════════════════════════════ -->
+<div class="screen" id="screen-checkin">
+  <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:16px">CLASS CHECK-IN</h2>
+  <div class="card" style="margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <div style="width:44px;height:44px;border-radius:8px;background:rgba(192,57,43,0.2);display:flex;align-items:center;justify-content:center"><i class="ti ti-clock" style="font-size:22px;color:var(--red2)"></i></div>
+      <div><div style="font-weight:600;font-size:15px">BJJ Fundamentals</div><div style="font-size:12px;color:var(--muted)">Tonight 6:30 PM · Coach Marcus · 12/20 booked</div></div>
+    </div>
+  </div>
+  <button class="checkin-big" id="checkinBtn" onclick="doCheckin()">CHECK IN NOW</button>
+  <div class="sl">Upcoming — tap to book</div>
+  <div class="class-item" onclick="bookClass(this,'BJJ No-Gi')"><div class="class-time">7:30</div><div class="class-info"><div class="class-name">BJJ No-Gi</div><div class="class-meta">Tonight · Coach Marcus</div></div><span class="spots spots-ok">8 left</span></div>
+  <div class="class-item" onclick="bookClass(this,'Muay Thai')"><div class="class-time">5:30</div><div class="class-info"><div class="class-name">Muay Thai</div><div class="class-meta">Tonight · Coach Sam</div></div><span class="spots spots-few">3 left</span></div>
+  <div class="class-item"><div class="class-time">9:00</div><div class="class-info"><div class="class-name">Kids BJJ</div><div class="class-meta">Sat Morning · Coach Emma</div></div><span class="spots spots-full">Full</span></div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: PASSES
+════════════════════════════════════ -->
+<div class="screen" id="screen-passes">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">CLASS PASSES</h2>
+    <div class="badge-green"><i class="ti ti-link" style="font-size:11px"></i>Clubworx</div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Prices pulled live from your Clubworx membership plans</p>
+  <div class="pass-tabs">
+    <button class="pass-tab active" onclick="setPassType(this,'adult')">Adult</button>
+    <button class="pass-tab" onclick="setPassType(this,'kids')">Kids</button>
+    <button class="pass-tab" onclick="setPassType(this,'casual')">Casual</button>
+  </div>
+  <div id="passCards"></div>
+  <div class="checkout-bar" id="checkoutBar">
+    <div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">SELECTED</div><div id="checkoutLabel" style="font-size:13px;font-weight:600"></div></div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-family:var(--head);font-size:20px;color:var(--red2)" id="checkoutPrice"></span>
+      <button class="btn-buy" onclick="buyPass()">BUY NOW</button>
+    </div>
+  </div>
+  <div class="sl">Payment via Clubworx</div>
+  <div class="card" style="padding:12px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><i class="ti ti-credit-card" style="font-size:18px;color:var(--muted)"></i><span style="font-size:13px;font-weight:600">Saved Card</span><span style="margin-left:auto;font-size:13px;color:var(--muted)">Visa •••• 4242</span></div>
+    <div style="font-size:11px;color:var(--muted)">Processed securely via Clubworx / Ezidebit. Credits activate instantly.</div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: WAIVERS (LIST)
+════════════════════════════════════ -->
+<div class="screen" id="screen-waiver">
+  <div id="waiverListView">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">WAIVERS</h2>
+      <button style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font)" onclick="switchScreen('admin-waivers')"><i class="ti ti-settings" style="font-size:14px"></i>Admin</button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Complete any required forms. Stored in your Clubworx member record.</p>
+    <div id="waiverListItems"></div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: WAIVER FORM
+════════════════════════════════════ -->
+<div class="screen" id="screen-waiver-form">
+  <button class="back-btn" onclick="switchScreen('waiver')"><i class="ti ti-arrow-left"></i> Back to Waivers</button>
+  <div id="waiverFormContent"></div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: ADMIN WAIVERS
+════════════════════════════════════ -->
+<div class="screen" id="screen-admin-waivers">
+  <button class="back-btn" onclick="switchScreen('waiver')"><i class="ti ti-arrow-left"></i> Back to Waivers</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MANAGE WAIVERS</h2>
+    <span class="badge-staff">ADMIN</span>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Add, edit or hide waivers without touching the app code. Changes go live instantly.</p>
+  <div id="adminWaiverList"></div>
+  <button class="add-waiver-btn" onclick="addWaiver()"><i class="ti ti-plus"></i> Add New Waiver</button>
+  <div class="info-box">
+    <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)">How this works</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.8">
+      <div><i class="ti ti-forms" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> <b style="color:var(--text)">In-app form</b> — built into the app, signed &amp; stored in Clubworx</div>
+      <div style="margin-top:4px"><i class="ti ti-external-link" style="font-size:13px;vertical-align:-1px;color:var(--gold)"></i> <b style="color:var(--text)">External link</b> — paste any URL (Clubworx form, Google Form, DocuSign)</div>
+      <div style="margin-top:4px"><i class="ti ti-eye-off" style="font-size:13px;vertical-align:-1px;color:var(--muted)"></i> <b style="color:var(--text)">Toggle off</b> — hides waiver without deleting it</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: MESSAGES
+════════════════════════════════════ -->
+<div class="screen" id="screen-messages">
+  <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:12px">MESSAGES</h2>
+  <div class="msg-tabs">
+    <button class="msg-tab active" onclick="setMsgTab(this,'reception')">Reception Chat</button>
+    <button class="msg-tab" onclick="setMsgTab(this,'broadcast')">Broadcast <span style="font-size:9px;background:rgba(192,57,43,0.3);color:var(--red2);padding:1px 5px;border-radius:4px;margin-left:3px">STAFF</span></button>
+  </div>
+
+  <div id="msgReception">
+    <div class="card" style="padding:12px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <div style="width:34px;height:34px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">IM</div>
+        <div>
+          <div style="font-weight:600;font-size:13px">Imperium Reception</div>
+          <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="width:6px;height:6px;border-radius:50%;background:#4caf50;display:inline-block"></span>Online now</div>
+        </div>
+      </div>
+      <div class="chat-msgs" id="receptionMsgs">
+        <div class="msg recv">Hey! How can we help you today?<div class="msg-time">9:00 AM</div></div>
+        <div class="msg sent">Hi — can I bring a friend to try a class?<div class="msg-time">9:04 AM</div></div>
+        <div class="msg recv">Absolutely! They can book 2 free trial classes at imperiummma.com.au<div class="msg-time">9:06 AM</div></div>
+      </div>
+      <div class="chat-row">
+        <input type="text" id="receptionInput" placeholder="Message reception..." onkeydown="if(event.key==='Enter')sendReception()">
+        <button class="send-btn" onclick="sendReception()"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="msgBroadcast" style="display:none">
+    <div class="card" style="padding:14px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <i class="ti ti-speakerphone" style="font-size:20px;color:var(--red2)"></i>
+        <div><div style="font-family:var(--head);font-size:16px;letter-spacing:1px">BROADCAST TO MEMBERS</div><div style="font-size:11px;color:var(--muted)">Push to all or selected members</div></div>
+      </div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:5px">Send via</div>
+      <div class="ch-row">
+        <div class="ch push on" onclick="this.classList.toggle('on')"><i class="ti ti-device-mobile" style="font-size:13px"></i>Push</div>
+        <div class="ch sms" onclick="this.classList.toggle('on')"><i class="ti ti-message" style="font-size:13px"></i>SMS</div>
+        <div class="ch email" onclick="this.classList.toggle('on')"><i class="ti ti-mail" style="font-size:13px"></i>Email</div>
+      </div>
+      <label class="bcast-label">Audience</label>
+      <select class="bcast-input" id="bcastAudience" onchange="updateCount()" style="margin-bottom:0">
+        <option value="87">All Active Members (87)</option>
+        <option value="43">BJJ Members Only (43)</option>
+        <option value="31">Muay Thai Members Only (31)</option>
+        <option value="28">Kids BJJ Members (28)</option>
+        <option value="19">Kids Muay Thai Members (19)</option>
+        <option value="12">Class Pass Holders (12)</option>
+        <option value="8">Trial Members (8)</option>
+        <option value="14">Lapsed Members (14)</option>
+      </select>
+      <label class="bcast-label">Title</label>
+      <input class="bcast-input" type="text" id="bcastTitle" placeholder="e.g. Grading Night — This Friday!">
+      <label class="bcast-label">Message</label>
+      <textarea class="bcast-input" id="bcastMsg" style="resize:vertical;min-height:90px;margin-bottom:0" placeholder="Type your message..."></textarea>
+      <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
+        <span style="font-size:12px;color:var(--muted)"><i class="ti ti-users" style="font-size:13px;vertical-align:-1px"></i> <span id="bcastCount">87 members</span></span>
+        <button style="padding:10px 22px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:var(--head);font-size:15px;letter-spacing:1px;cursor:pointer;transition:background .15s" onclick="sendBroadcast()" onmouseover="this.style.background='var(--red2)'" onmouseout="this.style.background='var(--red)'">SEND NOW</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: COMMUNITY (WHATSAPP)
+     *** REPLACE THE href="#" LINKS BELOW
+         WITH YOUR REAL WHATSAPP INVITE LINKS ***
+════════════════════════════════════ -->
+<div class="screen" id="screen-community">
+  <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:4px">COMMUNITY</h2>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Join your training group on WhatsApp</p>
+
+  <div class="sl">Training Groups</div>
+  <!-- REPLACE href="#" WITH YOUR REAL WHATSAPP INVITE LINK -->
+  <div class="wa-card" onclick="window.open('https://chat.whatsapp.com/REPLACE_MUAY_THAI_LINK','_blank')">
+    <div class="wa-icon"><i class="ti ti-brand-whatsapp" style="font-size:22px;color:#fff"></i></div>
+    <div class="wa-info"><div class="wa-name">Imperium Muay Thai</div><div class="wa-desc">All Muay Thai kickboxing members</div></div>
+    <div class="wa-join">Join</div>
+  </div>
+  <div class="wa-card" onclick="window.open('https://chat.whatsapp.com/REPLACE_BJJ_LINK','_blank')">
+    <div class="wa-icon"><i class="ti ti-brand-whatsapp" style="font-size:22px;color:#fff"></i></div>
+    <div class="wa-info"><div class="wa-name">Imperium Jiu-Jitsu</div><div class="wa-desc">All adult BJJ members</div></div>
+    <div class="wa-join">Join</div>
+  </div>
+
+  <div class="sl">Kids Programs</div>
+  <div class="wa-card" onclick="window.open('https://chat.whatsapp.com/REPLACE_MINIS_LINK','_blank')">
+    <div class="wa-icon" style="background:#27ae60"><i class="ti ti-brand-whatsapp" style="font-size:22px;color:#fff"></i></div>
+    <div class="wa-info"><div class="wa-name">Minis Team (BJJ)</div><div class="wa-desc">Parents & young BJJ students</div></div>
+    <div class="wa-join">Join</div>
+  </div>
+  <div class="wa-card" onclick="window.open('https://chat.whatsapp.com/REPLACE_TEENS_LINK','_blank')">
+    <div class="wa-icon" style="background:#2980b9"><i class="ti ti-brand-whatsapp" style="font-size:22px;color:#fff"></i></div>
+    <div class="wa-info"><div class="wa-name">TEENS (BJJ)</div><div class="wa-desc">Teen BJJ students & parents</div></div>
+    <div class="wa-join">Join</div>
+  </div>
+  <div class="wa-card" onclick="window.open('https://chat.whatsapp.com/REPLACE_STRIKERS_LINK','_blank')">
+    <div class="wa-icon" style="background:#c0392b"><i class="ti ti-brand-whatsapp" style="font-size:22px;color:#fff"></i></div>
+    <div class="wa-info"><div class="wa-name">STRIKERS</div><div class="wa-desc">Kids Muay Thai · parents & students</div></div>
+    <div class="wa-join">Join</div>
+  </div>
+
+  <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Tapping Join opens WhatsApp on your device. To update links, open this HTML file in a text editor and replace the REPLACE_..._LINK placeholders.</div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: COACHES HUB
+════════════════════════════════════ -->
+<div class="screen" id="screen-coaches">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">COACHES HUB</h2>
+    <span class="badge-staff">STAFF ONLY</span>
+  </div>
+  <div class="stat-row">
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Trials Today</div></div>
+    <div class="stat-card"><div class="stat-num">14</div><div class="stat-label">Next Class</div></div>
+    <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Classes Left</div></div>
+  </div>
+  <div class="sl">Today's Trials</div>
+  <div class="trial-item"><div class="trial-avatar">LS</div><div class="trial-info"><div class="trial-name">Liam Santos</div><div class="trial-meta">BJJ Fundamentals · 6:30 PM · Adult</div></div><span class="trial-badge">Trial 1</span></div>
+  <div class="trial-item"><div class="trial-avatar">MR</div><div class="trial-info"><div class="trial-name">Maya Rodriguez</div><div class="trial-meta">Muay Thai · 7:30 PM · Adult</div></div><span class="trial-badge">Trial 2</span></div>
+  <div class="trial-item"><div class="trial-avatar">TK</div><div class="trial-info"><div class="trial-name">Tom Kerr</div><div class="trial-meta">Kids BJJ · Sat 9:00 AM · Age 8</div></div><span class="trial-badge">Trial 1</span></div>
+  <div class="sl">Internal Coach Chat</div>
+  <div class="ctab-row">
+    <button class="ctab active" onclick="setCtab(this)">All Coaches</button>
+    <button class="ctab" onclick="setCtab(this)">BJJ Team</button>
+    <button class="ctab" onclick="setCtab(this)">Muay Thai</button>
+  </div>
+  <div class="card" style="padding:12px">
+    <div class="chat-msgs" id="coachMsgs" style="min-height:130px;max-height:180px">
+      <div class="msg recv"><b style="font-size:10px;opacity:.7">Coach Marcus</b><br>Mats need a clean before 6:30 tonight<div class="msg-time">4:15 PM</div></div>
+      <div class="msg sent">On it — there at 5:45<div class="msg-time">4:20 PM</div></div>
+      <div class="msg recv"><b style="font-size:10px;opacity:.7">Coach Sam</b><br>Trial student Liam needs loaner gi, size M<div class="msg-time">4:52 PM</div></div>
+    </div>
+    <div class="chat-row">
+      <input type="text" id="coachInput" placeholder="Message coaches..." onkeydown="if(event.key==='Enter')sendCoach()">
+      <button class="send-btn" onclick="sendCoach()"><i class="ti ti-send"></i></button>
+    </div>
+  </div>
+  <div class="sl">Class Attendance</div>
+  <div class="class-item"><div class="class-time" style="font-size:14px">6:30</div><div class="class-info"><div class="class-name">BJJ Fundamentals</div><div class="class-meta">Coach Marcus · Gi</div></div><div style="text-align:right"><div style="font-weight:600;font-size:14px">14<span style="color:var(--muted);font-weight:400">/20</span></div><div style="font-size:11px;color:var(--muted)">booked</div></div></div>
+  <div class="class-item"><div class="class-time" style="font-size:14px">7:30</div><div class="class-info"><div class="class-name">Muay Thai</div><div class="class-meta">Coach Sam</div></div><div style="text-align:right"><div style="font-weight:600;font-size:14px">8<span style="color:var(--muted);font-weight:400">/16</span></div><div style="font-size:11px;color:var(--muted)">booked</div></div></div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: PROFILE
+════════════════════════════════════ -->
+<div class="screen" id="screen-profile">
+  <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:16px">MY PROFILE</h2>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div style="width:56px;height:56px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:22px" id="profileAvatar">JD</div>
+      <div>
+        <div style="font-family:var(--head);font-size:20px;letter-spacing:1px" id="profileName">JAKE DAVIDSON</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px" id="profileMeta">IMP-0042 · Member since Jan 2022</div>
+      </div>
+    </div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50">Unlimited · Active</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Next Billing</span><span style="font-size:13px;font-weight:600">15 Jun 2026</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600;color:var(--red2)">7 remaining</span></div>
+    <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">General Waiver</span><span style="font-size:13px;font-weight:600;color:#4caf50">✓ Signed</span></div>
+  </div>
+  <div class="sl">Notifications</div>
+  <div class="card">
+    <div class="mr"><span style="font-size:13px">Class reminders</span><label class="mtoggle"><input type="checkbox" checked><span class="mtrack"></span><span class="mthumb"></span></label></div>
+    <div class="mr"><span style="font-size:13px">Booking confirmations</span><label class="mtoggle"><input type="checkbox" checked><span class="mtrack"></span><span class="mthumb"></span></label></div>
+    <div class="mr" style="border:none"><span style="font-size:13px">Gym announcements</span><label class="mtoggle"><input type="checkbox" checked><span class="mtrack"></span><span class="mthumb"></span></label></div>
+  </div>
+  <div class="sl">Demo — Switch Member View</div>
+  <div class="card" style="padding:12px">
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">In the live app, names are set automatically from Clubworx login.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="setMember('Jake Davidson','JD','BJJ Blue Belt')" style="padding:7px 14px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font)">Jake D</button>
+      <button onclick="setMember('Sarah Chen','SC','BJJ White Belt')" style="padding:7px 14px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font)">Sarah C</button>
+      <button onclick="setMember('Marcus Webb','MW','Coach · BJJ Black Belt')" style="padding:7px 14px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font)">Marcus W</button>
+      <button onclick="setMember('Tommy Park','TP','Muay Thai · Intermediate')" style="padding:7px 14px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font)">Tommy P</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ MEMBER STATE (Clubworx login populates these in production) ══
+let member = {name:'Jake Davidson',initials:'JD',belt:'BJJ Blue Belt',since:'Jan 2022',id:'IMP-0042'};
+
+function setMember(name,ini,belt){
+  member={name,initials:ini,belt,since:'Jan 2022',id:'IMP-0042'};
+  const first=name.split(' ')[0].toUpperCase();
+  document.getElementById('heroGreeting').innerHTML='WELCOME BACK,<br>'+first;
+  document.getElementById('heroSub').textContent='Mordialloc · '+belt+' · Member since 2022';
+  document.getElementById('topAvatar').textContent=ini;
+  document.getElementById('profileAvatar').textContent=ini;
+  document.getElementById('profileName').textContent=name.toUpperCase();
+  showToast('Switched to '+name,'info');
+}
+
+// ══ WAIVER CONFIG (edit via Admin panel — no code needed) ══
+let waivers = [
+  {id:'w1',title:'General Membership Waiver',desc:'Required for all new members. Covers participation risks, liability release & emergency contact.',type:'form',required:true,completed:true,visible:true},
+  {id:'w2',title:'Minor Consent Form',desc:'Required for members under 18. Must be signed by a parent or guardian.',type:'external',url:'https://YOUR-CLUBWORX-FORM-URL-HERE',required:false,completed:false,visible:true},
+  {id:'w3',title:'Suspension Request',desc:'Pause your membership for travel, injury or personal reasons.',type:'form',required:false,completed:false,visible:true},
+  {id:'w4',title:'Competition Consent Waiver',desc:'Required before entering any competition or grading event.',type:'external',url:'https://YOUR-COMP-WAIVER-URL-HERE',required:false,completed:false,visible:true},
+];
+
+function renderWaiverList(){
+  const vis=waivers.filter(w=>w.visible);
+  document.getElementById('waiverListItems').innerHTML=vis.map(w=>`
+    <div class="waiver-item${w.completed?' done':''}" onclick="openWaiver('${w.id}')">
+      <div class="waiver-icon ${w.completed?'wi-done':w.type==='external'?'wi-ext':'wi-pending'}">
+        <i class="ti ${w.completed?'ti-circle-check':w.type==='external'?'ti-external-link':'ti-file-text'}"></i>
+      </div>
+      <div class="waiver-info">
+        <div class="waiver-title">${w.title}${w.required&&!w.completed?' <span style="color:var(--red2);font-size:11px">● Required</span>':''}</div>
+        <div class="waiver-desc">${w.desc}</div>
+      </div>
+      <div class="ws ${w.completed?'ws-done':w.type==='external'?'ws-ext':'ws-req'}">${w.completed?'Signed':w.type==='external'?'Open':'Start'}</div>
+    </div>`).join('');
+}
+
+function openWaiver(id){
+  const w=waivers.find(x=>x.id===id);
+  if(!w)return;
+  if(w.type==='external'){window.open(w.url,'_blank');return;}
+  let html='';
+  if(w.id==='w1'){
+    html=`<div class="card wform">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><i class="ti ti-file-certificate" style="font-size:18px;color:var(--gold)"></i><span style="font-family:var(--head);font-size:15px;letter-spacing:1px">GENERAL MEMBERSHIP WAIVER</span></div>
+      <label>Full Legal Name</label><input type="text" placeholder="Your full name">
+      <label>Date of Birth</label><input type="date">
+      <label>Emergency Contact Name</label><input type="text" placeholder="Emergency contact">
+      <label>Emergency Contact Phone</label><input type="tel" placeholder="04xx xxx xxx">
+      <label>Relationship</label><select><option>Partner</option><option>Parent</option><option>Sibling</option><option>Friend</option><option>Other</option></select>
+      <label>Medical Conditions / Injuries</label><textarea placeholder="Disclose any conditions — or type None"></textarea>
+      <div class="waiver-text-box">I acknowledge that participation in Brazilian Jiu-Jitsu, Muay Thai, and related activities at Imperium MMA involves physical contact and inherent risks of injury. I voluntarily assume all such risks. I confirm I am physically capable of participating and have disclosed all relevant medical conditions above. I agree to follow all gym rules and instructor directions at all times. I release Imperium MMA, its coaches, and staff from liability for injury or loss arising from my participation. I consent to emergency medical treatment if required. This waiver is governed by the laws of Victoria, Australia, and remains in effect for the duration of my membership.</div>
+      <div class="check-row"><input type="checkbox"><span>I have read and agree to the full waiver above.</span></div>
+      <div class="check-row"><input type="checkbox"><span>All information is accurate. I am 18+ or signing as parent/guardian of a minor.</span></div>
+      <div class="check-row"><input type="checkbox"><span>I consent to this waiver being stored in my Clubworx member record.</span></div>
+      <button class="btn-submit" onclick="submitWaiver('w1')">SIGN & SUBMIT</button>
+    </div>`;
+  } else if(w.id==='w3'){
+    html=`<div class="card wform">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><i class="ti ti-player-pause" style="font-size:18px;color:var(--red2)"></i><span style="font-family:var(--head);font-size:15px;letter-spacing:1px">SUSPENSION REQUEST</span></div>
+      <label>Full Name</label><input type="text" placeholder="Your name">
+      <label>Member ID</label><input type="text" placeholder="IMP-XXXX">
+      <label>Start Date</label><input type="date">
+      <label>End Date</label><input type="date">
+      <label>Reason</label><select><option>Travel</option><option>Injury / Medical</option><option>Work Commitments</option><option>Personal Reasons</option><option>Other</option></select>
+      <label>Details</label><textarea placeholder="Any extra context for the team..."></textarea>
+      <div class="check-row"><input type="checkbox"><span>I understand my membership resumes automatically on the end date, subject to staff approval.</span></div>
+      <button class="btn-submit" onclick="submitWaiver('w3')">SUBMIT REQUEST</button>
+    </div>`;
+  }
+  document.getElementById('waiverFormContent').innerHTML=`<h2 style="font-family:var(--head);letter-spacing:2px;font-size:18px;margin-bottom:16px">${w.title.toUpperCase()}</h2>${html}`;
+  switchScreen('waiver-form');
+}
+
+function submitWaiver(id){
+  const w=waivers.find(x=>x.id===id);
+  if(w)w.completed=true;
+  showToast('Waiver signed & saved ✓','success');
+  setTimeout(()=>switchScreen('waiver'),1600);
+}
+
+function renderAdminWaivers(){
+  document.getElementById('adminWaiverList').innerHTML=waivers.map((w,i)=>`
+    <div class="admin-waiver-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span class="tag ${w.type==='external'?'tag-ext':'tag-form'}">${w.type==='external'?'External Link':'In-app Form'}</span>
+        ${w.required?'<span class="tag tag-req">Required</span>':''}
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--muted)">${w.visible?'Visible':'Hidden'}</span>
+          <label class="mtoggle"><input type="checkbox" ${w.visible?'checked':''} onchange="toggleWaiver(${i},this.checked)"><span class="mtrack"></span><span class="mthumb"></span></label>
+        </div>
+      </div>
+      <div class="admin-row"><input type="text" value="${w.title}" placeholder="Waiver name" onchange="waivers[${i}].title=this.value;renderWaiverList()"></div>
+      <div class="admin-row"><input type="text" value="${w.type==='external'?(w.url||''):(w.desc||'')}" placeholder="${w.type==='external'?'Paste URL here':'Short description'}" onchange="${w.type==='external'?`waivers[${i}].url=this.value`:`waivers[${i}].desc=this.value;renderWaiverList()`}"></div>
+    </div>`).join('');
+}
+
+function toggleWaiver(i,v){waivers[i].visible=v;renderWaiverList();renderAdminWaivers();showToast(v?'Waiver visible to members':'Waiver hidden','info');}
+function addWaiver(){waivers.push({id:'w'+Date.now(),title:'New Waiver',desc:'Description',type:'external',url:'',required:false,completed:false,visible:false});renderAdminWaivers();renderWaiverList();showToast('Waiver added — edit name & URL above','info');}
+
+// ══ PASSES ══
+const passData={
+  adult:[{id:'a10',name:'10 Class Pass',detail:'Adult · Valid 6 months · BJJ & Muay Thai',popular:true},{id:'acasual',name:'Casual Class',detail:'Adult · Single visit · Any class',popular:false}],
+  kids:[{id:'k10',name:'10 Class Pass',detail:'Kids · Valid 6 months · BJJ or Muay Thai',popular:true},{id:'kcasual',name:'Casual Class',detail:'Kids · Single visit',popular:false}],
+  casual:[{id:'ca',name:'Adult Casual',detail:'Single adult class',popular:false},{id:'ck',name:'Kids Casual',detail:'Single kids class',popular:false},{id:'cf',name:'Family Casual',detail:'2 adults + up to 3 kids',popular:true}]
+};
+let selPass=null,curPassType='adult';
+function setPassType(el,type){document.querySelectorAll('.pass-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');curPassType=type;selPass=null;document.getElementById('checkoutBar').style.display='none';renderPasses(type);}
+function renderPasses(type){document.getElementById('passCards').innerHTML=passData[type].map(p=>`<div class="pass-card${p.popular?' popular':''}" id="pc-${p.id}" onclick="selectPass('${p.id}')"><div class="pass-row"><div class="pass-icon-wrap"><i class="ti ti-ticket" style="font-size:22px;color:var(--gold)"></i></div><div style="flex:1"><div class="pass-name">${p.name}</div><div class="pass-detail">${p.detail}</div></div><div class="badge-green" style="font-size:10px"><i class="ti ti-refresh" style="font-size:10px"></i>Live Price</div></div></div>`).join('');}
+function selectPass(id){const all=[...passData.adult,...passData.kids,...passData.casual];selPass=all.find(p=>p.id===id);document.querySelectorAll('.pass-card').forEach(c=>c.classList.remove('selected'));document.getElementById('pc-'+id).classList.add('selected');const bar=document.getElementById('checkoutBar');bar.style.display='flex';document.getElementById('checkoutLabel').textContent=selPass.name;document.getElementById('checkoutPrice').textContent='From Clubworx';}
+function buyPass(){showToast('Opening Clubworx checkout...','info');setTimeout(()=>showToast('Pass activated — credits added ✓','success'),2200);}
+
+// ══ TIMETABLE ══
+const ttData={
+  Mon:[{time:'6:00 AM',dur:'60min',name:'BJJ Fundamentals',coach:'Coach Marcus',type:'bjj',spots:6},{time:'9:30 AM',dur:'60min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:4},{time:'6:30 PM',dur:'75min',name:'BJJ Fundamentals',coach:'Coach Marcus',type:'bjj',spots:2},{time:'7:30 PM',dur:'60min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:8}],
+  Tue:[{time:'6:00 AM',dur:'60min',name:'No-Gi BJJ',coach:'Coach Marcus',type:'bjj',spots:10},{time:'6:30 PM',dur:'75min',name:'Kids BJJ',coach:'Coach Emma',type:'kids',spots:5},{time:'7:30 PM',dur:'60min',name:'Muay Thai Adv',coach:'Coach Sam',type:'muay',spots:3}],
+  Wed:[{time:'6:00 AM',dur:'60min',name:'BJJ Fundamentals',coach:'Coach Marcus',type:'bjj',spots:7},{time:'5:30 PM',dur:'60min',name:'Kids Muay Thai',coach:'Coach Emma',type:'kids',spots:4},{time:'6:30 PM',dur:'75min',name:'BJJ Comp',coach:'Coach Marcus',type:'bjj',spots:0},{time:'7:30 PM',dur:'60min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:5}],
+  Thu:[{time:'6:00 AM',dur:'60min',name:'No-Gi BJJ',coach:'Coach Marcus',type:'bjj',spots:12},{time:'6:30 PM',dur:'75min',name:'BJJ Fundamentals',coach:'Coach Marcus',type:'bjj',spots:6},{time:'7:30 PM',dur:'60min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:11}],
+  Fri:[{time:'6:00 AM',dur:'60min',name:'BJJ All Levels',coach:'Coach Marcus',type:'bjj',spots:8},{time:'6:30 PM',dur:'75min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:4},{time:'7:30 PM',dur:'90min',name:'Open Mat',coach:'All Coaches',type:'bjj',spots:15}],
+  Sat:[{time:'8:00 AM',dur:'60min',name:'Kids BJJ',coach:'Coach Emma',type:'kids',spots:3},{time:'9:00 AM',dur:'75min',name:'BJJ All Levels',coach:'Coach Marcus',type:'bjj',spots:1},{time:'10:30 AM',dur:'60min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:6},{time:'11:30 AM',dur:'90min',name:'No-Gi Open Mat',coach:'All Coaches',type:'bjj',spots:18}],
+  Sun:[{time:'10:00 AM',dur:'90min',name:'BJJ Open Mat',coach:'Coach Marcus',type:'bjj',spots:20}]
+};
+const bkd=new Set();let curDay='Mon';
+function renderTT(day){const c=document.getElementById('ttClasses'),cl=ttData[day]||[];c.innerHTML=cl.map((x,i)=>{const k=day+'-'+i,b=bkd.has(k);const sp=x.spots===0?`<span class="spots spots-full">Full</span>`:x.spots<=3?`<span class="spots spots-few">${x.spots} left</span>`:`<span class="spots spots-ok">${x.spots} spots</span>`;return `<div class="tt-class ${x.type}"><div class="tt-time-col"><div class="tt-time">${x.time}</div><div class="tt-dur">${x.dur}</div></div><div class="tt-info"><div class="tt-name">${x.name}</div><div class="tt-coach">${x.coach}</div></div>${b?'<span class="booked-pill">Booked</span>':x.spots===0?sp:`<button class="tt-book-btn" onclick="bookTT('${k}','${x.name}',this)">Book</button>`}</div>`;}).join('');}
+function setDay(el,day){document.querySelectorAll('.tt-day').forEach(d=>d.classList.remove('active'));el.classList.add('active');curDay=day;renderTT(day);}
+function bookTT(k,name,btn){bkd.add(k);btn.outerHTML='<span class="booked-pill">Booked ✓</span>';showToast('Booked: '+name,'success');}
+
+// ══ NAVIGATION ══
+function switchScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const sc=document.getElementById('screen-'+id);
+  if(sc)sc.classList.add('active');
+  const baseId=id.split('-')[0];
+  const nb=document.getElementById('nav-'+baseId);
+  if(nb)nb.classList.add('active');
+  if(id==='timetable')renderTT(curDay);
+  if(id==='passes')renderPasses(curPassType);
+  if(id==='waiver')renderWaiverList();
+  if(id==='admin-waivers')renderAdminWaivers();
+  window.scrollTo(0,0);
+}
+
+// ══ MESSAGES ══
+function setMsgTab(el,tab){document.querySelectorAll('.msg-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('msgReception').style.display=tab==='reception'?'block':'none';document.getElementById('msgBroadcast').style.display=tab==='broadcast'?'block':'none';}
+function updateCount(){const s=document.getElementById('bcastAudience');const m=s.options[s.selectedIndex].text.match(/\((\d+)\)/);document.getElementById('bcastCount').textContent=(m?m[1]:87)+' members';}
+function sendBroadcast(){const t=document.getElementById('bcastTitle').value.trim(),m=document.getElementById('bcastMsg').value.trim();if(!t||!m){showToast('Add a title and message first','warn');return;}showToast('Broadcast sent to '+document.getElementById('bcastCount').textContent+' ✓','success');document.getElementById('bcastTitle').value='';document.getElementById('bcastMsg').value='';}
+function sendReception(){const i=document.getElementById('receptionInput'),txt=i.value.trim();if(!txt)return;const b=document.getElementById('receptionMsgs');const d=document.createElement('div');d.className='msg sent';d.innerHTML=txt+'<div class="msg-time">Now</div>';b.appendChild(d);i.value='';b.scrollTop=b.scrollHeight;setTimeout(()=>{const r=document.createElement('div');r.className='msg recv';r.innerHTML='Thanks! A team member will reply shortly.<div class="msg-time">Now</div>';b.appendChild(r);b.scrollTop=b.scrollHeight;},1100);}
+
+// ══ COACHES ══
+function sendCoach(){const i=document.getElementById('coachInput'),txt=i.value.trim();if(!txt)return;const b=document.getElementById('coachMsgs');const d=document.createElement('div');d.className='msg sent';d.innerHTML=txt+'<div class="msg-time">Now</div>';b.appendChild(d);i.value='';b.scrollTop=b.scrollHeight;}
+function setCtab(el){document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+
+// ══ MISC ══
+let checkedIn=false;
+function doCheckin(){if(!checkedIn){checkedIn=true;const b=document.getElementById('checkinBtn');b.textContent='✓ CHECKED IN';b.classList.add('done');showToast('Checked in to BJJ Fundamentals ✓','success');}}
+function bookClass(el,name){const sp=el.querySelector('.spots');if(sp&&sp.classList.contains('spots-full'))return;if(sp)sp.outerHTML='<span class="booked-pill">Booked ✓</span>';showToast('Booked: '+name,'success');}
+function openNotif(){document.getElementById('notifPanel').classList.add('open');document.getElementById('overlay').classList.add('open');}
+function closeNotif(){document.getElementById('notifPanel').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+function showToast(msg,type){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+(type||'');t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2800);}
+
+// ══ INIT ══
+renderTT('Mon');
+renderPasses('adult');
+renderWaiverList();
+</script>
+</body>
+</html>
