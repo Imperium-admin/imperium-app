@@ -30,7 +30,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .topbar{width:100%;max-width:480px;background:var(--dark);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:11px 16px;position:sticky;top:env(safe-area-inset-top,0px);z-index:100}
 
 /* ─── LOGO ─── */
-.logo{font-family:var(--head);font-size:22px;letter-spacing:2px}
+.logo{font-family:var(--head);font-size:22px;letter-spacing:2px;user-select:none;-webkit-user-select:none;transition:opacity .15s}
+.logo:active{opacity:0.7}
 .logo span{color:var(--red2)}
 .topbar-right{display:flex;align-items:center;gap:10px}
 .notif-btn{position:relative;background:none;border:none;cursor:pointer;color:var(--muted);font-size:20px;padding:4px}
@@ -240,6 +241,70 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 /* ─── INFO BOX ─── */
 .info-box{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:12px;color:var(--muted);line-height:1.6;margin-top:12px}
+
+/* ─── FAMILY SWITCHER ─── */
+.family-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.family-bar::-webkit-scrollbar{display:none}
+.family-pill{display:flex;align-items:center;gap:7px;padding:7px 12px;background:var(--card2);border:1px solid var(--border);border-radius:20px;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
+.family-pill.active{background:rgba(192,57,43,0.15);border-color:rgba(231,76,60,0.3)}
+.family-pill-avatar{width:22px;height:22px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0}
+.family-pill-name{font-size:12px;font-weight:600;color:var(--text)}
+.family-pill.active .family-pill-name{color:var(--red2)}
+.family-context-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(52,152,219,0.12);border:1px solid rgba(52,152,219,0.25);border-radius:6px;padding:3px 10px;font-size:11px;color:#3498db;font-weight:600;margin-bottom:10px}
+
+/* ─── STAFF LOCK ─── */
+.staff-lock{text-align:center;padding:40px 20px}
+.staff-lock i{font-size:48px;color:var(--muted);margin-bottom:16px;display:block}
+.staff-lock h3{font-family:var(--head);font-size:22px;letter-spacing:2px;margin-bottom:8px}
+.staff-lock p{font-size:13px;color:var(--muted);margin-bottom:20px}
+.pin-row{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);transition:all .2s}
+.pin-dot.filled{background:var(--red2);border-color:var(--red2)}
+.pin-keypad{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;max-width:220px;margin:0 auto}
+.pin-key{padding:14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:18px;font-weight:600;cursor:pointer;transition:all .15s;font-family:var(--font);color:var(--text)}
+.pin-key:hover{background:#2a2a2a;border-color:#444}
+.pin-key:active{background:var(--red);border-color:var(--red);color:#fff}
+.pin-error{color:var(--red2);font-size:12px;text-align:center;min-height:18px;margin-top:8px}
+
+/* ─── MEMBER PHOTO ─── */
+.member-photo{width:42px;height:42px;border-radius:50%;object-fit:cover;border:2px solid var(--border);background:var(--card2);flex-shrink:0}
+.member-photo-placeholder{width:42px;height:42px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;border:2px solid var(--border)}
+.attendee-item{display:flex;align-items:center;gap:10px;padding:9px;background:var(--card2);border-radius:8px;border:1px solid var(--border);margin-bottom:6px}
+.attendee-info{flex:1}
+.attendee-name{font-weight:600;font-size:13px}
+.attendee-meta{font-size:11px;color:var(--muted);margin-top:1px}
+.attendee-status{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px}
+.as-checked{background:rgba(26,107,42,0.2);color:#4caf50}
+.as-booked{background:rgba(52,152,219,0.15);color:#3498db}
+.as-trial{background:rgba(212,160,23,0.15);color:var(--gold)}
+
+/* ─── COMPETITIONS ─── */
+.comp-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;position:relative;overflow:hidden}
+.comp-card.featured{border-color:rgba(212,160,23,0.4);background:linear-gradient(135deg,#1a1500 0%,var(--card2) 100%)}
+.comp-card.featured::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--gold)}
+.comp-card.upcoming::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--red2)}
+.comp-date-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+.comp-date-badge.soon{background:rgba(192,57,43,0.15);color:var(--red2)}
+.comp-date-badge.upcoming{background:rgba(52,152,219,0.12);color:#3498db}
+.comp-date-badge.open{background:rgba(26,107,42,0.15);color:#4caf50}
+.comp-title{font-family:var(--head);font-size:18px;letter-spacing:1px;margin-bottom:4px}
+.comp-meta{font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6}
+.comp-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.comp-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:20px;background:rgba(255,255,255,0.06);color:var(--muted)}
+.comp-actions{display:flex;gap:8px}
+.comp-btn{flex:1;padding:9px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s}
+.comp-btn-primary{background:var(--red);color:#fff}
+.comp-btn-primary:hover{background:var(--red2)}
+.comp-btn-secondary{background:var(--card);border:1px solid var(--border);color:var(--muted)}
+.comp-btn-secondary:hover{border-color:#555;color:var(--text)}
+.comp-past{opacity:0.5}
+.add-comp-btn{width:100%;padding:12px;background:none;border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted);font-family:var(--font);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;margin-bottom:12px}
+.add-comp-btn:hover{border-color:#555;color:var(--text)}
+.comp-admin-item{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+.comp-admin-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.comp-admin-input{flex:1;background:#2a2a2a;border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none}
+.comp-admin-input:focus{border-color:#555}
+
 </style>
 </head>
 <body>
@@ -265,7 +330,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 <!-- ── TOPBAR ── -->
 <div class="topbar">
-  <div class="logo">IMPERIUM <span>MMA</span></div>
+  <div class="logo" onclick="switchScreen('home')" style="cursor:pointer;" title="Home">IMPERIUM <span>MMA</span></div>
   <div class="topbar-right">
     <button class="notif-btn" onclick="openNotif()"><i class="ti ti-bell"></i><div class="notif-dot"></div></button>
     <button class="top-avatar" id="topAvatar" onclick="switchScreen('profile')">JD</button>
@@ -282,6 +347,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <button class="nav-btn" onclick="switchScreen('messages')" id="nav-messages"><i class="ti ti-message-circle"></i>Messages</button>
   <button class="nav-btn" onclick="switchScreen('community')" id="nav-community"><i class="ti ti-brand-whatsapp"></i>Community</button>
   <button class="nav-btn" onclick="switchScreen('coaches')" id="nav-coaches"><i class="ti ti-shield"></i>Coaches</button>
+  <button class="nav-btn" onclick="switchScreen('comps')" id="nav-comps"><i class="ti ti-trophy"></i>Comps</button>
 </nav>
 
 <!-- ════════════════════════════════════
@@ -289,7 +355,22 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 ════════════════════════════════════ -->
 <div class="screen active" id="screen-home">
   <div class="hero">
-    <div class="badge-red" style="margin-bottom:10px">ACTIVE MEMBER</div>
+    <!-- FAMILY SWITCHER — shows when account has linked family members -->
+  <div class="family-bar" id="familyBar">
+    <div class="family-pill active" onclick="setActiveMember(0)" id="fp-0">
+      <div class="family-pill-avatar" style="background:#c0392b">JD</div>
+      <span class="family-pill-name">Jake (You)</span>
+    </div>
+    <div class="family-pill" onclick="setActiveMember(1)" id="fp-1">
+      <div class="family-pill-avatar" style="background:#27ae60">LJ</div>
+      <span class="family-pill-name">Lila (Age 9)</span>
+    </div>
+    <div class="family-pill" onclick="setActiveMember(2)" id="fp-2">
+      <div class="family-pill-avatar" style="background:#2980b9">TJ</div>
+      <span class="family-pill-name">Tom (Age 12)</span>
+    </div>
+  </div>
+  <div class="badge-red" style="margin-bottom:10px" id="memberBadge">ACTIVE MEMBER</div>
     <h2 id="heroGreeting">WELCOME BACK,<br>JAKE</h2>
     <p id="heroSub">Mordialloc · BJJ Blue Belt · Member since 2022</p>
   </div>
@@ -561,9 +642,45 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
      SCREEN: COACHES HUB
 ════════════════════════════════════ -->
 <div class="screen" id="screen-coaches">
+  <!-- STAFF PIN LOCK -->
+  <div id="staffLock">
+    <div class="staff-lock">
+      <i class="ti ti-shield-lock"></i>
+      <h3>COACHES HUB</h3>
+      <p>Staff access only. Enter your 4-digit PIN to continue.</p>
+      <div class="pin-row" id="pinDots">
+        <div class="pin-dot" id="pd0"></div>
+        <div class="pin-dot" id="pd1"></div>
+        <div class="pin-dot" id="pd2"></div>
+        <div class="pin-dot" id="pd3"></div>
+      </div>
+      <div class="pin-keypad">
+        <button class="pin-key" onclick="pinPress('1')">1</button>
+        <button class="pin-key" onclick="pinPress('2')">2</button>
+        <button class="pin-key" onclick="pinPress('3')">3</button>
+        <button class="pin-key" onclick="pinPress('4')">4</button>
+        <button class="pin-key" onclick="pinPress('5')">5</button>
+        <button class="pin-key" onclick="pinPress('6')">6</button>
+        <button class="pin-key" onclick="pinPress('7')">7</button>
+        <button class="pin-key" onclick="pinPress('8')">8</button>
+        <button class="pin-key" onclick="pinPress('9')">9</button>
+        <button class="pin-key" onclick="pinPress('clr')" style="font-size:13px;color:var(--muted)">CLR</button>
+        <button class="pin-key" onclick="pinPress('0')">0</button>
+        <button class="pin-key" onclick="pinPress('del')" style="font-size:16px">⌫</button>
+      </div>
+      <div class="pin-error" id="pinError"></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:16px">Demo PIN: 1234 &nbsp;·&nbsp; In the live app this uses your Clubworx staff login</p>
+    </div>
+  </div>
+
+  <!-- COACHES CONTENT (hidden until PIN entered) -->
+  <div id="staffContent" style="display:none">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">COACHES HUB</h2>
-    <span class="badge-staff">STAFF ONLY</span>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="badge-staff">STAFF</span>
+      <button onclick="lockStaff()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px" title="Lock"><i class="ti ti-lock"></i></button>
+    </div>
   </div>
   <div class="stat-row">
     <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Trials Today</div></div>
@@ -593,7 +710,32 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   </div>
   <div class="sl">Class Attendance</div>
   <div class="class-item"><div class="class-time" style="font-size:14px">6:30</div><div class="class-info"><div class="class-name">BJJ Fundamentals</div><div class="class-meta">Coach Marcus · Gi</div></div><div style="text-align:right"><div style="font-weight:600;font-size:14px">14<span style="color:var(--muted);font-weight:400">/20</span></div><div style="font-size:11px;color:var(--muted)">booked</div></div></div>
-  <div class="class-item"><div class="class-time" style="font-size:14px">7:30</div><div class="class-info"><div class="class-name">Muay Thai</div><div class="class-meta">Coach Sam</div></div><div style="text-align:right"><div style="font-weight:600;font-size:14px">8<span style="color:var(--muted);font-weight:400">/16</span></div><div style="font-size:11px;color:var(--muted)">booked</div></div></div>
+  <!-- CLASS ATTENDEES WITH PHOTOS -->
+  <div class="sl">Tonight's Attendees — 6:30 PM BJJ</div>
+  <div id="attendeeList">
+    <div class="attendee-item">
+      <div class="member-photo-placeholder" style="background:#8e44ad">SC</div>
+      <div class="attendee-info"><div class="attendee-name">Sarah Chen</div><div class="attendee-meta">BJJ Blue Belt</div></div>
+      <span class="attendee-status as-checked">Checked In</span>
+    </div>
+    <div class="attendee-item">
+      <div class="member-photo-placeholder" style="background:#27ae60">TP</div>
+      <div class="attendee-info"><div class="attendee-name">Tommy Park</div><div class="attendee-meta">BJJ White Belt</div></div>
+      <span class="attendee-status as-checked">Checked In</span>
+    </div>
+    <div class="attendee-item">
+      <div class="member-photo-placeholder" style="background:#2980b9">RO</div>
+      <div class="attendee-info"><div class="attendee-name">Ryan O'Brien</div><div class="attendee-meta">BJJ White Belt</div></div>
+      <span class="attendee-status as-booked">Booked</span>
+    </div>
+    <div class="attendee-item" style="border-color:rgba(212,160,23,0.3)">
+      <div class="member-photo-placeholder" style="background:#b7770d">LS</div>
+      <div class="attendee-info"><div class="attendee-name">Liam Santos</div><div class="attendee-meta">Trial Member</div></div>
+      <span class="attendee-status as-trial">Trial</span>
+    </div>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center"><i class="ti ti-camera" style="font-size:12px;vertical-align:-1px"></i> Member photos load from Clubworx profiles once connected</p>
+  </div><!-- end staffContent -->
 </div>
 
 <!-- ════════════════════════════════════
@@ -631,6 +773,35 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     </div>
   </div>
 </div>
+
+
+<!-- ════════════════════════════════════
+     SCREEN: COMPETITIONS
+════════════════════════════════════ -->
+<div class="screen" id="screen-comps">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">COMPETITIONS</h2>
+    <button style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font)" onclick="switchScreen('admin-comps')"><i class="ti ti-settings" style="font-size:14px"></i>Admin</button>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Upcoming events, registration links & team announcements</p>
+  <div id="compListItems"></div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCREEN: ADMIN COMPETITIONS
+════════════════════════════════════ -->
+<div class="screen" id="screen-admin-comps">
+  <button class="back-btn" onclick="switchScreen('comps')"><i class="ti ti-arrow-left"></i> Back to Competitions</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MANAGE COMPS</h2>
+    <span class="badge-staff">ADMIN</span>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Add, edit or remove competitions. Changes go live instantly.</p>
+  <div id="adminCompList"></div>
+  <button class="add-comp-btn" onclick="addComp()"><i class="ti ti-plus"></i> Add Competition</button>
+  <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Paste a registration URL (e.g. Smoothcomp, IBJJF, Fightmaster) to add a Register button. Leave blank for info-only posts.</div>
+</div>
+
 
 <div class="toast" id="toast"></div>
 
@@ -775,8 +946,17 @@ function switchScreen(id){
   if(id==='passes')renderPasses(curPassType);
   if(id==='waiver')renderWaiverList();
   if(id==='admin-waivers')renderAdminWaivers();
+  if(id==='comps')renderCompList();
+  if(id==='admin-comps')renderAdminComps();
   window.scrollTo(0,0);
 }
+
+// Logo tap = go home from anywhere
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelector('.logo').addEventListener('click',function(){
+    switchScreen('home');
+  });
+});
 
 // ══ MESSAGES ══
 function setMsgTab(el,tab){document.querySelectorAll('.msg-tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');document.getElementById('msgReception').style.display=tab==='reception'?'block':'none';document.getElementById('msgBroadcast').style.display=tab==='broadcast'?'block':'none';}
@@ -800,6 +980,126 @@ function showToast(msg,type){const t=document.getElementById('toast');t.textCont
 renderTT('Mon');
 renderPasses('adult');
 renderWaiverList();
+renderCompList();
+
+// ══ SHAKE KEYFRAME ══
+(function(){const s=document.createElement('style');s.textContent='@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}';document.head.appendChild(s);})();
+
+// ══ PIN LOCK ══
+const STAFF_PIN='1234';
+let pinEntry='',staffUnlocked=false;
+function pinPress(key){
+  if(key==='clr'){pinEntry='';updatePinDots();document.getElementById('pinError').textContent='';return;}
+  if(key==='del'){pinEntry=pinEntry.slice(0,-1);updatePinDots();return;}
+  if(pinEntry.length>=4)return;
+  pinEntry+=key;updatePinDots();
+  if(pinEntry.length===4)setTimeout(checkPin,150);
+}
+function updatePinDots(){for(let i=0;i<4;i++){const d=document.getElementById('pd'+i);if(d)d.classList.toggle('filled',i<pinEntry.length);}}
+function checkPin(){
+  if(pinEntry===STAFF_PIN){
+    staffUnlocked=true;
+    document.getElementById('staffLock').style.display='none';
+    document.getElementById('staffContent').style.display='block';
+    document.getElementById('pinError').textContent='';
+  } else {
+    document.getElementById('pinError').textContent='Incorrect PIN. Try again.';
+    pinEntry='';updatePinDots();
+    const dots=document.getElementById('pinDots');
+    dots.style.animation='shake .3s ease';
+    setTimeout(()=>dots.style.animation='',400);
+  }
+}
+function lockStaff(){
+  staffUnlocked=false;pinEntry='';updatePinDots();
+  document.getElementById('staffLock').style.display='block';
+  document.getElementById('staffContent').style.display='none';
+  document.getElementById('pinError').textContent='';
+}
+
+// ══ FAMILY SWITCHER ══
+const familyMembers=[
+  {name:'Jake Davidson',short:'Jake (You)',initials:'JD',belt:'BJJ Blue Belt',color:'#c0392b',type:'adult'},
+  {name:'Lila Davidson',short:'Lila (Age 9)',initials:'LJ',belt:'Kids BJJ · Minis',color:'#27ae60',type:'kids'},
+  {name:'Tom Davidson',short:'Tom (Age 12)',initials:'TJ',belt:'Kids BJJ · Teens',color:'#2980b9',type:'kids'},
+];
+let activeFamilyIdx=0;
+function setActiveMember(idx){
+  activeFamilyIdx=idx;
+  const m=familyMembers[idx];
+  document.querySelectorAll('.family-pill').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  const first=m.name.split(' ')[0].toUpperCase();
+  const isYou=idx===0;
+  document.getElementById('heroGreeting').innerHTML=(isYou?'WELCOME BACK,<br>':'VIEWING PROFILE:<br>')+first;
+  document.getElementById('heroSub').textContent='Mordialloc · '+m.belt+' · Member since 2022';
+  document.getElementById('topAvatar').textContent=m.initials;
+  document.getElementById('topAvatar').style.background=m.color;
+  document.getElementById('memberBadge').textContent=isYou?'ACTIVE MEMBER':'FAMILY MEMBER';
+  showToast('Switched to '+m.name,'info');
+}
+
+// ══ COMPETITIONS ══
+let competitions=[
+  {id:'c1',title:'Grappling Industries Melbourne',date:'2026-07-12',location:'Melbourne Showgrounds',type:'bjj',tags:['BJJ','Gi & No-Gi','All Levels'],regUrl:'https://grapplingindustries.com',regOpen:true,notes:'Team registration closes 2 weeks prior. Speak to Coach Marcus about weight categories.',featured:true,visible:true},
+  {id:'c2',title:'IBJJF Sydney Open',date:'2026-08-23',location:'Sydney Olympic Park',type:'bjj',tags:['BJJ','Gi','IBJJF Rules','Adults & Juveniles'],regUrl:'https://ibjjf.com',regOpen:true,notes:'IBJJF membership required. Medical certificate needed.',featured:false,visible:true},
+  {id:'c3',title:'Fightmaster Muay Thai — Rd 4',date:'2026-09-06',location:'Dallas Brooks Centre, Melbourne',type:'muay',tags:['Muay Thai','Amateur','C & B Class'],regUrl:'https://fightmaster.com.au',regOpen:false,notes:'Registration opens 6 weeks out. Speak to Coach Sam first.',featured:false,visible:true},
+  {id:'c4',title:'Kids Grappling League — Rd 3',date:'2026-07-26',location:'Frankston Sports Centre',type:'kids',tags:['Kids BJJ','Ages 5–15','No-Gi'],regUrl:'',regOpen:true,notes:'Great first comp experience for kids. Medals for all participants.',featured:true,visible:true},
+];
+function daysUntil(dateStr){const d=new Date(dateStr),n=new Date();n.setHours(0,0,0,0);d.setHours(0,0,0,0);return Math.round((d-n)/(1000*60*60*24));}
+function renderCompList(){
+  const el=document.getElementById('compListItems');if(!el)return;
+  const vis=competitions.filter(c=>c.visible);
+  if(!vis.length){el.innerHTML='<div class="info-box" style="text-align:center"><i class="ti ti-trophy" style="font-size:24px;color:var(--muted);display:block;margin-bottom:8px"></i><div style="font-size:13px;font-weight:600;margin-bottom:4px">No competitions posted yet</div><div style="font-size:12px">Tap Admin to add events.</div></div>';return;}
+  el.innerHTML=vis.map(c=>{
+    const days=daysUntil(c.date);
+    const past=days<0;
+    const dateStr=new Date(c.date).toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+    let badgeClass=days<=14&&!past?'soon':c.regOpen&&!past?'open':'upcoming';
+    const badgeText=past?'Completed':days<=14?days+' days away':dateStr;
+    const typeColor=c.type==='bjj'?'#3498db':c.type==='muay'?'var(--red2)':'#4caf50';
+    return `<div class="comp-card ${c.featured&&!past?'featured':'upcoming'} ${past?'comp-past':''}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px">
+        <div class="comp-date-badge ${badgeClass}"><i class="ti ti-calendar" style="font-size:12px"></i> ${badgeText}</div>
+        ${c.featured&&!past?'<span style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px">★ FEATURED</span>':''}
+      </div>
+      <div class="comp-title">${c.title}</div>
+      <div class="comp-meta"><i class="ti ti-map-pin" style="font-size:12px;vertical-align:-1px"></i> ${c.location}<br><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> ${new Date(c.date).toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</div>
+      <div class="comp-tags">${c.tags.map(t=>'<span class="comp-tag">'+t+'</span>').join('')}</div>
+      ${c.notes?`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;border-left:2px solid ${typeColor}">${c.notes}</div>`:''}
+      <div class="comp-actions">
+        ${c.regUrl&&!past?`<button class="comp-btn comp-btn-primary" onclick="window.open('${c.regUrl}','_blank')">${c.regOpen?'Register Now':'View Details'}</button>`:''}
+        <button class="comp-btn comp-btn-secondary" onclick="showToast('Share link copied!','success')"><i class="ti ti-share" style="font-size:13px"></i> Share</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderAdminComps(){
+  const el=document.getElementById('adminCompList');if(!el)return;
+  el.innerHTML=competitions.map((c,i)=>`
+    <div class="comp-admin-item">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <span class="tag tag-form" style="background:rgba(52,152,219,0.15);color:#3498db">${c.type.toUpperCase()}</span>
+        ${c.featured?'<span class="tag tag-req">Featured</span>':''}
+        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <span style="font-size:12px;color:var(--muted)">${c.visible?'Visible':'Hidden'}</span>
+          <label class="mtoggle"><input type="checkbox" ${c.visible?'checked':''} onchange="competitions[${i}].visible=this.checked;renderCompList()"><span class="mtrack"></span><span class="mthumb"></span></label>
+        </div>
+      </div>
+      <div class="comp-admin-row"><input class="comp-admin-input" type="text" value="${c.title}" placeholder="Competition name" onchange="competitions[${i}].title=this.value;renderCompList()"></div>
+      <div class="comp-admin-row">
+        <input class="comp-admin-input" type="date" value="${c.date}" onchange="competitions[${i}].date=this.value;renderCompList()">
+        <input class="comp-admin-input" type="text" value="${c.location}" placeholder="Location" onchange="competitions[${i}].location=this.value;renderCompList()">
+      </div>
+      <div class="comp-admin-row"><input class="comp-admin-input" type="text" value="${c.regUrl}" placeholder="Registration URL (optional)" onchange="competitions[${i}].regUrl=this.value;renderCompList()"></div>
+      <div class="comp-admin-row"><input class="comp-admin-input" type="text" value="${c.notes}" placeholder="Notes for members" onchange="competitions[${i}].notes=this.value;renderCompList()"></div>
+    </div>`).join('');
+}
+function addComp(){
+  const today=new Date().toISOString().split('T')[0];
+  competitions.push({id:'c'+Date.now(),title:'New Competition',date:today,location:'',type:'bjj',tags:['BJJ'],regUrl:'',regOpen:true,notes:'',featured:false,visible:false});
+  renderAdminComps();renderCompList();
+  showToast('Competition added — fill in details above','info');
+}
 </script>
 </body>
 </html>
