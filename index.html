@@ -305,6 +305,33 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .comp-admin-input{flex:1;background:#2a2a2a;border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none}
 .comp-admin-input:focus{border-color:#555}
 
+
+/* ─── CANCEL BOOKING ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{width:100%;max-width:480px;background:var(--dark);border-top:1px solid var(--border);border-radius:18px 18px 0 0;padding:20px;transform:translateY(100%);transition:transform .25s ease}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-family:var(--head);font-size:18px;letter-spacing:1px;margin-bottom:6px}
+.modal-body{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.modal-class-card{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+.modal-actions{display:flex;gap:10px}
+.modal-btn{flex:1;padding:13px;border:none;border-radius:10px;font-family:var(--head);font-size:16px;letter-spacing:1px;cursor:pointer;transition:all .15s}
+.modal-btn-cancel{background:var(--red);color:#fff}
+.modal-btn-cancel:hover{background:var(--red2)}
+.modal-btn-keep{background:var(--card2);border:1px solid var(--border);color:var(--text)}
+.modal-btn-keep:hover{background:#2a2a2a}
+.modal-warning{display:flex;align-items:center;gap:8px;background:rgba(212,160,23,0.1);border:1px solid rgba(212,160,23,0.25);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--gold)}
+
+/* ─── CANCELLED STATES ─── */
+.cancelled-pill{background:rgba(192,57,43,0.15);color:var(--red2);font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600}
+.class-cancelled{opacity:0.5;position:relative}
+.class-cancelled::after{content:'CANCELLED';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-15deg);font-family:var(--head);font-size:22px;letter-spacing:3px;color:var(--red2);opacity:0.6;pointer-events:none}
+.cancel-class-btn{padding:6px 10px;border:1px solid rgba(192,57,43,0.3);border-radius:6px;background:rgba(192,57,43,0.08);color:var(--red2);font-size:11px;cursor:pointer;font-weight:600;font-family:var(--font);transition:all .15s;white-space:nowrap}
+.cancel-class-btn:hover{background:rgba(192,57,43,0.2)}
+.restore-class-btn{padding:6px 10px;border:1px solid rgba(76,175,80,0.3);border-radius:6px;background:rgba(26,107,42,0.08);color:#4caf50;font-size:11px;cursor:pointer;font-weight:600;font-family:var(--font);transition:all .15s;white-space:nowrap}
+.restore-class-btn:hover{background:rgba(26,107,42,0.15)}
+
 </style>
 </head>
 <body>
@@ -456,7 +483,15 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     </div>
   </div>
   <button class="checkin-big" id="checkinBtn" onclick="doCheckin()">CHECK IN NOW</button>
-  <div class="sl">Upcoming — tap to book</div>
+  <div class="sl">My Booked Classes</div>
+  <!-- Booked class with cancel option -->
+  <div class="class-item" id="booked-bjj-fund" style="border-color:rgba(76,175,80,0.25)">
+    <div class="class-time">6:30</div>
+    <div class="class-info"><div class="class-name">BJJ Fundamentals</div><div class="class-meta">Tonight · Coach Marcus · Gi</div></div>
+    <button class="cancel-class-btn" onclick="openCancelModal('BJJ Fundamentals','Tonight 6:30 PM · Coach Marcus','booked-bjj-fund',true)">Cancel</button>
+  </div>
+
+  <div class="sl">Upcoming Classes — tap to book</div>
   <div class="class-item" onclick="bookClass(this,'BJJ No-Gi')"><div class="class-time">7:30</div><div class="class-info"><div class="class-name">BJJ No-Gi</div><div class="class-meta">Tonight · Coach Marcus</div></div><span class="spots spots-ok">8 left</span></div>
   <div class="class-item" onclick="bookClass(this,'Muay Thai')"><div class="class-time">5:30</div><div class="class-info"><div class="class-name">Muay Thai</div><div class="class-meta">Tonight · Coach Sam</div></div><span class="spots spots-few">3 left</span></div>
   <div class="class-item"><div class="class-time">9:00</div><div class="class-info"><div class="class-name">Kids BJJ</div><div class="class-meta">Sat Morning · Coach Emma</div></div><span class="spots spots-full">Full</span></div>
@@ -713,8 +748,20 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <button class="send-btn" onclick="sendCoach()"><i class="ti ti-send"></i></button>
     </div>
   </div>
-  <div class="sl">Class Attendance</div>
-  <div class="class-item"><div class="class-time" style="font-size:14px">6:30</div><div class="class-info"><div class="class-name">BJJ Fundamentals</div><div class="class-meta">Coach Marcus · Gi</div></div><div style="text-align:right"><div style="font-weight:600;font-size:14px">14<span style="color:var(--muted);font-weight:400">/20</span></div><div style="font-size:11px;color:var(--muted)">booked</div></div></div>
+  <div class="sl">Class Attendance & Management</div>
+  <div class="class-item" id="staff-class-bjj" style="flex-wrap:wrap">
+    <div class="class-time" style="font-size:14px">6:30</div>
+    <div class="class-info"><div class="class-name">BJJ Fundamentals</div><div class="class-meta">Coach Marcus · Gi</div></div>
+    <div style="text-align:right;margin-right:8px"><div style="font-weight:600;font-size:14px">14<span style="color:var(--muted);font-weight:400">/20</span></div><div style="font-size:11px;color:var(--muted)">booked</div></div>
+    <button class="cancel-class-btn" id="ccbtn-bjj" onclick="openCancelClassModal('BJJ Fundamentals','Tonight 6:30 PM',14,'staff-class-bjj','ccbtn-bjj')">Cancel Class</button>
+  </div>
+  <div class="class-item" id="staff-class-mt" style="flex-wrap:wrap">
+    <div class="class-time" style="font-size:14px">7:30</div>
+    <div class="class-info"><div class="class-name">Muay Thai</div><div class="class-meta">Coach Sam</div></div>
+    <div style="text-align:right;margin-right:8px"><div style="font-weight:600;font-size:14px">8<span style="color:var(--muted);font-weight:400">/16</span></div><div style="font-size:11px;color:var(--muted)">booked</div></div>
+    <button class="cancel-class-btn" id="ccbtn-mt" onclick="openCancelClassModal('Muay Thai','Tonight 7:30 PM',8,'staff-class-mt','ccbtn-mt')">Cancel Class</button>
+  </div>
+  <p style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">Cancelling a class notifies all booked members instantly</p>
   <!-- CLASS ATTENDEES WITH PHOTOS -->
   <div class="sl">Tonight's Attendees — 6:30 PM BJJ</div>
   <div id="attendeeList">
@@ -845,6 +892,66 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   </div>
 </div>
 
+
+
+<!-- ── CANCEL BOOKING MODAL ── -->
+<div class="modal-overlay" id="cancelModal" onclick="closeCancelModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">CANCEL BOOKING</div>
+    <div class="modal-class-card" id="modalClassCard">
+      <div style="width:40px;height:40px;border-radius:8px;background:rgba(192,57,43,0.2);display:flex;align-items:center;justify-content:center"><i class="ti ti-clock" style="font-size:20px;color:var(--red2)"></i></div>
+      <div>
+        <div style="font-weight:600;font-size:14px" id="modalClassName">BJJ Fundamentals</div>
+        <div style="font-size:12px;color:var(--muted)" id="modalClassMeta">Tonight 6:30 PM · Coach Marcus</div>
+      </div>
+    </div>
+    <div class="modal-warning" id="modalWarning" style="display:none">
+      <i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0"></i>
+      <span>This class starts within 2 hours. Late cancellations may affect your pass credits.</span>
+    </div>
+    <div class="modal-body">Are you sure you want to cancel this booking? Your spot will be released for other members.</div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-keep" onclick="closeCancelModal()">KEEP BOOKING</button>
+      <button class="modal-btn modal-btn-cancel" onclick="confirmCancelBooking()">YES, CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CANCEL CLASS MODAL (staff) ── -->
+<div class="modal-overlay" id="cancelClassModal" onclick="closeCancelClassModal(event)">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">CANCEL CLASS</div>
+    <div class="modal-class-card">
+      <div style="width:40px;height:40px;border-radius:8px;background:rgba(192,57,43,0.2);display:flex;align-items:center;justify-content:center"><i class="ti ti-calendar-off" style="font-size:20px;color:var(--red2)"></i></div>
+      <div>
+        <div style="font-weight:600;font-size:14px" id="cancelClassName">BJJ Fundamentals</div>
+        <div style="font-size:12px;color:var(--muted)" id="cancelClassMeta">Tonight 6:30 PM · 14 members booked</div>
+      </div>
+    </div>
+    <div class="modal-warning" style="display:flex">
+      <i class="ti ti-alert-triangle" style="font-size:16px;flex-shrink:0"></i>
+      <span id="cancelClassWarning">14 booked members will be notified automatically.</span>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="font-size:13px;color:var(--muted);display:block;margin-bottom:6px">Reason for cancellation (sent to members)</label>
+      <select id="cancelReason" style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none">
+        <option>Coach unavailable</option>
+        <option>Gym closure</option>
+        <option>Public holiday</option>
+        <option>Insufficient bookings</option>
+        <option>Emergency</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="modal-body">All booked members will receive a push notification. This action can be undone by restoring the class.</div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-keep" onclick="closeCancelClassModal()">GO BACK</button>
+      <button class="modal-btn modal-btn-cancel" onclick="confirmCancelClass()">CANCEL CLASS</button>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -1260,6 +1367,81 @@ function lockCompAdmin() {
   document.getElementById('compAdminLock').style.display = 'block';
   document.getElementById('compAdminContent').style.display = 'none';
   document.getElementById('compPinError').textContent = '';
+}
+
+// ── CANCEL BOOKING (member) ──
+let cancelTargetId = null;
+let cancelIsLate = false;
+
+function openCancelModal(className, classMeta, itemId, isLate) {
+  cancelTargetId = itemId;
+  cancelIsLate = isLate;
+  document.getElementById('modalClassName').textContent = className;
+  document.getElementById('modalClassMeta').textContent = classMeta;
+  document.getElementById('modalWarning').style.display = isLate ? 'flex' : 'none';
+  document.getElementById('cancelModal').classList.add('open');
+}
+function closeCancelModal(e) {
+  if (e && e.target !== document.getElementById('cancelModal')) return;
+  document.getElementById('cancelModal').classList.remove('open');
+  cancelTargetId = null;
+}
+function confirmCancelBooking() {
+  document.getElementById('cancelModal').classList.remove('open');
+  if (cancelTargetId) {
+    const el = document.getElementById(cancelTargetId);
+    if (el) {
+      el.style.opacity = '0.4';
+      el.style.pointerEvents = 'none';
+      const btn = el.querySelector('.cancel-class-btn');
+      if (btn) btn.outerHTML = '<span class="cancelled-pill">Cancelled</span>';
+    }
+  }
+  showToast('Booking cancelled — your spot has been released', 'info');
+  cancelTargetId = null;
+}
+
+// ── CANCEL CLASS (staff) ──
+let cancelClassTargetId = null;
+let cancelClassBtnId = null;
+
+function openCancelClassModal(className, classMeta, bookedCount, itemId, btnId) {
+  cancelClassTargetId = itemId;
+  cancelClassBtnId = btnId;
+  document.getElementById('cancelClassName').textContent = className;
+  document.getElementById('cancelClassMeta').textContent = classMeta + ' · ' + bookedCount + ' members booked';
+  document.getElementById('cancelClassWarning').textContent = bookedCount + ' booked members will be notified automatically.';
+  document.getElementById('cancelClassModal').classList.add('open');
+}
+function closeCancelClassModal(e) {
+  if (e && e.target !== document.getElementById('cancelClassModal')) return;
+  document.getElementById('cancelClassModal').classList.remove('open');
+  cancelClassTargetId = null;
+}
+function confirmCancelClass() {
+  document.getElementById('cancelClassModal').classList.remove('open');
+  const reason = document.getElementById('cancelReason').value;
+  if (cancelClassTargetId) {
+    const el = document.getElementById(cancelClassTargetId);
+    if (el) {
+      el.classList.add('class-cancelled');
+      el.style.pointerEvents = 'none';
+      const btn = document.getElementById(cancelClassBtnId);
+      if (btn) btn.outerHTML = '<button class="restore-class-btn" onclick="restoreClass('' + cancelClassTargetId + '','' + cancelClassBtnId + '')">Restore</button>';
+    }
+  }
+  showToast('Class cancelled · Members notified · Reason: ' + reason, 'warn');
+  cancelClassTargetId = null;
+}
+function restoreClass(itemId, btnId) {
+  const el = document.getElementById(itemId);
+  if (el) {
+    el.classList.remove('class-cancelled');
+    el.style.pointerEvents = '';
+    const btn = el.querySelector('.restore-class-btn');
+    if (btn) btn.outerHTML = '<button class="cancel-class-btn" id="' + btnId + '" onclick="openCancelClassModal('Class','Time',0,'' + itemId + '','' + btnId + '')">Cancel Class</button>';
+  }
+  showToast('Class restored — members notified', 'success');
 }
 
 // ── INIT ──
