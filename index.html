@@ -588,6 +588,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
           <div style="font-weight:600;font-size:13px">Imperium Reception</div>
           <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="width:6px;height:6px;border-radius:50%;background:#4caf50;display:inline-block"></span>Online now</div>
         </div>
+          <div style="font-size:10px;color:#3498db;margin-top:2px"><i class="ti ti-mail-forward" style="font-size:10px;vertical-align:-1px"></i> Messages delivered to reception email / WhatsApp</div>
       </div>
       <div class="chat-msgs" id="receptionMsgs">
         <div class="msg recv">Hey! How can we help you today?<div class="msg-time">9:00 AM</div></div>
@@ -1220,59 +1221,106 @@ function daysUntil(dateStr) {
   return Math.round((d-n)/(1000*60*60*24));
 }
 function renderCompList() {
-  const el = document.getElementById('compListItems'); if (!el) return;
-  const vis = competitions.filter(c => c.visible);
-  if (!vis.length) { el.innerHTML='<div class="info-box" style="text-align:center"><i class="ti ti-trophy" style="font-size:24px;color:var(--muted);display:block;margin-bottom:8px"></i><div style="font-size:13px;font-weight:600;margin-bottom:4px">No competitions posted yet</div><div style="font-size:12px">Tap Admin to add events.</div></div>'; return; }
-  el.innerHTML = vis.map(c => {
-    const days=daysUntil(c.date), past=days<0;
-    const dateStr=new Date(c.date).toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    const shortDate=new Date(c.date).toLocaleDateString('en-AU',{day:'numeric',month:'short'});
-    let badgeClass=past?'':days<=14?'soon':c.regOpen?'open':'upcoming';
-    const badgeText=past?'Completed':days<=14?(days===0?'Today!':days===1?'Tomorrow':days+' days away'):shortDate;
-    const typeColor=c.type==='bjj'?'#3498db':c.type==='muay'?'var(--red2)':'#4caf50';
-    return `<div class="comp-card ${c.featured&&!past?'featured':'upcoming'} ${past?'comp-past':''}">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
-        <div class="comp-date-badge ${badgeClass}"><i class="ti ti-calendar" style="font-size:12px"></i> ${badgeText}</div>
-        ${c.featured&&!past?'<span style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px">★ FEATURED</span>':''}
-      </div>
-      <div class="comp-title">${c.title}</div>
-      <div class="comp-meta"><i class="ti ti-map-pin" style="font-size:12px;vertical-align:-1px"></i> ${c.location}<br><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> ${dateStr}</div>
-      <div class="comp-tags">${c.tags.map(t=>'<span class="comp-tag">'+t+'</span>').join('')}</div>
-      ${c.notes?`<div style="font-size:12px;color:var(--muted);margin-bottom:10px;background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;border-left:2px solid ${typeColor}">${c.notes}</div>`:''}
-      <div class="comp-actions">
-        ${c.regUrl&&!past?`<button class="comp-btn comp-btn-primary" onclick="window.open('${c.regUrl}','_blank')">${c.regOpen?'Register Now':'View Details'}</button>`:''}
-        <button class="comp-btn comp-btn-secondary" onclick="showToast('Share link copied!','success')"><i class="ti ti-share" style="font-size:13px"></i> Share</button>
-      </div>
-    </div>`;
+  var el = document.getElementById('compListItems'); if (!el) return;
+  // Auto sort: upcoming soonest first, past events at bottom
+  competitions.sort(function(a, b) {
+    var da = new Date(a.date), db = new Date(b.date);
+    var now = new Date(); now.setHours(0,0,0,0);
+    var aPast = da < now, bPast = db < now;
+    if (aPast && !bPast) return 1;
+    if (!aPast && bPast) return -1;
+    return da - db;
+  });
+  var vis = competitions.filter(function(c) { return c.visible && daysUntil(c.date) >= 0; });
+  if (!vis.length) {
+    el.innerHTML = '<div class="info-box" style="text-align:center"><i class="ti ti-trophy" style="font-size:24px;color:var(--muted);display:block;margin-bottom:8px"></i><div style="font-size:13px;font-weight:600;margin-bottom:4px">No competitions posted yet</div><div style="font-size:12px">Tap Admin to add events.</div></div>';
+    return;
+  }
+  el.innerHTML = vis.map(function(c) {
+    var days = daysUntil(c.date), past = days < 0;
+    var dateStr = new Date(c.date).toLocaleDateString('en-AU',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    var shortDate = new Date(c.date).toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+    var badgeClass = past ? '' : days<=14 ? 'soon' : c.regOpen ? 'open' : 'upcoming';
+    var badgeText = past ? 'Completed' : days<=14 ? (days===0?'Today!':days===1?'Tomorrow':days+' days away') : shortDate;
+    var typeColor = c.type==='bjj' ? '#3498db' : c.type==='muay' ? 'var(--red2)' : '#4caf50';
+    var regBtn = (c.regUrl && !past) ? '<button class="comp-btn comp-btn-primary" data-url="'+c.regUrl+'">'+(c.regOpen?'Register Now':'View Details')+'</button>' : '';
+    return '<div class="comp-card '+(c.featured&&!past?'featured':'upcoming')+' '+(past?'comp-past':'')+'">'+
+      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">'+
+      '<div class="comp-date-badge '+badgeClass+'"><i class="ti ti-calendar" style="font-size:12px"></i> '+badgeText+'</div>'+
+      (c.featured&&!past?'<span style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px">★ FEATURED</span>':'')+
+      '</div>'+
+      '<div class="comp-title">'+c.title+'</div>'+
+      '<div class="comp-meta"><i class="ti ti-map-pin" style="font-size:12px;vertical-align:-1px"></i> '+c.location+'<br><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> '+dateStr+'</div>'+
+      '<div class="comp-tags">'+c.tags.map(function(t){return '<span class="comp-tag">'+t+'</span>';}).join('')+'</div>'+
+      (c.notes?'<div style="font-size:12px;color:var(--muted);margin-bottom:10px;background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;border-left:2px solid '+typeColor+'">'+c.notes+'</div>':'')+
+      '<div class="comp-actions">'+regBtn+
+      '<button class="comp-btn comp-btn-secondary" onclick="showToast(\"Share link copied!\",\"success\")"><i class="ti ti-share" style="font-size:13px"></i> Share</button>'+
+      '</div></div>';
   }).join('');
+  // Event delegation for register buttons (avoids inline onclick quote issues)
+  el.querySelectorAll('.comp-btn-primary[data-url]').forEach(function(btn) {
+    btn.onclick = function() { window.open(btn.getAttribute('data-url'), '_blank'); };
+  });
 }
+
 function renderAdminComps() {
-  const el = document.getElementById('adminCompList'); if (!el) return;
-  el.innerHTML = competitions.map((c,i) => `
-    <div class="comp-admin-item">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <span class="tag" style="background:rgba(52,152,219,0.15);color:#3498db">${c.type.toUpperCase()}</span>
-        ${c.featured?'<span class="tag tag-req">Featured</span>':''}
-        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-          <span style="font-size:12px;color:var(--muted)">${c.visible?'Visible':'Hidden'}</span>
-          <label class="mtoggle"><input type="checkbox" ${c.visible?'checked':''} onchange="competitions[${i}].visible=this.checked;renderCompList()"><span class="mtrack"></span><span class="mthumb"></span></label>
-        </div>
-      </div>
-      <div class="comp-admin-row"><input class="comp-admin-input" type="text" value="${c.title}" placeholder="Competition name" onchange="competitions[${i}].title=this.value;renderCompList()"></div>
-      <div class="comp-admin-row">
-        <input class="comp-admin-input" type="date" value="${c.date}" onchange="competitions[${i}].date=this.value;renderCompList()">
-        <input class="comp-admin-input" type="text" value="${c.location}" placeholder="Location" onchange="competitions[${i}].location=this.value;renderCompList()">
-      </div>
-      <div class="comp-admin-row"><input class="comp-admin-input" type="text" value="${c.regUrl}" placeholder="Registration URL (optional)" onchange="competitions[${i}].regUrl=this.value;renderCompList()"></div>
-      <div class="comp-admin-row"><input class="comp-admin-input" type="text" value="${c.notes}" placeholder="Notes for members" onchange="competitions[${i}].notes=this.value;renderCompList()"></div>
-    </div>`).join('');
+  // Sort by date before rendering admin list
+  competitions.sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+  var el = document.getElementById('adminCompList'); if (!el) return;
+  el.innerHTML = '';
+  competitions.forEach(function(c, i) {
+    var div = document.createElement('div');
+    div.className = 'comp-admin-item';
+    // Type options
+    var typeOpts = ['bjj','muay','kids','mixed'].map(function(t) {
+      return '<option value="'+t+'"'+(c.type===t?' selected':'')+'>'+t.toUpperCase()+'</option>';
+    }).join('');
+    div.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+
+      '<span class="tag" style="background:rgba(52,152,219,0.15);color:#3498db" id="type-tag-'+i+'">'+c.type.toUpperCase()+'</span>'+
+      (c.featured?'<span class="tag tag-req">Featured</span>':'')+
+      '<div style="margin-left:auto;display:flex;align-items:center;gap:8px">'+
+      '<span style="font-size:12px;color:var(--muted)">'+(c.visible?'Visible':'Hidden')+'</span>'+
+      '<label class="mtoggle"><input type="checkbox" '+(c.visible?'checked':'')+' id="vis-'+i+'"><span class="mtrack"></span><span class="mthumb"></span></label>'+
+      '</div></div>'+
+      '<div class="comp-admin-row"><input class="comp-admin-input" type="text" id="title-'+i+'" value="'+c.title+'" placeholder="Competition name"></div>'+
+      '<div class="comp-admin-row">'+
+      '<input class="comp-admin-input" type="date" id="date-'+i+'" value="'+c.date+'">'+
+      '<input class="comp-admin-input" type="text" id="loc-'+i+'" value="'+c.location+'" placeholder="Location">'+
+      '</div>'+
+      '<div class="comp-admin-row">'+
+      '<select class="comp-admin-input" id="type-'+i+'" style="flex:0 0 120px">'+typeOpts+'</select>'+
+      '<input class="comp-admin-input" type="text" id="url-'+i+'" value="'+c.regUrl+'" placeholder="Registration URL">'+
+      '</div>'+
+      '<div class="comp-admin-row"><input class="comp-admin-input" type="text" id="notes-'+i+'" value="'+c.notes+'" placeholder="Notes for members"></div>'+
+      '<button style="width:100%;margin-top:6px;padding:8px;background:rgba(192,57,43,0.15);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:var(--red2);font-family:var(--font);font-size:12px;cursor:pointer;font-weight:600" id="save-'+i+'">Save Changes</button>';
+    // Wire up save button
+    (function(idx, card) {
+      card.querySelector('#save-'+idx).onclick = function() {
+        competitions[idx].title    = card.querySelector('#title-'+idx).value;
+        competitions[idx].date     = card.querySelector('#date-'+idx).value;
+        competitions[idx].location = card.querySelector('#loc-'+idx).value;
+        competitions[idx].type     = card.querySelector('#type-'+idx).value;
+        competitions[idx].regUrl   = card.querySelector('#url-'+idx).value;
+        competitions[idx].notes    = card.querySelector('#notes-'+idx).value;
+        competitions[idx].visible  = card.querySelector('#vis-'+idx).checked;
+        renderCompList();
+        renderAdminComps();
+        showToast('Competition saved ✓', 'success');
+      };
+    })(i, div);
+    el.appendChild(div);
+  });
 }
+
 function addComp() {
-  const today = new Date().toISOString().split('T')[0];
+  var today = new Date().toISOString().split('T')[0];
   competitions.push({id:'c'+Date.now(),title:'New Competition',date:today,location:'',type:'bjj',tags:['BJJ'],regUrl:'',regOpen:true,notes:'',featured:false,visible:false});
-  renderAdminComps(); renderCompList();
-  showToast('Competition added — fill in details above','info');
+  renderAdminComps();
+  renderCompList();
+  showToast('Competition added — fill in details and tap Save','info');
 }
+
 
 // ── NAVIGATION ──
 function switchScreen(id) {
@@ -1328,11 +1376,15 @@ function sendBroadcast() {
   document.getElementById('bcastTitle').value=''; document.getElementById('bcastMsg').value='';
 }
 function sendReception() {
-  const i=document.getElementById('receptionInput'), txt=i.value.trim(); if(!txt)return;
-  const b=document.getElementById('receptionMsgs');
-  const d=document.createElement('div'); d.className='msg sent'; d.innerHTML=txt+'<div class="msg-time">Now</div>';
-  b.appendChild(d); i.value=''; b.scrollTop=b.scrollHeight;
-  setTimeout(()=>{const r=document.createElement('div');r.className='msg recv';r.innerHTML='Thanks! A team member will reply shortly.<div class="msg-time">Now</div>';b.appendChild(r);b.scrollTop=b.scrollHeight;},1100);
+  var inp=document.getElementById('receptionInput'), txt=inp.value.trim(); if(!txt)return;
+  var box=document.getElementById('receptionMsgs');
+  var d=document.createElement('div'); d.className='msg sent'; d.innerHTML=txt+'<div class="msg-time">Now</div>';
+  box.appendChild(d); inp.value=''; box.scrollTop=box.scrollHeight;
+  setTimeout(function(){
+    var r=document.createElement('div'); r.className='msg recv';
+    r.innerHTML='Thanks for your message! A team member will reply shortly.<div class="msg-time">Now</div>';
+    box.appendChild(r); box.scrollTop=box.scrollHeight;
+  },1100);
 }
 
 // ── COACHES ──
