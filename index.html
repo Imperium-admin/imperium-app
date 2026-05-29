@@ -1114,18 +1114,49 @@ const ttData = {
   Sat:[{time:'8:00 AM',dur:'60min',name:'Kids BJJ',coach:'Coach Emma',type:'kids',spots:3},{time:'9:00 AM',dur:'75min',name:'BJJ All Levels',coach:'Coach Marcus',type:'bjj',spots:1},{time:'10:30 AM',dur:'60min',name:'Muay Thai',coach:'Coach Sam',type:'muay',spots:6},{time:'11:30 AM',dur:'90min',name:'No-Gi Open Mat',coach:'All Coaches',type:'bjj',spots:18}],
   Sun:[{time:'10:00 AM',dur:'90min',name:'BJJ Open Mat',coach:'Coach Marcus',type:'bjj',spots:20}]
 };
-const bkd = new Set(); let curDay = 'Mon';
+// bkd is now an alias — timetable bookings feed into the master bookedIds list
+let curDay = 'Mon';
 
 function renderTT(day) {
-  const c = document.getElementById('ttClasses'), cl = ttData[day]||[];
-  c.innerHTML = cl.map((x,i) => {
-    const k=day+'-'+i, b=bkd.has(k);
-    const sp = x.spots===0?`<span class="spots spots-full">Full</span>`:x.spots<=3?`<span class="spots spots-few">${x.spots} left</span>`:`<span class="spots spots-ok">${x.spots} spots</span>`;
-    return `<div class="tt-class ${x.type}"><div class="tt-time-col"><div class="tt-time">${x.time}</div><div class="tt-dur">${x.dur}</div></div><div class="tt-info"><div class="tt-name">${x.name}</div><div class="tt-coach">${x.coach}</div></div>${b?'<span class="booked-pill">Booked</span>':x.spots===0?sp:`<button class="tt-book-btn" onclick="bookTT('${k}','${x.name}',this)">Book</button>`}</div>`;
+  var c = document.getElementById('ttClasses'), cl = ttData[day]||[];
+  c.innerHTML = cl.map(function(x,i) {
+    var k = day+'-'+i;
+    var b = bookedIds.indexOf(k) >= 0;
+    // Sync spots from master class registry
+    var masterCls = upcomingClasses.find(function(mc){ return mc.id === k; });
+    var spots = masterCls ? masterCls.spots : x.spots;
+    var sp = spots===0
+      ? '<span class="spots spots-full">Full</span>'
+      : spots<=3
+      ? '<span class="spots spots-few">'+spots+' left</span>'
+      : '<span class="spots spots-ok">'+spots+' spots</span>';
+    return '<div class="tt-class '+x.type+'">' +
+      '<div class="tt-time-col"><div class="tt-time">'+x.time+'</div><div class="tt-dur">'+x.dur+'</div></div>' +
+      '<div class="tt-info"><div class="tt-name">'+x.name+'</div><div class="tt-coach">'+x.coach+'</div></div>' +
+      (b ? '<span class="booked-pill">Booked</span>' : spots===0 ? sp : '<button class="tt-book-btn" data-k="'+k+'" data-name="'+x.name+'">Book</button>') +
+      '</div>';
   }).join('');
 }
 function setDay(el, day) { document.querySelectorAll('.tt-day').forEach(d=>d.classList.remove('active')); el.classList.add('active'); curDay=day; renderTT(day); }
-function bookTT(k, name, btn) { bkd.add(k); btn.outerHTML='<span class="booked-pill">Booked ✓</span>'; showToast('Booked: '+name,'success'); }
+
+// Event delegation for timetable book buttons (avoids inline onclick quote issues)
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.classList.contains('tt-book-btn')) {
+    var btn = e.target;
+    var k = btn.getAttribute('data-k');
+    var name = btn.getAttribute('data-name');
+    if (k && name) bookTT(k, name, btn);
+  }
+});
+function bookTT(k, name, btn) {
+  // Add to master booking registry
+  if (bookedIds.indexOf(k) < 0) bookedIds.push(k);
+  // Update spots in upcomingClasses
+  var cls = upcomingClasses.find(function(c){ return c.id === k; });
+  if (cls && cls.spots > 0) cls.spots--;
+  btn.outerHTML = '<span class="booked-pill">Booked ✓</span>';
+  showToast('Booked: ' + name + ' ✓', 'success');
+}
 
 // ── PIN LOCK ──
 const STAFF_PIN = '1234'; // ← Change this to your real PIN
@@ -1306,17 +1337,36 @@ function setCtab(el) { document.querySelectorAll('.ctab').forEach(b=>b.classList
 
 // ── BOOKING SYSTEM ──
 // All upcoming classes — single source of truth
+// ── MASTER CLASS REGISTRY — single source of truth for ALL bookings ──
+// Format: day-index maps to ttData key, used by both timetable AND check-in screen
 var upcomingClasses = [
-  {id:'uc1', time:'6:30', name:'BJJ Fundamentals', meta:'Tonight · Coach Marcus · Gi',   spots:12, max:20, isLate:true},
-  {id:'uc2', time:'7:30', name:'BJJ No-Gi',         meta:'Tonight · Coach Marcus',         spots:8,  max:20, isLate:false},
-  {id:'uc3', time:'5:30', name:'Muay Thai',          meta:'Tonight · Coach Sam',            spots:3,  max:16, isLate:false},
-  {id:'uc4', time:'9:00', name:'Kids BJJ',           meta:'Sat Morning · Coach Emma',       spots:0,  max:12, isLate:false},
-  {id:'uc5', time:'6:00', name:'No-Gi BJJ',          meta:'Tomorrow · Coach Marcus',        spots:10, max:20, isLate:false},
-  {id:'uc6', time:'7:30', name:'Muay Thai Advanced', meta:'Tomorrow · Coach Sam',           spots:4,  max:14, isLate:false},
+  // Tonight
+  {id:'Mon-0', time:'6:00 AM', name:'BJJ Fundamentals', meta:'Mon AM · Coach Marcus · Gi',    spots:6,  max:20, isLate:false},
+  {id:'Mon-1', time:'9:30 AM', name:'Muay Thai',         meta:'Mon AM · Coach Sam',            spots:4,  max:16, isLate:false},
+  {id:'Mon-2', time:'6:30 PM', name:'BJJ Fundamentals', meta:'Mon PM · Coach Marcus · Gi',    spots:2,  max:20, isLate:true},
+  {id:'Mon-3', time:'7:30 PM', name:'Muay Thai',         meta:'Mon PM · Coach Sam',            spots:8,  max:16, isLate:false},
+  {id:'Tue-0', time:'6:00 AM', name:'No-Gi BJJ',         meta:'Tue AM · Coach Marcus',         spots:10, max:20, isLate:false},
+  {id:'Tue-1', time:'6:30 PM', name:'Kids BJJ',          meta:'Tue PM · Coach Emma',           spots:5,  max:12, isLate:false},
+  {id:'Tue-2', time:'7:30 PM', name:'Muay Thai Adv',     meta:'Tue PM · Coach Sam',            spots:3,  max:14, isLate:false},
+  {id:'Wed-0', time:'6:00 AM', name:'BJJ Fundamentals', meta:'Wed AM · Coach Marcus',         spots:7,  max:20, isLate:false},
+  {id:'Wed-1', time:'5:30 PM', name:'Kids Muay Thai',   meta:'Wed PM · Coach Emma',           spots:4,  max:10, isLate:false},
+  {id:'Wed-2', time:'6:30 PM', name:'BJJ Comp',          meta:'Wed PM · Coach Marcus',         spots:0,  max:16, isLate:true},
+  {id:'Wed-3', time:'7:30 PM', name:'Muay Thai',         meta:'Wed PM · Coach Sam',            spots:5,  max:16, isLate:false},
+  {id:'Thu-0', time:'6:00 AM', name:'No-Gi BJJ',         meta:'Thu AM · Coach Marcus',         spots:12, max:20, isLate:false},
+  {id:'Thu-1', time:'6:30 PM', name:'BJJ Fundamentals', meta:'Thu PM · Coach Marcus',         spots:6,  max:20, isLate:false},
+  {id:'Thu-2', time:'7:30 PM', name:'Muay Thai',         meta:'Thu PM · Coach Sam',            spots:11, max:16, isLate:false},
+  {id:'Fri-0', time:'6:00 AM', name:'BJJ All Levels',   meta:'Fri AM · Coach Marcus',         spots:8,  max:20, isLate:false},
+  {id:'Fri-1', time:'6:30 PM', name:'Muay Thai',         meta:'Fri PM · Coach Sam',            spots:4,  max:16, isLate:false},
+  {id:'Fri-2', time:'7:30 PM', name:'Open Mat',          meta:'Fri PM · All Coaches',          spots:15, max:30, isLate:false},
+  {id:'Sat-0', time:'8:00 AM', name:'Kids BJJ',          meta:'Sat AM · Coach Emma',           spots:3,  max:12, isLate:false},
+  {id:'Sat-1', time:'9:00 AM', name:'BJJ All Levels',   meta:'Sat AM · Coach Marcus',         spots:1,  max:20, isLate:false},
+  {id:'Sat-2', time:'10:30 AM',name:'Muay Thai',         meta:'Sat AM · Coach Sam',            spots:6,  max:16, isLate:false},
+  {id:'Sat-3', time:'11:30 AM',name:'No-Gi Open Mat',   meta:'Sat AM · All Coaches',          spots:18, max:30, isLate:false},
+  {id:'Sun-0', time:'10:00 AM',name:'BJJ Open Mat',      meta:'Sun · Coach Marcus',            spots:20, max:30, isLate:false},
 ];
 
-// Track booked IDs
-var bookedIds = ['uc1']; // BJJ Fundamentals pre-booked for demo
+// Track booked class IDs — single source of truth
+var bookedIds = ['Mon-2']; // BJJ Fundamentals 6:30 PM Mon pre-booked for demo
 
 function renderCheckinScreen() {
   renderBookedList();
@@ -1325,7 +1375,8 @@ function renderCheckinScreen() {
   var firstBooked = upcomingClasses.find(function(c){ return bookedIds.indexOf(c.id) >= 0; });
   if (firstBooked) {
     document.getElementById('nextClassName').textContent = firstBooked.name;
-    document.getElementById('nextClassMeta').textContent = firstBooked.time + ' · ' + firstBooked.meta.split('·')[1].trim() + ' · ' + (firstBooked.max - firstBooked.spots) + '/' + firstBooked.max + ' booked';
+    var booked_count = firstBooked.max - firstBooked.spots;
+    document.getElementById('nextClassMeta').textContent = firstBooked.time + ' · ' + firstBooked.meta + ' · ' + booked_count + '/' + firstBooked.max + ' booked';
     document.getElementById('checkinBtn').textContent = 'CHECK IN — ' + firstBooked.name.toUpperCase();
     document.getElementById('checkinBtn').classList.remove('done');
   }
@@ -1399,8 +1450,8 @@ function renderUpcomingList() {
 function bookUpcoming(classId) {
   var cls = upcomingClasses.find(function(c){ return c.id === classId; });
   if (!cls || cls.spots === 0) return;
-  bookedIds.push(classId);
-  cls.spots = cls.spots - 1;
+  if (bookedIds.indexOf(classId) < 0) bookedIds.push(classId);
+  cls.spots = Math.max(0, cls.spots - 1);
   renderCheckinScreen();
   showToast('Booked: ' + cls.name + ' ✓', 'success');
 }
