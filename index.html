@@ -644,32 +644,41 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <div class="screen" id="screen-community">
   <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:4px">COMMUNITY</h2>
   <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Join your training group on WhatsApp</p>
+  <!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  HOW TO UPDATE WHATSAPP LINKS                               ║
+  ║  Search for REPLACE_ below and swap with your real link.    ║
+  ║  WhatsApp invite links look like:                           ║
+  ║  https://chat.whatsapp.com/AbCdEfGhIjKlMnOpQrStUv           ║
+  ║  To get a link: open group → tap name → Invite via link     ║
+  ╚══════════════════════════════════════════════════════════════╝
+  -->
 
   <div class="sl">Training Groups</div>
   <!-- REPLACE href="#" WITH YOUR REAL WHATSAPP INVITE LINK -->
-  <div class="wa-card" onclick="window.open('https://chat.whatsapp.com/K30ODmehtySCLS4HsfBGYA','_blank')">
+  <div class="wa-card" onclick="joinWA('https://chat.whatsapp.com/K30ODmehtySCLS4HsfBGYA' /* ← IMPERIUM MUAY THAI — paste your invite link here */,'Imperium Muay Thai')">
     <div class="wa-icon"><i class="ti ti-brand-whatsapp" style="font-size:22px;color:#fff"></i></div>
     <div class="wa-info"><div class="wa-name">Imperium Muay Thai</div><div class="wa-desc">All Muay Thai kickboxing members</div></div>
     <div class="wa-join">Join</div>
   </div>
-  <div class="wa-card" onclick="window.open('https://chat.whatsapp.com/GWbAIPJjHEdHTJNAgSlMQf','_blank')">
+  <div class="wa-card" onclick="joinWA('https://chat.whatsapp.com/GWbAIPJjHEdHTJNAgSlMQf' /* ← IMPERIUM JIU-JITSU — paste your invite link here */,'Imperium Jiu-Jitsu')">
     <div class="wa-icon"><i class="ti ti-brand-whatsapp" style="font-size:22px;color:#fff"></i></div>
     <div class="wa-info"><div class="wa-name">Imperium Jiu-Jitsu</div><div class="wa-desc">All adult BJJ members</div></div>
     <div class="wa-join">Join</div>
   </div>
 
   <div class="sl">Kids Programs</div>
-  <div class="wa-card" onclick="window.open('https://chat.whatsapp.com/KnB9RWxtiQ2KX42nsQmCMo','_blank')">
+  <div class="wa-card" onclick="joinWA('https://chat.whatsapp.com/KnB9RWxtiQ2KX42nsQmCMo' /* ← MINIS TEAM (BJJ) — paste your invite link here */,'Minis Team (BJJ)')">
     <div class="wa-icon" style="background:#27ae60"><i class="ti ti-brand-whatsapp" style="font-size:22px;color:#fff"></i></div>
     <div class="wa-info"><div class="wa-name">Minis Team (BJJ)</div><div class="wa-desc">Parents & young BJJ students</div></div>
     <div class="wa-join">Join</div>
   </div>
-  <div class="wa-card" onclick="window.open('https://chat.whatsapp.com/IPwp6gaU1sK3yCTdOZkKBN','_blank')">
+  <div class="wa-card" onclick="joinWA('https://chat.whatsapp.com/IPwp6gaU1sK3yCTdOZkKBN' /* ← TEENS (BJJ) — paste your invite link here */,'TEENS (BJJ)')">
     <div class="wa-icon" style="background:#2980b9"><i class="ti ti-brand-whatsapp" style="font-size:22px;color:#fff"></i></div>
     <div class="wa-info"><div class="wa-name">TEENS (BJJ)</div><div class="wa-desc">Teen BJJ students & parents</div></div>
     <div class="wa-join">Join</div>
   </div>
-  <div class="wa-card" onclick="window.open('https://chat.whatsapp.com/Ft7wYIBgiiCGPllnk5Qa9m','_blank')">
+  <div class="wa-card" onclick="joinWA('https://chat.whatsapp.com/Ft7wYIBgiiCGPllnk5Qa9m' /* ← STRIKERS — paste your invite link here */,'STRIKERS')">
     <div class="wa-icon" style="background:#c0392b"><i class="ti ti-brand-whatsapp" style="font-size:22px;color:#fff"></i></div>
     <div class="wa-info"><div class="wa-name">STRIKERS</div><div class="wa-desc">Kids Muay Thai · parents & students</div></div>
     <div class="wa-join">Join</div>
@@ -1470,7 +1479,14 @@ function doCheckin() {
 }
 function openNotif()  { document.getElementById('notifPanel').classList.add('open');    document.getElementById('overlay').classList.add('open'); }
 function closeNotif() { document.getElementById('notifPanel').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
-function joinWA(g)    { showToast('Opening WhatsApp: '+g,'info'); }
+function joinWA(url, name) {
+  if (!url || url.indexOf('REPLACE') >= 0 || url.trim() === '') {
+    showToast('WhatsApp link not set yet — add it in the app file', 'warn');
+    return;
+  }
+  showToast('Opening ' + name + '...', 'info');
+  window.open(url, '_blank');
+}
 
 function showToast(msg, type) {
   const t=document.getElementById('toast'); t.textContent=msg; t.className='toast '+(type||''); t.classList.add('show');
