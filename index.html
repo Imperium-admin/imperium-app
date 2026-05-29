@@ -771,13 +771,13 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <div class="class-time" style="font-size:14px">6:30</div>
     <div class="class-info"><div class="class-name">BJJ Fundamentals</div><div class="class-meta">Coach Marcus · Gi</div></div>
     <div style="text-align:right;margin-right:8px"><div style="font-weight:600;font-size:14px">14<span style="color:var(--muted);font-weight:400">/20</span></div><div style="font-size:11px;color:var(--muted)">booked</div></div>
-    <button class="cancel-class-btn" id="ccbtn-bjj" onclick="openCancelClassModal('BJJ Fundamentals','Tonight 6:30 PM',14,'staff-class-bjj','ccbtn-bjj')">Cancel Class</button>
+    <button class="cancel-class-btn" id="ccbtn-bjj" data-name="BJJ Fundamentals" data-time="Tonight 6:30 PM" data-count="14" onclick="openCancelClassModal('BJJ Fundamentals','Tonight 6:30 PM',14,'staff-class-bjj','ccbtn-bjj')">Cancel Class</button>
   </div>
   <div class="class-item" id="staff-class-mt" style="flex-wrap:wrap">
     <div class="class-time" style="font-size:14px">7:30</div>
     <div class="class-info"><div class="class-name">Muay Thai</div><div class="class-meta">Coach Sam</div></div>
     <div style="text-align:right;margin-right:8px"><div style="font-weight:600;font-size:14px">8<span style="color:var(--muted);font-weight:400">/16</span></div><div style="font-size:11px;color:var(--muted)">booked</div></div>
-    <button class="cancel-class-btn" id="ccbtn-mt" onclick="openCancelClassModal('Muay Thai','Tonight 7:30 PM',8,'staff-class-mt','ccbtn-mt')">Cancel Class</button>
+    <button class="cancel-class-btn" id="ccbtn-mt" data-name="Muay Thai" data-time="Tonight 7:30 PM" data-count="8" onclick="openCancelClassModal('Muay Thai','Tonight 7:30 PM',8,'staff-class-mt','ccbtn-mt')">Cancel Class</button>
   </div>
   <p style="font-size:11px;color:var(--muted);margin-top:6px;text-align:center">Cancelling a class notifies all booked members instantly</p>
   <!-- CLASS ATTENDEES WITH PHOTOS -->
@@ -1755,13 +1755,22 @@ function confirmCancelClass() {
     var el = document.getElementById(cancelClassTargetId);
     if (el) {
       el.classList.add('class-cancelled');
-      el.style.pointerEvents = 'none';
+      // Don't block the whole card — only swap the button
       var btn = document.getElementById(cancelClassBtnId);
       if (btn) {
         var rb = document.createElement('button');
         rb.className = 'restore-class-btn';
         rb.textContent = 'Restore';
-        (function(iid, bid){ rb.onclick = function(){ restoreClass(rb, iid, bid); }; })(cancelClassTargetId, cancelClassBtnId);
+        rb.id = cancelClassBtnId; // keep same id so restoreClass can find it
+        // Store class info on button as data attributes for use when restoring
+        rb.setAttribute('data-item', cancelClassTargetId);
+        rb.setAttribute('data-btn', cancelClassBtnId);
+        rb.setAttribute('data-name', btn.getAttribute('data-name') || 'Class');
+        rb.setAttribute('data-time', btn.getAttribute('data-time') || '');
+        rb.setAttribute('data-count', btn.getAttribute('data-count') || '0');
+        (function(iid, bid){
+          rb.onclick = function(){ restoreClass(rb, iid, bid); };
+        })(cancelClassTargetId, cancelClassBtnId);
         btn.parentNode.replaceChild(rb, btn);
       }
     }
@@ -1773,17 +1782,26 @@ function restoreClass(btnEl, itemId, btnId) {
   var el = document.getElementById(itemId);
   if (el) {
     el.classList.remove('class-cancelled');
-    el.style.pointerEvents = '';
+    // Recreate the Cancel Class button with proper data
     if (btnEl) {
+      var className = btnEl.getAttribute('data-name') || 'Class';
+      var classTime = btnEl.getAttribute('data-time') || '';
+      var classCount = parseInt(btnEl.getAttribute('data-count') || '0', 10);
       var nb = document.createElement('button');
       nb.className = 'cancel-class-btn';
       nb.id = btnId;
       nb.textContent = 'Cancel Class';
-      (function(iid, bid){ nb.onclick = function(){ openCancelClassModal('Class','Tonight',0,iid,bid); }; })(itemId, btnId);
+      // Store data back on new button for future cancellations
+      nb.setAttribute('data-name', className);
+      nb.setAttribute('data-time', classTime);
+      nb.setAttribute('data-count', classCount);
+      (function(iid, bid, cname, ctime, ccount){
+        nb.onclick = function(){ openCancelClassModal(cname, ctime, ccount, iid, bid); };
+      })(itemId, btnId, className, classTime, classCount);
       btnEl.parentNode.replaceChild(nb, btnEl);
     }
   }
-  showToast('Class restored — members notified', 'success');
+  showToast('Class restored — members notified ✓', 'success');
 }
 
 
