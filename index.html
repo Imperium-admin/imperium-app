@@ -476,25 +476,25 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 ════════════════════════════════════ -->
 <div class="screen" id="screen-checkin">
   <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:16px">CLASS CHECK-IN</h2>
-  <div class="card" style="margin-bottom:12px">
+
+  <!-- Next class check-in card -->
+  <div class="card" style="margin-bottom:12px" id="nextClassCard">
     <div style="display:flex;align-items:center;gap:12px">
       <div style="width:44px;height:44px;border-radius:8px;background:rgba(192,57,43,0.2);display:flex;align-items:center;justify-content:center"><i class="ti ti-clock" style="font-size:22px;color:var(--red2)"></i></div>
-      <div><div style="font-weight:600;font-size:15px">BJJ Fundamentals</div><div style="font-size:12px;color:var(--muted)">Tonight 6:30 PM · Coach Marcus · 12/20 booked</div></div>
+      <div><div style="font-weight:600;font-size:15px" id="nextClassName">BJJ Fundamentals</div><div style="font-size:12px;color:var(--muted)" id="nextClassMeta">Tonight 6:30 PM · Coach Marcus · 12/20 booked</div></div>
     </div>
   </div>
   <button class="checkin-big" id="checkinBtn" onclick="doCheckin()">CHECK IN NOW</button>
-  <div class="sl">My Booked Classes</div>
-  <!-- Booked class with cancel option -->
-  <div class="class-item" id="booked-bjj-fund" style="border-color:rgba(76,175,80,0.25)">
-    <div class="class-time">6:30</div>
-    <div class="class-info"><div class="class-name">BJJ Fundamentals</div><div class="class-meta">Tonight · Coach Marcus · Gi</div></div>
-    <button class="cancel-class-btn" onclick="openCancelModal('BJJ Fundamentals','Tonight 6:30 PM · Coach Marcus','booked-bjj-fund',true)">Cancel</button>
+
+  <!-- MY BOOKED CLASSES — dynamically rendered -->
+  <div id="bookedSection">
+    <div class="sl">My Booked Classes</div>
+    <div id="bookedList"></div>
   </div>
 
+  <!-- UPCOMING — dynamically rendered -->
   <div class="sl">Upcoming Classes — tap to book</div>
-  <div class="class-item" onclick="bookClass(this,'BJJ No-Gi')"><div class="class-time">7:30</div><div class="class-info"><div class="class-name">BJJ No-Gi</div><div class="class-meta">Tonight · Coach Marcus</div></div><span class="spots spots-ok">8 left</span></div>
-  <div class="class-item" onclick="bookClass(this,'Muay Thai')"><div class="class-time">5:30</div><div class="class-info"><div class="class-name">Muay Thai</div><div class="class-meta">Tonight · Coach Sam</div></div><span class="spots spots-few">3 left</span></div>
-  <div class="class-item"><div class="class-time">9:00</div><div class="class-info"><div class="class-name">Kids BJJ</div><div class="class-meta">Sat Morning · Coach Emma</div></div><span class="spots spots-full">Full</span></div>
+  <div id="upcomingList"></div>
 </div>
 
 <!-- ════════════════════════════════════
@@ -1245,6 +1245,7 @@ function switchScreen(id) {
   if (nb) nb.classList.add('active');
   if (id==='timetable')   renderTT(curDay);
   if (id==='passes')      renderPasses(curPassType);
+  if (id==='checkin')     renderCheckinScreen();
   if (id==='waiver')      renderWaiverList();
   if (id==='admin-waivers') renderAdminWaivers();
   if (id==='comps')       renderCompList();
@@ -1303,14 +1304,118 @@ function sendCoach() {
 }
 function setCtab(el) { document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
 
-// ── CHECKIN & MISC ──
-let checkedIn = false;
-function doCheckin() {
-  if (!checkedIn) { checkedIn=true; const b=document.getElementById('checkinBtn'); b.textContent='✓ CHECKED IN'; b.classList.add('done'); showToast('Checked in to BJJ Fundamentals ✓','success'); }
+// ── BOOKING SYSTEM ──
+// All upcoming classes — single source of truth
+var upcomingClasses = [
+  {id:'uc1', time:'6:30', name:'BJJ Fundamentals', meta:'Tonight · Coach Marcus · Gi',   spots:12, max:20, isLate:true},
+  {id:'uc2', time:'7:30', name:'BJJ No-Gi',         meta:'Tonight · Coach Marcus',         spots:8,  max:20, isLate:false},
+  {id:'uc3', time:'5:30', name:'Muay Thai',          meta:'Tonight · Coach Sam',            spots:3,  max:16, isLate:false},
+  {id:'uc4', time:'9:00', name:'Kids BJJ',           meta:'Sat Morning · Coach Emma',       spots:0,  max:12, isLate:false},
+  {id:'uc5', time:'6:00', name:'No-Gi BJJ',          meta:'Tomorrow · Coach Marcus',        spots:10, max:20, isLate:false},
+  {id:'uc6', time:'7:30', name:'Muay Thai Advanced', meta:'Tomorrow · Coach Sam',           spots:4,  max:14, isLate:false},
+];
+
+// Track booked IDs
+var bookedIds = ['uc1']; // BJJ Fundamentals pre-booked for demo
+
+function renderCheckinScreen() {
+  renderBookedList();
+  renderUpcomingList();
+  // Update next class card to first booked class
+  var firstBooked = upcomingClasses.find(function(c){ return bookedIds.indexOf(c.id) >= 0; });
+  if (firstBooked) {
+    document.getElementById('nextClassName').textContent = firstBooked.name;
+    document.getElementById('nextClassMeta').textContent = firstBooked.time + ' · ' + firstBooked.meta.split('·')[1].trim() + ' · ' + (firstBooked.max - firstBooked.spots) + '/' + firstBooked.max + ' booked';
+    document.getElementById('checkinBtn').textContent = 'CHECK IN — ' + firstBooked.name.toUpperCase();
+    document.getElementById('checkinBtn').classList.remove('done');
+  }
 }
-function bookClass(el, name) {
-  const sp=el.querySelector('.spots'); if(sp&&sp.classList.contains('spots-full'))return;
-  if(sp) sp.outerHTML='<span class="booked-pill">Booked ✓</span>'; showToast('Booked: '+name,'success');
+
+function renderBookedList() {
+  var el = document.getElementById('bookedList');
+  var section = document.getElementById('bookedSection');
+  var booked = upcomingClasses.filter(function(c){ return bookedIds.indexOf(c.id) >= 0; });
+  if (!booked.length) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  el.innerHTML = '';
+  booked.forEach(function(c) {
+    var row = document.createElement('div');
+    row.className = 'class-item';
+    row.id = 'booked-' + c.id;
+    row.style.borderColor = 'rgba(76,175,80,0.25)';
+    var timeDiv = document.createElement('div');
+    timeDiv.className = 'class-time';
+    timeDiv.textContent = c.time;
+    var infoDiv = document.createElement('div');
+    infoDiv.className = 'class-info';
+    infoDiv.innerHTML = '<div class="class-name">' + c.name + '</div><div class="class-meta">' + c.meta + '</div>';
+    var cancelBtn = document.createElement('button');
+    cancelBtn.className = 'cancel-class-btn';
+    cancelBtn.textContent = 'Cancel';
+    (function(cls){ cancelBtn.onclick = function(){ openCancelModal(cls.name, cls.time + ' · ' + cls.meta, cls.id, cls.isLate); }; })(c);
+    row.appendChild(timeDiv);
+    row.appendChild(infoDiv);
+    row.appendChild(cancelBtn);
+    el.appendChild(row);
+  });
+}
+
+function renderUpcomingList() {
+  var el = document.getElementById('upcomingList');
+  var upcoming = upcomingClasses.filter(function(c){ return bookedIds.indexOf(c.id) < 0; });
+  el.innerHTML = '';
+  upcoming.forEach(function(c) {
+    var row = document.createElement('div');
+    row.className = 'class-item';
+    row.id = 'upcoming-' + c.id;
+    if (c.spots === 0) { row.style.opacity = '0.6'; } else { row.style.cursor = 'pointer'; }
+    var timeDiv = document.createElement('div');
+    timeDiv.className = 'class-time';
+    timeDiv.textContent = c.time;
+    var infoDiv = document.createElement('div');
+    infoDiv.className = 'class-info';
+    infoDiv.innerHTML = '<div class="class-name">' + c.name + '</div><div class="class-meta">' + c.meta + '</div>';
+    var spotsEl = document.createElement('span');
+    if (c.spots === 0) {
+      spotsEl.className = 'spots spots-full'; spotsEl.textContent = 'Full';
+    } else if (c.spots <= 3) {
+      spotsEl.className = 'spots spots-few'; spotsEl.textContent = c.spots + ' left';
+    } else {
+      spotsEl.className = 'spots spots-ok'; spotsEl.textContent = c.spots + ' spots';
+    }
+    if (c.spots > 0) {
+      (function(cls){ row.onclick = function(){ bookUpcoming(cls.id); }; })(c);
+    }
+    row.appendChild(timeDiv);
+    row.appendChild(infoDiv);
+    row.appendChild(spotsEl);
+    el.appendChild(row);
+  });
+}
+
+function bookUpcoming(classId) {
+  var cls = upcomingClasses.find(function(c){ return c.id === classId; });
+  if (!cls || cls.spots === 0) return;
+  bookedIds.push(classId);
+  cls.spots = cls.spots - 1;
+  renderCheckinScreen();
+  showToast('Booked: ' + cls.name + ' ✓', 'success');
+}
+
+// ── CHECKIN & MISC ──
+var checkedInIds = [];
+function doCheckin() {
+  var firstBooked = upcomingClasses.find(function(c){ return bookedIds.indexOf(c.id) >= 0; });
+  if (!firstBooked) { showToast('No booked classes to check in to', 'warn'); return; }
+  if (checkedInIds.indexOf(firstBooked.id) >= 0) { showToast('Already checked in!', 'info'); return; }
+  checkedInIds.push(firstBooked.id);
+  var btn = document.getElementById('checkinBtn');
+  btn.textContent = '✓ CHECKED IN — ' + firstBooked.name.toUpperCase();
+  btn.classList.add('done');
+  showToast('Checked in to ' + firstBooked.name + ' ✓', 'success');
 }
 function openNotif()  { document.getElementById('notifPanel').classList.add('open');    document.getElementById('overlay').classList.add('open'); }
 function closeNotif() { document.getElementById('notifPanel').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
@@ -1389,15 +1494,17 @@ function closeCancelModal(e) {
 function confirmCancelBooking() {
   document.getElementById('cancelModal').classList.remove('open');
   if (cancelTargetId) {
-    const el = document.getElementById(cancelTargetId);
-    if (el) {
-      el.style.opacity = '0.4';
-      el.style.pointerEvents = 'none';
-      const btn = el.querySelector('.cancel-class-btn');
-      if (btn) btn.outerHTML = '<span class="cancelled-pill">Cancelled</span>';
+    // Remove from booked list and re-render so the class goes back to upcoming
+    var idx = bookedIds.indexOf(cancelTargetId);
+    if (idx > -1) {
+      bookedIds.splice(idx, 1);
+      // Give the spot back
+      var cls = upcomingClasses.find(function(c){ return c.id === cancelTargetId; });
+      if (cls) cls.spots = cls.spots + 1;
     }
+    renderCheckinScreen();
   }
-  showToast('Booking cancelled — your spot has been released', 'info');
+  showToast('Booking cancelled — spot released', 'info');
   cancelTargetId = null;
 }
 
