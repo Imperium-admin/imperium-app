@@ -1402,6 +1402,7 @@ function confirmCancelBooking() {
 }
 
 // ── CANCEL CLASS (staff) ──
+// ── CANCEL CLASS (staff) ──
 let cancelClassTargetId = null;
 let cancelClassBtnId = null;
 
@@ -1420,26 +1421,38 @@ function closeCancelClassModal(e) {
 }
 function confirmCancelClass() {
   document.getElementById('cancelClassModal').classList.remove('open');
-  const reason = document.getElementById('cancelReason').value;
+  var reason = document.getElementById('cancelReason').value;
   if (cancelClassTargetId) {
-    const el = document.getElementById(cancelClassTargetId);
+    var el = document.getElementById(cancelClassTargetId);
     if (el) {
       el.classList.add('class-cancelled');
       el.style.pointerEvents = 'none';
-      const btn = document.getElementById(cancelClassBtnId);
-      if (btn) btn.outerHTML = '<button class="restore-class-btn" onclick="restoreClass('' + cancelClassTargetId + '','' + cancelClassBtnId + '')">Restore</button>';
+      var btn = document.getElementById(cancelClassBtnId);
+      if (btn) {
+        var rb = document.createElement('button');
+        rb.className = 'restore-class-btn';
+        rb.textContent = 'Restore';
+        (function(iid, bid){ rb.onclick = function(){ restoreClass(rb, iid, bid); }; })(cancelClassTargetId, cancelClassBtnId);
+        btn.parentNode.replaceChild(rb, btn);
+      }
     }
   }
   showToast('Class cancelled · Members notified · Reason: ' + reason, 'warn');
   cancelClassTargetId = null;
 }
-function restoreClass(itemId, btnId) {
-  const el = document.getElementById(itemId);
+function restoreClass(btnEl, itemId, btnId) {
+  var el = document.getElementById(itemId);
   if (el) {
     el.classList.remove('class-cancelled');
     el.style.pointerEvents = '';
-    const btn = el.querySelector('.restore-class-btn');
-    if (btn) btn.outerHTML = '<button class="cancel-class-btn" id="' + btnId + '" onclick="openCancelClassModal('Class','Time',0,'' + itemId + '','' + btnId + '')">Cancel Class</button>';
+    if (btnEl) {
+      var nb = document.createElement('button');
+      nb.className = 'cancel-class-btn';
+      nb.id = btnId;
+      nb.textContent = 'Cancel Class';
+      (function(iid, bid){ nb.onclick = function(){ openCancelClassModal('Class','Tonight',0,iid,bid); }; })(itemId, btnId);
+      btnEl.parentNode.replaceChild(nb, btnEl);
+    }
   }
   showToast('Class restored — members notified', 'success');
 }
