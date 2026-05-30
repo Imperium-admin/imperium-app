@@ -745,7 +745,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
         <div class="ch email" onclick="this.classList.toggle('on')"><i class="ti ti-mail" style="font-size:13px"></i>Email</div>
       </div>
       <label class="bcast-label">Audience</label>
-      <select class="bcast-input" id="bcastAudience" onchange="updateCount()" style="margin-bottom:0">
+      <select class="bcast-input" id="bcastAudience2" onchange="updateCount()" style="margin-bottom:0">
         <option value="87">All Active Members (87)</option>
         <option value="43">BJJ Members Only (43)</option>
         <option value="31">Muay Thai Members Only (31)</option>
@@ -756,11 +756,11 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
         <option value="14">Lapsed Members (14)</option>
       </select>
       <label class="bcast-label">Title</label>
-      <input class="bcast-input" type="text" id="bcastTitle" placeholder="e.g. Grading Night — This Friday!">
+      <input class="bcast-input" type="text" id="bcastTitle2" placeholder="e.g. Grading Night — This Friday!">
       <label class="bcast-label">Message</label>
-      <textarea class="bcast-input" id="bcastMsg" style="resize:vertical;min-height:90px;margin-bottom:0" placeholder="Type your message..."></textarea>
+      <textarea class="bcast-input" id="bcastMsg2" style="resize:vertical;min-height:90px;margin-bottom:0" placeholder="Type your message..."></textarea>
       <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:12px;color:var(--muted)"><i class="ti ti-users" style="font-size:13px;vertical-align:-1px"></i> <span id="bcastCount">87 members</span></span>
+        <span style="font-size:12px;color:var(--muted)"><i class="ti ti-users" style="font-size:13px;vertical-align:-1px"></i> <span id="bcastCount2">87 members</span></span>
         <button style="padding:10px 22px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:var(--head);font-size:15px;letter-spacing:1px;cursor:pointer;transition:background .15s" onclick="sendBroadcast()" onmouseover="this.style.background='var(--red2)'" onmouseout="this.style.background='var(--red)'">SEND NOW</button>
       </div>
     </div>
@@ -1656,6 +1656,14 @@ function addComp() {
 
 // ── NAVIGATION ──
 function switchScreen(id) {
+  // Lock coaches hub when navigating away
+  if (id !== 'coaches' && typeof lockStaff === 'function') {
+    lockStaff();
+  }
+  // Lock broadcast admin when navigating away
+  if (id !== 'coaches' && typeof lockCompAdmin === 'function') {
+    // Don't lock comp admin on nav — it's a separate screen
+  }
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   const sc = document.getElementById('screen-'+id);
@@ -1753,12 +1761,16 @@ function closeBroadcastModal(e) {
   document.getElementById('overlay').classList.remove('open');
 }
 function sendBroadcast() {
-  const t=document.getElementById('bcastTitle').value.trim(), m=document.getElementById('bcastMsg').value.trim();
-  if(!t||!m){showToast('Add a title and message first','warn');return;}
+  var t = document.getElementById('bcastTitle2');
+  var m = document.getElementById('bcastMsg2');
+  if (!t || !m) return;
+  var tval = t.value.trim(), mval = m.value.trim();
+  if (!tval || !mval) { showToast('Add a title and message first', 'warn'); return; }
   document.getElementById('broadcastModal').classList.remove('open');
   document.getElementById('overlay').classList.remove('open');
-  showToast('Broadcast sent to '+document.getElementById('bcastCount').textContent+' ✓','success');
-  document.getElementById('bcastTitle').value=''; document.getElementById('bcastMsg').value='';
+  var cnt = document.getElementById('bcastCount2');
+  showToast('Broadcast sent to ' + (cnt ? cnt.textContent : 'members') + ' ✓', 'success');
+  t.value = ''; m.value = '';
 }
 function sendReception() {
   var inp=document.getElementById('receptionInput'), txt=inp.value.trim(); if(!txt)return;
@@ -1933,18 +1945,33 @@ function bookUpcoming(classId) {
 // ── CHECKIN & MISC ──
 var checkedInIds = [];
 function doCheckin() {
-  var firstBooked = upcomingClasses.find(function(c){ return bookedIds.indexOf(c.id) >= 0; });
-  if (!firstBooked) { showToast('No booked classes to check in to', 'warn'); return; }
-  if (checkedInIds.indexOf(firstBooked.id) >= 0) { showToast('Already checked in!', 'info'); return; }
-  checkedInIds.push(firstBooked.id);
+  // Check in to booked class first, otherwise allow walk-in to next available class
+  var target = upcomingClasses.find(function(c){ return bookedIds.indexOf(c.id) >= 0; });
+  if (!target) {
+    // No booking — find next class and allow walk-in
+    target = upcomingClasses[0]; // first available class as walk-in
+    if (!target) { showToast('No classes available to check in to', 'warn'); return; }
+  }
+  if (checkedInIds.indexOf(target.id) >= 0) { showToast('Already checked in!', 'info'); return; }
+  checkedInIds.push(target.id);
+  // Auto-book if walk-in
+  if (bookedIds.indexOf(target.id) < 0) {
+    bookedIds.push(target.id);
+    memberBookings[activeFamilyIdx] = bookedIds.slice();
+    if (target.spots > 0) target.spots--;
+  }
   var btn = document.getElementById('checkinBtn');
-  btn.textContent = '✓ CHECKED IN — ' + firstBooked.name.toUpperCase();
+  btn.textContent = '✓ CHECKED IN — ' + target.name.toUpperCase();
   btn.classList.add('done');
-  showToast('Checked in to ' + firstBooked.name + ' ✓', 'success');
+  renderCheckinScreen();
+  renderHomeBookingsCard();
+  showToast('Checked in to ' + target.name + ' ✓', 'success');
 }
 function openNotif()  { document.getElementById('notifPanel').classList.add('open');    document.getElementById('overlay').classList.add('open'); }
 function closeNotif() { document.getElementById('notifPanel').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
 function joinWA(url, name) {
+  // Close any open panels before opening external link
+  closeNotif();
   if (!url || url.indexOf('REPLACE') >= 0 || url.trim() === '') {
     showToast('WhatsApp link not set yet — add it in the app file', 'warn');
     return;
