@@ -4,7 +4,7 @@
 // Version is updated automatically on each deploy
 // ─────────────────────────────────────────────
 
-var CACHE_NAME = 'imperium-mma-v1';
+var CACHE_NAME = 'imperium-mma-v2';
 var ASSETS = [
   '/imperium-app/',
   '/imperium-app/index.html',
