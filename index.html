@@ -340,6 +340,46 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .waitlist-pill{background:rgba(212,160,23,0.15);color:var(--gold);font-size:11px;padding:3px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
 .waitlist-pos{font-size:10px;color:var(--muted);margin-top:2px;text-align:center}
 
+
+/* ─── BOOKINGS SCREEN ─── */
+.bookings-tabs{display:flex;gap:6px;margin-bottom:14px}
+.bookings-tab{flex:1;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;font-weight:600;text-align:center;transition:all .15s}
+.bookings-tab.active{background:rgba(192,57,43,0.15);border-color:rgba(231,76,60,0.3);color:var(--red2)}
+.booking-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;position:relative}
+.booking-card.upcoming{border-left:3px solid var(--red2)}
+.booking-card.checked-in{border-left:3px solid #4caf50;opacity:1}
+.booking-card.missed{border-left:3px solid var(--border);opacity:0.6}
+.booking-time-col{min-width:52px;text-align:center}
+.booking-time{font-family:var(--head);font-size:15px;color:var(--red2);letter-spacing:.5px}
+.booking-day{font-size:10px;color:var(--muted);margin-top:1px}
+.booking-info{flex:1}
+.booking-name{font-weight:600;font-size:14px}
+.booking-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.booking-status{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;white-space:nowrap}
+.bs-upcoming{background:rgba(192,57,43,0.15);color:var(--red2)}
+.bs-checkedin{background:rgba(26,107,42,0.2);color:#4caf50}
+.bs-missed{background:rgba(100,100,100,0.15);color:var(--muted)}
+.empty-state{text-align:center;padding:40px 20px}
+.empty-state i{font-size:40px;color:var(--border);display:block;margin-bottom:12px}
+.empty-state p{font-size:13px;color:var(--muted);margin-bottom:4px}
+.empty-state small{font-size:11px;color:var(--border)}
+/* Home bookings summary card */
+.home-bookings-card{background:linear-gradient(135deg,#0d1a0d 0%,#1a1a1a 100%);border:1px solid rgba(76,175,80,0.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;cursor:pointer;transition:border-color .15s}
+.home-bookings-card:hover{border-color:rgba(76,175,80,0.4)}
+.home-bookings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.home-bookings-title{font-family:var(--head);font-size:16px;letter-spacing:1px;color:var(--text)}
+.home-bookings-count{font-size:12px;color:#4caf50;font-weight:600}
+.home-booking-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.home-booking-row:last-child{border-bottom:none}
+.hb-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.hb-dot-red{background:var(--red2)}
+.hb-dot-green{background:#4caf50}
+.hb-name{font-size:13px;font-weight:600;flex:1}
+.hb-time{font-size:11px;color:var(--muted)}
+.hb-badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+.hb-badge-up{background:rgba(192,57,43,0.15);color:var(--red2)}
+.hb-badge-ci{background:rgba(26,107,42,0.2);color:#4caf50}
+
 </style>
 </head>
 <body>
@@ -377,6 +417,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <button class="nav-btn active" onclick="switchScreen('home')" id="nav-home"><i class="ti ti-home"></i>Home</button>
   <button class="nav-btn" onclick="switchScreen('timetable')" id="nav-timetable"><i class="ti ti-calendar"></i>Timetable</button>
   <button class="nav-btn" onclick="switchScreen('checkin')" id="nav-checkin"><i class="ti ti-scan"></i>Check In</button>
+  <button class="nav-btn" onclick="switchScreen('bookings')" id="nav-bookings"><i class="ti ti-calendar-check"></i>Bookings</button>
   <button class="nav-btn" onclick="switchScreen('passes')" id="nav-passes"><i class="ti ti-ticket"></i>Passes</button>
   <button class="nav-btn" onclick="switchScreen('waiver')" id="nav-waiver"><i class="ti ti-file-text"></i>Waivers</button>
   <button class="nav-btn" onclick="switchScreen('messages')" id="nav-messages"><i class="ti ti-message-circle"></i>Messages</button>
@@ -410,11 +451,16 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <p id="heroSub">Mordialloc · BJJ Blue Belt · Member since 2022</p>
   </div>
 
-  <div class="sl">Next Class</div>
-  <div class="class-item" onclick="switchScreen('checkin')">
-    <div class="class-time">6:30</div>
-    <div class="class-info"><div class="class-name">BJJ Gi</div><div class="class-meta">Tonight · All Coaches</div></div>
-    <span class="booked-pill">Booked</span>
+  <!-- MY BOOKINGS SUMMARY CARD — taps through to full bookings screen -->
+  <div class="home-bookings-card" onclick="switchScreen('bookings')" id="homeBookingsCard">
+    <div class="home-bookings-header">
+      <span class="home-bookings-title"><i class="ti ti-calendar-check" style="font-size:16px;vertical-align:-2px;color:#4caf50"></i> MY BOOKINGS</span>
+      <span class="home-bookings-count" id="homeBookingsCount">0 upcoming</span>
+    </div>
+    <div id="homeBookingsList">
+      <div style="font-size:12px;color:var(--muted);text-align:center;padding:8px">No upcoming bookings — tap to book a class</div>
+    </div>
+    <div style="text-align:right;margin-top:8px;font-size:11px;color:var(--muted)">View all & history <i class="ti ti-chevron-right" style="font-size:11px;vertical-align:-1px"></i></div>
   </div>
 
   <div class="sl">Quick Actions</div>
@@ -477,6 +523,23 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   </div>
   <div id="ttClasses"></div>
   <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Timetable connects to your live Clubworx schedule once the backend is set up.</div>
+</div>
+
+
+<!-- ════════════════════════════════════
+     SCREEN: MY BOOKINGS
+════════════════════════════════════ -->
+<div class="screen" id="screen-bookings">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MY BOOKINGS</h2>
+    <div id="bookingsMemberName" style="font-size:12px;color:var(--muted);font-weight:600"></div>
+  </div>
+  <div class="bookings-tabs">
+    <button class="bookings-tab active" onclick="setBookingsTab(this,'upcoming')" id="btab-upcoming">Upcoming</button>
+    <button class="bookings-tab" onclick="setBookingsTab(this,'history')" id="btab-history">Past 7 Days</button>
+  </div>
+  <div id="bookingsUpcoming"></div>
+  <div id="bookingsHistory" style="display:none"></div>
 </div>
 
 <!-- ════════════════════════════════════
@@ -1010,6 +1073,8 @@ function setActiveMember(idx) {
   renderCheckinScreen();
   renderTT(curDay);
 
+  renderHomeBookingsCard();
+  if (document.getElementById('screen-bookings').classList.contains('active')) renderBookingsScreen();
   showToast('Switched to ' + m.name + ' — showing their bookings', 'info');
 }
 
@@ -1242,6 +1307,13 @@ document.addEventListener('click', function(e) {
     var name = btn.getAttribute('data-name');
     if (k && name) bookTT(k, name, btn);
   }
+  // Bookings screen cancel buttons
+  if (e.target && e.target.getAttribute('data-cancel') === '1') {
+    var btn = e.target;
+    var cid = btn.getAttribute('data-cid');
+    var cname = btn.getAttribute('data-cname');
+    if (cid && cname) cancelFromBookings(cid, cname, btn);
+  }
 });
 function bookTT(k, name, btn) {
   if (bookedIds.indexOf(k) < 0) {
@@ -1434,6 +1506,7 @@ function switchScreen(id) {
   if (id==='admin-waivers') renderAdminWaivers();
   if (id==='comps')       renderCompList();
   if (id==='profile')     renderProfileWaiverStatus();
+  if (id==='bookings')    renderBookingsScreen();
   if (id==='admin-comps') {
     // Reset lock each time admin-comps is opened
     compAdminUnlocked = false; compPinEntry = '';
@@ -1638,6 +1711,7 @@ function bookUpcoming(classId) {
   }
   cls.spots = Math.max(0, cls.spots - 1);
   renderCheckinScreen();
+  renderHomeBookingsCard();
   showToast('Booked: ' + cls.name + ' for ' + familyMembers[activeFamilyIdx].name.split(' ')[0] + ' ✓', 'success');
 }
 
@@ -1752,6 +1826,7 @@ function confirmCancelBooking() {
     renderCheckinScreen();
     renderTT(curDay);
   }
+  renderHomeBookingsCard();
   showToast('Booking cancelled — spot released', 'info');
   cancelTargetId = null;
 }
@@ -1886,6 +1961,128 @@ function renderProfileWaiverStatus() {
   }
 }
 
+// ══ BOOKINGS SCREEN ══
+
+// Demo class history — past 7 days
+// In real app this comes from Clubworx attendance records
+var classHistory = [
+  {id:'h1', name:'BJJ Gi',          day:'Mon', date:'Yesterday', time:'8:00 PM', status:'checked-in'},
+  {id:'h2', name:'Muay Thai',       day:'Sat', date:'3 days ago', time:'10:00 AM', status:'checked-in'},
+  {id:'h3', name:'BJJ No-Gi',       day:'Thu', date:'4 days ago', time:'7:00 PM', status:'missed'},
+  {id:'h4', name:'Minis / Kids BJJ',day:'Tue', date:'6 days ago', time:'4:30 PM', status:'checked-in'},
+  {id:'h5', name:'Teens BJJ',       day:'Tue', date:'6 days ago', time:'5:10 PM', status:'missed'},
+];
+
+var currentBookingsTab = 'upcoming';
+
+function setBookingsTab(el, tab) {
+  document.querySelectorAll('.bookings-tab').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  currentBookingsTab = tab;
+  document.getElementById('bookingsUpcoming').style.display = tab==='upcoming' ? 'block' : 'none';
+  document.getElementById('bookingsHistory').style.display  = tab==='history'  ? 'block' : 'none';
+}
+
+function renderBookingsScreen() {
+  var memberName = familyMembers[activeFamilyIdx].name.split(' ')[0];
+  var nameEl = document.getElementById('bookingsMemberName');
+  if (nameEl) nameEl.textContent = activeFamilyIdx === 0 ? '' : memberName + "'s bookings";
+
+  // ── UPCOMING BOOKINGS ──
+  var upEl = document.getElementById('bookingsUpcoming');
+  if (!upEl) return;
+  var myBooked = upcomingClasses.filter(function(c){ return bookedIds.indexOf(c.id) >= 0; });
+
+  if (myBooked.length === 0) {
+    upEl.innerHTML = '<div class="empty-state"><i class="ti ti-calendar-off"></i><p>No upcoming bookings</p><small>Head to the Timetable to book a class</small></div>';
+  } else {
+    upEl.innerHTML = '';
+    myBooked.forEach(function(c) {
+      var card = document.createElement('div');
+      card.className = 'booking-card upcoming';
+      card.innerHTML =
+        '<div class="booking-time-col">' +
+          '<div class="booking-time">' + c.time.replace(' AM','').replace(' PM','') + '</div>' +
+          '<div class="booking-day">' + c.meta.split('-')[0].trim().split(' ')[0] + '</div>' +
+        '</div>' +
+        '<div class="booking-info">' +
+          '<div class="booking-name">' + c.name + '</div>' +
+          '<div class="booking-meta">' + c.meta + '</div>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">' +
+          '<span class="booking-status bs-upcoming">Booked</span>' +
+          '<button class="cancel-class-btn" style="font-size:10px;padding:3px 8px" data-cid="' + c.id + '" data-cname="' + c.name + '" data-cancel="1">Cancel</button>' +
+        '</div>';
+      upEl.appendChild(card);
+    });
+  }
+
+  // ── HISTORY ──
+  var histEl = document.getElementById('bookingsHistory');
+  if (!histEl) return;
+  if (classHistory.length === 0) {
+    histEl.innerHTML = '<div class="empty-state"><i class="ti ti-history"></i><p>No class history yet</p><small>Your attended classes will appear here</small></div>';
+  } else {
+    var ciCount = classHistory.filter(function(h){ return h.status==='checked-in'; }).length;
+    histEl.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
+      '<span style="font-size:12px;color:var(--muted)">Last 7 days</span>' +
+      '<span style="font-size:12px;font-weight:600;color:#4caf50">' + ciCount + ' classes attended</span>' +
+      '</div>' +
+      classHistory.map(function(h) {
+        var isCI = h.status === 'checked-in';
+        return '<div class="booking-card ' + h.status + '">' +
+          '<div class="booking-time-col">' +
+            '<div class="booking-time" style="color:' + (isCI ? '#4caf50' : 'var(--muted)') + '">' + h.time.replace(' AM','').replace(' PM','') + '</div>' +
+            '<div class="booking-day">' + h.day + '</div>' +
+          '</div>' +
+          '<div class="booking-info">' +
+            '<div class="booking-name">' + h.name + '</div>' +
+            '<div class="booking-meta">' + h.date + '</div>' +
+          '</div>' +
+          '<span class="booking-status ' + (isCI ? 'bs-checkedin' : 'bs-missed') + '">' + (isCI ? '✓ Checked In' : 'Not attended') + '</span>' +
+        '</div>';
+      }).join('');
+  }
+
+  // ── UPDATE HOME CARD ──
+  renderHomeBookingsCard();
+}
+
+function cancelFromBookings(classId, className, btn) {
+  cancelTargetId = classId;
+  // find the class meta for the modal
+  var cls = upcomingClasses.find(function(c){ return c.id === classId; });
+  openCancelModal(className, cls ? cls.time + ' · ' + cls.meta : className, classId, false);
+}
+
+function renderHomeBookingsCard() {
+  var listEl = document.getElementById('homeBookingsList');
+  var countEl = document.getElementById('homeBookingsCount');
+  if (!listEl || !countEl) return;
+
+  var myBooked = upcomingClasses.filter(function(c){ return bookedIds.indexOf(c.id) >= 0; });
+  countEl.textContent = myBooked.length + ' upcoming';
+
+  if (myBooked.length === 0) {
+    listEl.innerHTML = '<div style="font-size:12px;color:var(--muted);text-align:center;padding:8px 0">No upcoming bookings — tap to book a class</div>';
+    return;
+  }
+
+  // Show up to 3 bookings on home card
+  var show = myBooked.slice(0, 3);
+  listEl.innerHTML = show.map(function(c) {
+    var dayPart = c.meta.split('·')[0].trim();
+    return '<div class="home-booking-row">' +
+      '<div class="hb-dot hb-dot-red"></div>' +
+      '<span class="hb-name">' + c.name + '</span>' +
+      '<span class="hb-time">' + dayPart + ' ' + c.time + '</span>' +
+      '<span class="hb-badge hb-badge-up">Booked</span>' +
+    '</div>';
+  }).join('') +
+  (myBooked.length > 3 ? '<div style="font-size:11px;color:var(--muted);text-align:right;margin-top:6px">+' + (myBooked.length-3) + ' more</div>' : '');
+}
+
 // ── INIT ──
 renderTT('Mon');
 renderPasses('adult');
@@ -1893,6 +2090,7 @@ renderWaiverList();
 renderCompList();
 renderCheckinScreen();
 renderProfileWaiverStatus();
+renderHomeBookingsCard();
 </script>
 
 </body>
