@@ -32,7 +32,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 /* ─── LOGO ─── */
 .logo{font-family:var(--head);font-size:22px;letter-spacing:2px;user-select:none;-webkit-user-select:none;transition:opacity .15s}
 .logo:active{opacity:0.7}
-.logo span{color:var(--red2)}
+.logo span{color:#3498db}
 .topbar-right{display:flex;align-items:center;gap:10px}
 .notif-btn{position:relative;background:none;border:none;cursor:pointer;color:var(--muted);font-size:20px;padding:4px}
 .notif-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;background:var(--red2);border-radius:50%}
@@ -435,11 +435,11 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 <!-- Update available banner -->
 <div id="updateBanner" style="
-  position:fixed;top:0;left:0;right:0;z-index:500;
+  position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:500;
   background:linear-gradient(135deg,#1a6b2a,#27ae60);
   color:#fff;padding:12px 16px;
   display:flex;align-items:center;justify-content:space-between;
-  transform:translateY(-100%);transition:transform .3s ease;
+  transform:translateY(-200%);transition:transform .3s ease;
   font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
   max-width:480px;margin:0 auto;border-radius:0 0 12px 12px;
   box-shadow:0 4px 20px rgba(0,0,0,0.3)">
@@ -821,7 +821,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <div class="wa-join">Join</div>
   </div>
 
-  <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Tapping Join opens WhatsApp on your device. To update links, open this HTML file in a text editor and replace the REPLACE_..._LINK placeholders.</div>
+  
 </div>
 
 <!-- ════════════════════════════════════
@@ -873,6 +873,14 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Trials Today</div></div>
     <div class="stat-card"><div class="stat-num">14</div><div class="stat-label">Next Class</div></div>
     <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Classes Left</div></div>
+  </div>
+  <!-- Waiver alerts for staff -->
+  <div id="coachWaiverAlert" style="display:none;background:rgba(192,57,43,0.1);border:1px solid rgba(231,76,60,0.3);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+    <i class="ti ti-file-alert" style="font-size:20px;color:var(--red2);flex-shrink:0"></i>
+    <div>
+      <div style="font-weight:600;font-size:13px;color:var(--red2)" id="coachWaiverTitle">Members with unsigned waivers</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:2px" id="coachWaiverDetail">Loading...</div>
+    </div>
   </div>
   <div class="sl">Today's Trials</div>
   <div class="trial-item"><div class="trial-avatar">LS</div><div class="trial-info"><div class="trial-name">Liam Santos</div><div class="trial-meta">BJJ Fundamentals · 6:30 PM · Adult</div></div><span class="trial-badge">Trial 1</span></div>
@@ -1521,6 +1529,7 @@ function checkPin() {
     document.getElementById('staffLock').style.display = 'none';
     document.getElementById('staffContent').style.display = 'block';
     document.getElementById('pinError').textContent = '';
+    renderCoachWaiverAlert();
   } else {
     document.getElementById('pinError').textContent = 'Incorrect PIN — try again';
     pinEntry = ''; updatePinDots();
@@ -1767,15 +1776,16 @@ function closeBroadcastModal(e) {
   document.getElementById('overlay').classList.remove('open');
 }
 function sendBroadcast() {
-  var t = document.getElementById('bcastTitle2');
-  var m = document.getElementById('bcastMsg2');
-  if (!t || !m) return;
+  // Try both ID variants (modal uses bcastTitle, old messages used bcastTitle2)
+  var t = document.getElementById('bcastTitle') || document.getElementById('bcastTitle2');
+  var m = document.getElementById('bcastMsg')   || document.getElementById('bcastMsg2');
+  var cnt = document.getElementById('bcastCount') || document.getElementById('bcastCount2');
+  if (!t || !m) { showToast('Could not find message fields', 'warn'); return; }
   var tval = t.value.trim(), mval = m.value.trim();
   if (!tval || !mval) { showToast('Add a title and message first', 'warn'); return; }
   document.getElementById('broadcastModal').classList.remove('open');
   document.getElementById('overlay').classList.remove('open');
-  var cnt = document.getElementById('bcastCount2');
-  showToast('Broadcast sent to ' + (cnt ? cnt.textContent : 'members') + ' ✓', 'success');
+  showToast('Broadcast sent to ' + (cnt ? cnt.textContent : '87 members') + ' ✓', 'success');
   t.value = ''; m.value = '';
 }
 function sendReception() {
@@ -1983,7 +1993,8 @@ function joinWA(url, name) {
     return;
   }
   showToast('Opening ' + name + '...', 'info');
-  window.open(url, '_blank');
+  // Use location.href so WhatsApp deep link works without blank screen
+  setTimeout(function(){ window.location.href = url; }, 300);
 }
 
 function showToast(msg, type) {
@@ -2334,6 +2345,23 @@ function renderHomeBookingsCard() {
     '</div>';
   }).join('') +
   (myBooked.length > 3 ? '<div style="font-size:11px;color:var(--muted);text-align:right;margin-top:6px">+' + (myBooked.length-3) + ' more</div>' : '');
+}
+
+// ── COACH WAIVER ALERT ──
+function renderCoachWaiverAlert() {
+  var alertEl = document.getElementById('coachWaiverAlert');
+  var titleEl = document.getElementById('coachWaiverTitle');
+  var detailEl = document.getElementById('coachWaiverDetail');
+  if (!alertEl) return;
+  // Find required unsigned waivers
+  var unsigned = waivers.filter(function(w){ return w.required && w.visible && !w.completed; });
+  if (unsigned.length > 0) {
+    alertEl.style.display = 'flex';
+    titleEl.textContent = unsigned.length + ' required waiver' + (unsigned.length > 1 ? 's' : '') + ' not yet signed';
+    detailEl.textContent = unsigned.map(function(w){ return w.title; }).join(', ') + ' — member has been notified';
+  } else {
+    alertEl.style.display = 'none';
+  }
 }
 
 // ── INIT ──
