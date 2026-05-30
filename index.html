@@ -646,10 +646,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 ════════════════════════════════════ -->
 <div class="screen" id="screen-messages">
   <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:12px">MESSAGES</h2>
-  <div class="msg-tabs">
-    <button class="msg-tab active" onclick="setMsgTab(this,'reception')">Reception Chat</button>
-    <button class="msg-tab" onclick="setMsgTab(this,'broadcast')">Broadcast <span style="font-size:9px;background:rgba(192,57,43,0.3);color:var(--red2);padding:1px 5px;border-radius:4px;margin-left:3px">STAFF</span></button>
-  </div>
+  <!-- Reception Chat only — Broadcast is staff-only via Coaches Hub -->
 
   <div id="msgReception">
     <div class="card" style="padding:12px">
@@ -800,6 +797,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">COACHES HUB</h2>
     <div style="display:flex;align-items:center;gap:8px">
       <span class="badge-staff">STAFF</span>
+      <button onclick="openBroadcast()" style="background:rgba(192,57,43,0.15);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:var(--red2);cursor:pointer;font-size:11px;font-weight:600;padding:5px 10px;font-family:var(--font);display:flex;align-items:center;gap:4px" title="Broadcast"><i class="ti ti-speakerphone" style="font-size:13px"></i> Broadcast</button>
       <button onclick="lockStaff()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px" title="Lock"><i class="ti ti-lock"></i></button>
     </div>
   </div>
@@ -1031,6 +1029,110 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <button class="modal-btn modal-btn-keep" onclick="closeCancelClassModal()">GO BACK</button>
       <button class="modal-btn modal-btn-cancel" onclick="confirmCancelClass()">CANCEL CLASS</button>
     </div>
+  </div>
+</div>
+
+
+<!-- ── BROADCAST PANEL (staff only — accessible via Coaches Hub) ── -->
+<div class="modal-overlay" id="broadcastModal" onclick="closeBroadcastModal(event)">
+  <div class="modal-sheet" style="max-height:85vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <i class="ti ti-speakerphone" style="font-size:20px;color:var(--red2)"></i>
+        <div>
+          <div style="font-family:var(--head);font-size:16px;letter-spacing:1px">BROADCAST TO MEMBERS</div>
+          <div style="font-size:11px;color:var(--muted)">Admin access only</div>
+        </div>
+      </div>
+      <button onclick="closeBroadcastModal()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer"><i class="ti ti-x"></i></button>
+    </div>
+
+    <!-- BROADCAST ADMIN PIN LOCK -->
+    <div id="broadcastPinLock">
+      <div class="staff-lock" style="padding:20px 10px">
+        <i class="ti ti-lock" style="font-size:36px;color:var(--muted);display:block;text-align:center;margin-bottom:12px"></i>
+        <h3 style="font-family:var(--head);font-size:18px;letter-spacing:2px;text-align:center;margin-bottom:6px">ADMIN ONLY</h3>
+        <p style="font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px">Enter admin PIN to access broadcast</p>
+        <div class="pin-row" id="broadcastPinDots">
+          <div class="pin-dot" id="bpd0"></div>
+          <div class="pin-dot" id="bpd1"></div>
+          <div class="pin-dot" id="bpd2"></div>
+          <div class="pin-dot" id="bpd3"></div>
+        </div>
+        <div class="pin-keypad" style="max-width:200px;margin:0 auto">
+          <button class="pin-key" onclick="bcastPinPress('1')">1</button>
+          <button class="pin-key" onclick="bcastPinPress('2')">2</button>
+          <button class="pin-key" onclick="bcastPinPress('3')">3</button>
+          <button class="pin-key" onclick="bcastPinPress('4')">4</button>
+          <button class="pin-key" onclick="bcastPinPress('5')">5</button>
+          <button class="pin-key" onclick="bcastPinPress('6')">6</button>
+          <button class="pin-key" onclick="bcastPinPress('7')">7</button>
+          <button class="pin-key" onclick="bcastPinPress('8')">8</button>
+          <button class="pin-key" onclick="bcastPinPress('9')">9</button>
+          <button class="pin-key" onclick="bcastPinPress('clr')" style="font-size:12px;color:var(--muted)">CLR</button>
+          <button class="pin-key" onclick="bcastPinPress('0')">0</button>
+          <button class="pin-key" onclick="bcastPinPress('del')" style="font-size:16px">⌫</button>
+        </div>
+        <div class="pin-error" id="broadcastPinError" style="text-align:center;margin-top:10px"></div>
+        <p style="font-size:11px;color:var(--border);text-align:center;margin-top:12px">Demo PIN: 5678</p>
+      </div>
+    </div>
+
+    <!-- BROADCAST FORM (shown after PIN) -->
+    <div id="broadcastPinContent" style="display:none">
+
+    <div style="font-size:13px;color:var(--muted);margin-bottom:6px">Send via</div>
+    <div class="ch-row">
+      <div class="ch push on" onclick="this.classList.toggle('on')"><i class="ti ti-device-mobile" style="font-size:13px"></i>Push</div>
+      <div class="ch sms" onclick="this.classList.toggle('on')"><i class="ti ti-message" style="font-size:13px"></i>SMS</div>
+      <div class="ch email" onclick="this.classList.toggle('on')"><i class="ti ti-mail" style="font-size:13px"></i>Email</div>
+    </div>
+
+    <div style="margin-top:14px">
+      <label class="bcast-label">Audience</label>
+      <select class="bcast-input" id="bcastAudience" onchange="updateCount()" style="margin-bottom:0">
+        <option value="87">All Active Members (87)</option>
+        <option value="43">BJJ Members Only (43)</option>
+        <option value="31">Muay Thai Members Only (31)</option>
+        <option value="28">Kids BJJ Members (28)</option>
+        <option value="19">Kids Muay Thai Members (19)</option>
+        <option value="12">Class Pass Holders (12)</option>
+        <option value="8">Trial Members (8)</option>
+        <option value="14">Lapsed Members (14)</option>
+      </select>
+    </div>
+
+    <div style="margin-top:14px">
+      <label class="bcast-label">Title</label>
+      <input class="bcast-input" type="text" id="bcastTitle" placeholder="e.g. Grading Night — This Friday!">
+    </div>
+
+    <div style="margin-top:14px">
+      <label class="bcast-label">Message</label>
+      <textarea class="bcast-input" id="bcastMsg" style="resize:vertical;min-height:90px" placeholder="Type your message..."></textarea>
+    </div>
+
+    <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:12px;color:var(--muted)">
+        <i class="ti ti-users" style="font-size:13px;vertical-align:-1px"></i>
+        <span id="bcastCount">87 members</span>
+      </span>
+      <button style="padding:11px 24px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:var(--head);font-size:15px;letter-spacing:1px;cursor:pointer" onclick="sendBroadcast()">SEND NOW</button>
+    </div>
+
+    <div style="margin-top:14px;border-top:1px solid var(--border);padding-top:14px">
+      <div style="font-size:11px;font-weight:600;letter-spacing:1px;color:var(--muted);margin-bottom:8px">RECENT BROADCASTS</div>
+      <div style="font-size:13px;font-weight:600;padding:6px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between">
+        <div><div style="font-weight:600">Grading night — Friday 7 PM</div><div style="font-size:11px;color:var(--muted)">All members · Yesterday · Push + SMS</div></div>
+        <span style="font-size:11px;color:#4caf50;font-weight:600">87 sent</span>
+      </div>
+      <div style="font-size:13px;padding:6px 0;display:flex;justify-content:space-between">
+        <div><div style="font-weight:600">Gym closed public holiday</div><div style="font-size:11px;color:var(--muted)">All members · 3 days ago · Email</div></div>
+        <span style="font-size:11px;color:#4caf50;font-weight:600">87 sent</span>
+      </div>
+    </div>
+    </div><!-- end broadcastPinContent -->
   </div>
 </div>
 
@@ -1539,9 +1641,60 @@ function updateCount() {
   const m=s.options[s.selectedIndex].text.match(/\((\d+)\)/);
   document.getElementById('bcastCount').textContent=(m?m[1]:87)+' members';
 }
+// Separate Admin PIN for Broadcast — coaches cannot access this
+const BROADCAST_ADMIN_PIN = '5678'; // ← Set your own admin-only PIN here
+var broadcastPinEntry = '';
+var broadcastAdminUnlocked = false;
+
+function openBroadcast() {
+  // Always re-lock broadcast PIN when opening — fresh auth each time
+  broadcastAdminUnlocked = false;
+  broadcastPinEntry = '';
+  updateBcastPinDots();
+  document.getElementById('broadcastPinLock').style.display = 'block';
+  document.getElementById('broadcastPinContent').style.display = 'none';
+  document.getElementById('broadcastPinError').textContent = '';
+  document.getElementById('broadcastModal').classList.add('open');
+  document.getElementById('overlay').classList.add('open');
+}
+function updateBcastPinDots() {
+  for (var i=0; i<4; i++) {
+    var d = document.getElementById('bpd'+i);
+    if (d) d.classList.toggle('filled', i < broadcastPinEntry.length);
+  }
+}
+function bcastPinPress(key) {
+  if (key==='clr') { broadcastPinEntry=''; updateBcastPinDots(); document.getElementById('broadcastPinError').textContent=''; return; }
+  if (key==='del') { broadcastPinEntry=broadcastPinEntry.slice(0,-1); updateBcastPinDots(); return; }
+  if (broadcastPinEntry.length>=4) return;
+  broadcastPinEntry+=key;
+  updateBcastPinDots();
+  if (broadcastPinEntry.length===4) setTimeout(checkBcastPin, 180);
+}
+function checkBcastPin() {
+  if (broadcastPinEntry === BROADCAST_ADMIN_PIN) {
+    broadcastAdminUnlocked = true;
+    document.getElementById('broadcastPinLock').style.display = 'none';
+    document.getElementById('broadcastPinContent').style.display = 'block';
+    document.getElementById('broadcastPinError').textContent = '';
+  } else {
+    document.getElementById('broadcastPinError').textContent = 'Incorrect PIN — admin access only';
+    broadcastPinEntry = ''; updateBcastPinDots();
+    var dots = document.getElementById('broadcastPinDots');
+    dots.style.animation = 'shake .35s ease';
+    setTimeout(function(){ dots.style.animation=''; }, 400);
+  }
+}
+function closeBroadcastModal(e) {
+  if (e && e.target !== document.getElementById('broadcastModal')) return;
+  document.getElementById('broadcastModal').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
+}
 function sendBroadcast() {
   const t=document.getElementById('bcastTitle').value.trim(), m=document.getElementById('bcastMsg').value.trim();
   if(!t||!m){showToast('Add a title and message first','warn');return;}
+  document.getElementById('broadcastModal').classList.remove('open');
+  document.getElementById('overlay').classList.remove('open');
   showToast('Broadcast sent to '+document.getElementById('bcastCount').textContent+' ✓','success');
   document.getElementById('bcastTitle').value=''; document.getElementById('bcastMsg').value='';
 }
@@ -1827,6 +1980,11 @@ function confirmCancelBooking() {
     renderTT(curDay);
   }
   renderHomeBookingsCard();
+  // Refresh bookings screen if it is currently active
+  if (document.getElementById('screen-bookings') &&
+      document.getElementById('screen-bookings').classList.contains('active')) {
+    renderBookingsScreen();
+  }
   showToast('Booking cancelled — spot released', 'info');
   cancelTargetId = null;
 }
