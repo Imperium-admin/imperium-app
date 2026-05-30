@@ -1670,8 +1670,9 @@ function renderAdminComps() {
 }
 
 function addComp() {
-  var today = new Date().toISOString().split('T')[0];
-  competitions.push({id:'c'+Date.now(),title:'New Event',date:today,location:'',discipline:'bjj',eventType:'comp',type:'comp',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'',featured:false,visible:false});
+  var future = new Date(); future.setDate(future.getDate()+30);
+  var futureDate = future.toISOString().split('T')[0];
+  competitions.push({id:'c'+Date.now(),title:'New Event',date:futureDate,location:'',discipline:'bjj',eventType:'comp',type:'comp',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'',featured:false,visible:false});
   renderAdminComps();
   renderCompList();
   showToast('Competition added — fill in details and tap Save','info');
@@ -2522,7 +2523,7 @@ renderProfileWaiverStatus();
 renderHomeBookingsCard();
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '1.7'; // bumped with each new release — I do this automatically
+var APP_VERSION = '1.8'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
