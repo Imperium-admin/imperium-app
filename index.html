@@ -381,51 +381,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .hb-badge-ci{background:rgba(26,107,42,0.2);color:#4caf50}
 
 </style>
-  <!-- Service Worker — auto-updates app when GitHub is updated -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      // Register service worker
-      navigator.serviceWorker.register('./sw.js')
-        .then(function(reg) {
-          // Check for updates on load
-          reg.update();
-          // Also check when app comes back into focus
-          document.addEventListener('visibilitychange', function() {
-            if (document.visibilityState === 'visible') reg.update();
-          });
-            // When a new version is waiting, show update banner
-            reg.addEventListener('updatefound', function() {
-              var newWorker = reg.installing;
-              newWorker.addEventListener('statechange', function() {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  showUpdateBanner();
-                }
-              });
-            });
-          });
-      // When new SW takes control, reload the page
-      var refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', function() {
-        if (!refreshing) { refreshing = true; window.location.reload(); }
-      });
-    }
-
-    function showUpdateBanner() {
-      var banner = document.getElementById('updateBanner');
-      if (banner) {
-        banner.style.transform = 'translateX(-50%) translateY(0)';
-      }
-    }
-    function applyUpdate() {
-      navigator.serviceWorker.getRegistration().then(function(reg) {
-        if (reg && reg.waiting) {
-          reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-        }
-      });
-      var banner = document.getElementById('updateBanner');
-      if (banner) banner.style.transform = 'translateY(-100%)';
-    }
-  </script>
+  <!-- App version check — shows update banner when new version is available -->
+  <meta name="app-version" content="1.0">
 </head>
 <body>
 
@@ -2372,6 +2329,36 @@ renderCompList();
 renderCheckinScreen();
 renderProfileWaiverStatus();
 renderHomeBookingsCard();
+
+// ── UPDATE BANNER ──
+var APP_VERSION = '1.0'; // bumped with each new release — I do this automatically
+
+function showUpdateBanner() {
+  var banner = document.getElementById('updateBanner');
+  if (banner) {
+    banner.style.transform = 'translateX(-50%) translateY(0)';
+  }
+}
+
+function applyUpdate() {
+  try { sessionStorage.setItem('imperium_version', APP_VERSION); } catch(e){}
+  window.location.reload(true);
+}
+
+// Run version check after DOM and all content is loaded
+window.addEventListener('load', function() {
+  try {
+    var seen = sessionStorage.getItem('imperium_version');
+    // Show banner if: version changed OR ?showbanner in URL (for testing)
+    var isTesting = window.location.search.indexOf('showbanner') >= 0;
+    if (isTesting || (seen && seen !== APP_VERSION)) {
+      setTimeout(showUpdateBanner, 1000);
+    }
+    sessionStorage.setItem('imperium_version', APP_VERSION);
+  } catch(e) {
+    // sessionStorage not available
+  }
+});
 </script>
 
 </body>
