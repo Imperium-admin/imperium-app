@@ -36,7 +36,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .topbar-right{display:flex;align-items:center;gap:10px}
 .notif-btn{position:relative;background:none;border:none;cursor:pointer;color:var(--muted);font-size:20px;padding:4px}
 .notif-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;background:var(--red2);border-radius:50%}
-.top-avatar{width:34px;height:34px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;cursor:pointer;border:none}
+.top-avatar{width:34px;height:34px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;border:2px solid rgba(255,255,255,0.4);color:#fff;letter-spacing:0.5px;text-shadow:0 1px 2px rgba(0,0,0,0.5)}
 
 /* ─── NAV ─── */
 .nav{display:flex;width:100%;max-width:480px;background:var(--dark);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:calc(env(safe-area-inset-top,0px) + 53px);z-index:99}
@@ -945,12 +945,18 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 ════════════════════════════════════ -->
 <div class="screen" id="screen-comps">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">COMPETITIONS</h2>
-    <button style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font)" onclick="switchScreen('admin-comps')"><i class="ti ti-settings" style="font-size:14px"></i>Admin</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">UPCOMING EVENTS</h2>
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Upcoming events, registration links & team announcements</p>
+  </div>
+  <!-- Event type filter -->
+  <div class="bookings-tabs" style="margin-bottom:14px" id="eventFilterTabs">
+    <button class="bookings-tab active" onclick="setEventFilter(this,'all')">All</button>
+    <button class="bookings-tab" onclick="setEventFilter(this,'comp')">Competitions</button>
+    <button class="bookings-tab" onclick="setEventFilter(this,'grading')">Gradings</button>
+    <button class="bookings-tab" onclick="setEventFilter(this,'other')">Other</button>
+  </div>
   <div id="compListItems"></div>
-</div>
 
 <!-- ════════════════════════════════════
      SCREEN: ADMIN COMPETITIONS
@@ -1452,6 +1458,7 @@ function bookTT(k, name, btn) {
   var cls = upcomingClasses.find(function(c){ return c.id === k; });
   if (cls && cls.spots > 0) cls.spots--;
   btn.outerHTML = '<span class="booked-pill">Booked ✓</span>';
+  renderHomeBookingsCard(); // update home card immediately
   showToast('Booked: ' + name + ' for ' + familyMembers[activeFamilyIdx].name.split(' ')[0] + ' ✓', 'success');
 }
 
@@ -1519,7 +1526,11 @@ function renderCompList() {
     if (!aPast && bPast) return -1;
     return da - db;
   });
-  var vis = competitions.filter(function(c) { return c.visible && daysUntil(c.date) >= 0; });
+  var vis = competitions.filter(function(c) {
+    if (!c.visible || daysUntil(c.date) < 0) return false;
+    if (currentEventFilter === 'all') return true;
+    return c.type === currentEventFilter;
+  });
   if (!vis.length) {
     el.innerHTML = '<div class="info-box" style="text-align:center"><i class="ti ti-trophy" style="font-size:24px;color:var(--muted);display:block;margin-bottom:8px"></i><div style="font-size:13px;font-weight:600;margin-bottom:4px">No competitions posted yet</div><div style="font-size:12px">Tap Admin to add events.</div></div>';
     return;
@@ -1530,7 +1541,8 @@ function renderCompList() {
     var shortDate = new Date(c.date).toLocaleDateString('en-AU',{day:'numeric',month:'short'});
     var badgeClass = past ? '' : days<=14 ? 'soon' : c.regOpen ? 'open' : 'upcoming';
     var badgeText = past ? 'Completed' : days<=14 ? (days===0?'Today!':days===1?'Tomorrow':days+' days away') : shortDate;
-    var typeColor = c.type==='bjj' ? '#3498db' : c.type==='muay' ? 'var(--red2)' : '#4caf50';
+    var typeColor = c.type==='comp' ? '#3498db' : c.type==='grading' ? '#9b59b6' : c.type==='muay' ? 'var(--red2)' : c.type==='other' ? '#e67e22' : '#4caf50';
+    var typeLabel = c.type==='comp' ? 'COMPETITION' : c.type==='grading' ? 'GRADING' : c.type==='muay' ? 'MUAY THAI' : c.type==='kids' ? 'KIDS' : c.type==='other' ? (c.otherLabel||'EVENT') : c.type.toUpperCase();
     var regBtn = (c.regUrl && !past) ? '<button class="comp-btn comp-btn-primary" data-url="'+c.regUrl+'">'+(c.regOpen?'Register Now':'View Details')+'</button>' : '';
     return '<div class="comp-card '+(c.featured&&!past?'featured':'upcoming')+' '+(past?'comp-past':'')+'">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">'+
@@ -1560,12 +1572,13 @@ function renderAdminComps() {
     var div = document.createElement('div');
     div.className = 'comp-admin-item';
     // Type options
-    var typeOpts = ['bjj','muay','kids','mixed'].map(function(t) {
-      return '<option value="'+t+'"'+(c.type===t?' selected':'')+'>'+t.toUpperCase()+'</option>';
+    var typeLabels = {comp:'Competition', grading:'Grading', muay:'Muay Thai', kids:'Kids', other:'Other / Seminar'};
+    var typeOpts = ['comp','grading','muay','kids','other'].map(function(t) {
+      return '<option value="'+t+'"'+(c.type===t?' selected':'')+'>'+typeLabels[t]+'</option>';
     }).join('');
     div.innerHTML =
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+
-      '<span class="tag" style="background:rgba(52,152,219,0.15);color:#3498db" id="type-tag-'+i+'">'+c.type.toUpperCase()+'</span>'+
+      '<span class="tag" style="background:rgba(52,152,219,0.15);color:#3498db" id="type-tag-'+i+'">'+(typeLabels[c.type]||c.type.toUpperCase())+'</span>'+
       (c.featured?'<span class="tag tag-req">Featured</span>':'')+
       '<div style="margin-left:auto;display:flex;align-items:center;gap:8px">'+
       '<span style="font-size:12px;color:var(--muted)">'+(c.visible?'Visible':'Hidden')+'</span>'+
@@ -1580,6 +1593,8 @@ function renderAdminComps() {
       '<select class="comp-admin-input" id="type-'+i+'" style="flex:0 0 120px">'+typeOpts+'</select>'+
       '<input class="comp-admin-input" type="text" id="url-'+i+'" value="'+c.regUrl+'" placeholder="Registration URL">'+
       '</div>'+
+      '<div class="comp-admin-row" id="otherLabelRow-'+i+'" style="'+(c.type==='other'?'':'display:none')+'">'+
+      '<input class="comp-admin-input" type="text" id="otherLabel-'+i+'" value="'+(c.otherLabel||'')+'" placeholder="Event type label (e.g. Seminar, Workshop)"></div>'+
       '<div class="comp-admin-row"><input class="comp-admin-input" type="text" id="notes-'+i+'" value="'+c.notes+'" placeholder="Notes for members"></div>'+
       '<div style="display:flex;gap:8px;margin-top:6px">'+
       '<button style="flex:1;padding:8px;background:rgba(192,57,43,0.15);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:var(--red2);font-family:var(--font);font-size:12px;cursor:pointer;font-weight:600" id="save-'+i+'">Save Changes</button>'+
@@ -1587,17 +1602,26 @@ function renderAdminComps() {
       '</div>';
     // Wire up save and delete buttons
     (function(idx, card) {
+      // Show/hide other label field based on type selection
+      var typeSelect = card.querySelector('#type-'+idx);
+      if (typeSelect) {
+        typeSelect.addEventListener('change', function() {
+          var otherRow = card.querySelector('#otherLabelRow-'+idx);
+          if (otherRow) otherRow.style.display = this.value === 'other' ? 'flex' : 'none';
+        });
+      }
       card.querySelector('#save-'+idx).onclick = function() {
-        competitions[idx].title    = card.querySelector('#title-'+idx).value;
-        competitions[idx].date     = card.querySelector('#date-'+idx).value;
-        competitions[idx].location = card.querySelector('#loc-'+idx).value;
-        competitions[idx].type     = card.querySelector('#type-'+idx).value;
-        competitions[idx].regUrl   = card.querySelector('#url-'+idx).value;
-        competitions[idx].notes    = card.querySelector('#notes-'+idx).value;
-        competitions[idx].visible  = card.querySelector('#vis-'+idx).checked;
+        competitions[idx].title      = card.querySelector('#title-'+idx).value;
+        competitions[idx].date       = card.querySelector('#date-'+idx).value;
+        competitions[idx].location   = card.querySelector('#loc-'+idx).value;
+        competitions[idx].type       = card.querySelector('#type-'+idx).value;
+        competitions[idx].otherLabel = card.querySelector('#otherLabel-'+idx) ? card.querySelector('#otherLabel-'+idx).value : '';
+        competitions[idx].regUrl     = card.querySelector('#url-'+idx).value;
+        competitions[idx].notes      = card.querySelector('#notes-'+idx).value;
+        competitions[idx].visible    = card.querySelector('#vis-'+idx).checked;
         renderCompList();
         renderAdminComps();
-        showToast('Competition saved ✓', 'success');
+        showToast('Event saved ✓', 'success');
       };
       card.querySelector('#del-'+idx).onclick = function() {
         if (!confirm('Delete "' + competitions[idx].title + '"? This cannot be undone.')) return;
@@ -1613,7 +1637,7 @@ function renderAdminComps() {
 
 function addComp() {
   var today = new Date().toISOString().split('T')[0];
-  competitions.push({id:'c'+Date.now(),title:'New Competition',date:today,location:'',type:'bjj',tags:['BJJ'],regUrl:'',regOpen:true,notes:'',featured:false,visible:false});
+  competitions.push({id:'c'+Date.now(),title:'New Event',date:today,location:'',type:'comp',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'',featured:false,visible:false});
   renderAdminComps();
   renderCompList();
   showToast('Competition added — fill in details and tap Save','info');
@@ -2385,6 +2409,15 @@ function renderCoachWaiverAlert() {
   }
 }
 
+// ── EVENT FILTER ──
+var currentEventFilter = 'all';
+function setEventFilter(el, filter) {
+  document.querySelectorAll('#eventFilterTabs .bookings-tab').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  currentEventFilter = filter;
+  renderCompList();
+}
+
 // ── INIT ──
 renderTT('Mon');
 renderPasses('adult');
@@ -2395,7 +2428,7 @@ renderProfileWaiverStatus();
 renderHomeBookingsCard();
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '1.1'; // bumped with each new release — I do this automatically
+var APP_VERSION = '1.2'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
