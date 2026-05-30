@@ -2352,7 +2352,7 @@ window.addEventListener('load', function() {
     // Show banner if: version changed OR ?showbanner in URL (for testing)
     var isTesting = window.location.search.indexOf('showbanner') >= 0;
     if (isTesting || (seen && seen !== APP_VERSION)) {
-      setTimeout(showUpdateBanner, 1000);
+      setTimeout(showUpdateBanner, 300);
     }
     sessionStorage.setItem('imperium_version', APP_VERSION);
   } catch(e) {
