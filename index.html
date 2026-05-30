@@ -300,6 +300,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .comp-past{opacity:0.5}
 .add-comp-btn{width:100%;padding:12px;background:none;border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted);font-family:var(--font);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;margin-bottom:12px}
 .add-comp-btn:hover{border-color:#555;color:var(--text)}
+  </div>
 .comp-admin-item{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
 .comp-admin-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
 .comp-admin-input{flex:1;background:#2a2a2a;border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none}
@@ -945,9 +946,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 ════════════════════════════════════ -->
 <div class="screen" id="screen-comps">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
     <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">UPCOMING EVENTS</h2>
-  </div>
+    <button style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font)" onclick="switchScreen('admin-comps')"><i class="ti ti-settings" style="font-size:14px"></i>Admin</button>
   </div>
   <!-- Event type filter -->
   <div class="bookings-tabs" style="margin-bottom:14px" id="eventFilterTabs">
@@ -962,14 +962,14 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
      SCREEN: ADMIN COMPETITIONS
 ════════════════════════════════════ -->
 <div class="screen" id="screen-admin-comps">
-  <button class="back-btn" onclick="switchScreen('comps')"><i class="ti ti-arrow-left"></i> Back to Competitions</button>
+  <button class="back-btn" onclick="switchScreen('comps')"><i class="ti ti-arrow-left"></i> Back to Events</button>
 
   <!-- COMP ADMIN PIN LOCK -->
   <div id="compAdminLock">
     <div class="staff-lock">
       <i class="ti ti-trophy" style="color:var(--gold)"></i>
       <h3>ADMIN ACCESS</h3>
-      <p>Enter your admin PIN to manage competitions.</p>
+      <p>Enter your admin PIN to manage events.</p>
       <div class="pin-row" id="compPinDots">
         <div class="pin-dot" id="cpd0"></div>
         <div class="pin-dot" id="cpd1"></div>
@@ -998,21 +998,18 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <!-- COMP ADMIN CONTENT (hidden until PIN entered) -->
   <div id="compAdminContent" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-      <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MANAGE COMPS</h2>
+      <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MANAGE EVENTS</h2>
       <div style="display:flex;align-items:center;gap:8px">
         <span class="badge-staff">ADMIN</span>
         <button onclick="lockCompAdmin()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px" title="Lock"><i class="ti ti-lock"></i></button>
       </div>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Add, edit or remove competitions. Changes go live instantly.</p>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Add, edit or remove events. Changes go live instantly.</p>
     <div id="adminCompList"></div>
-    <button class="add-comp-btn" onclick="addComp()"><i class="ti ti-plus"></i> Add Competition</button>
-    <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Paste a registration URL (e.g. Smoothcomp, IBJJF, Fightmaster) to add a Register button. Leave blank for info-only posts.</div>
+    <button class="add-comp-btn" onclick="addComp()"><i class="ti ti-plus"></i> Add Event</button>
+    <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Paste a registration URL to add a Register button. Leave blank for info-only posts.</div>
   </div>
 </div>
-
-
-
 <!-- ── CANCEL BOOKING MODAL ── -->
 <div class="modal-overlay" id="cancelModal" onclick="closeCancelModal(event)">
   <div class="modal-sheet">
@@ -2438,22 +2435,22 @@ function showUpdateBanner() {
 }
 
 function applyUpdate() {
-  try { sessionStorage.setItem('imperium_version', APP_VERSION); } catch(e){}
+  try { localStorage.setItem('imperium_version', APP_VERSION); } catch(e){}
   window.location.reload(true);
 }
 
 // Run version check after DOM and all content is loaded
 window.addEventListener('load', function() {
   try {
-    var seen = sessionStorage.getItem('imperium_version');
+    var seen = localStorage.getItem('imperium_version');
     // Show banner if: version changed OR ?showbanner in URL (for testing)
     var isTesting = window.location.search.indexOf('showbanner') >= 0;
     if (isTesting || (seen && seen !== APP_VERSION)) {
       setTimeout(showUpdateBanner, 300);
     }
-    sessionStorage.setItem('imperium_version', APP_VERSION);
+    localStorage.setItem('imperium_version', APP_VERSION);
   } catch(e) {
-    // sessionStorage not available
+    // localStorage not available
   }
 });
 </script>
