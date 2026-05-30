@@ -1538,14 +1538,16 @@ function renderCompList() {
   });
   var vis = competitions.filter(function(c) {
     if (!c.visible || daysUntil(c.date) < 0) return false;
-    // Discipline filter
+    // Discipline filter — kids BJJ events show under BJJ filter
     if (currentDisciplineFilter !== 'all') {
-      var disc = c.discipline || c.type; // fallback for old data
-      if (disc !== currentDisciplineFilter) return false;
+      var disc = c.discipline || c.type;
+      var matchesBJJ  = currentDisciplineFilter === 'bjj'  && (disc === 'bjj' || disc === 'kids');
+      var matchesMuay = currentDisciplineFilter === 'muay' && disc === 'muay';
+      if (!matchesBJJ && !matchesMuay) return false;
     }
     // Event type filter
     if (currentEventTypeFilter !== 'all') {
-      var evType = c.eventType || c.type; // fallback for old data
+      var evType = c.eventType || c.type;
       if (evType !== currentEventTypeFilter) return false;
     }
     return true;
@@ -2520,7 +2522,7 @@ renderProfileWaiverStatus();
 renderHomeBookingsCard();
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '1.6'; // bumped with each new release — I do this automatically
+var APP_VERSION = '1.7'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
