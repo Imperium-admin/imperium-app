@@ -384,11 +384,15 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <!-- Service Worker — auto-updates app when GitHub is updated -->
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/imperium-app/sw.js')
-          .then(function(reg) {
-            // Check for updates every time app is opened
-            reg.update();
+      // Register service worker
+      navigator.serviceWorker.register('./sw.js')
+        .then(function(reg) {
+          // Check for updates on load
+          reg.update();
+          // Also check when app comes back into focus
+          document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible') reg.update();
+          });
             // When a new version is waiting, show update banner
             reg.addEventListener('updatefound', function() {
               var newWorker = reg.installing;
@@ -399,17 +403,19 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
               });
             });
           });
-        // When new SW takes control, reload the page
-        var refreshing = false;
-        navigator.serviceWorker.addEventListener('controllerchange', function() {
-          if (!refreshing) { refreshing = true; window.location.reload(); }
-        });
+      // When new SW takes control, reload the page
+      var refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function() {
+        if (!refreshing) { refreshing = true; window.location.reload(); }
       });
     }
 
     function showUpdateBanner() {
       var banner = document.getElementById('updateBanner');
-      if (banner) banner.style.transform = 'translateY(0)';
+      if (banner) {
+        banner.style.transform = 'translateY(0)';
+        banner.style.display = 'flex';
+      }
     }
     function applyUpdate() {
       navigator.serviceWorker.getRegistration().then(function(reg) {
