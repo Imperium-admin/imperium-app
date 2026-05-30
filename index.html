@@ -308,6 +308,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 /* ─── CANCEL BOOKING ─── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:400;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+#broadcastModal{z-index:600}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal-sheet{width:100%;max-width:480px;background:var(--dark);border-top:1px solid var(--border);border-radius:18px 18px 0 0;padding:20px;transform:translateY(100%);transition:transform .25s ease}
 .modal-overlay.open .modal-sheet{transform:translateY(0)}
@@ -1067,7 +1068,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 
 <!-- ── BROADCAST PANEL (staff only — accessible via Coaches Hub) ── -->
-<div class="modal-overlay" id="broadcastModal" onclick="closeBroadcastModal(event)">
+<div class="modal-overlay" id="broadcastModal" onclick="closeBroadcastModal(event)" style="z-index:600">
   <div class="modal-sheet" style="max-height:85vh;overflow-y:auto">
     <div class="modal-handle"></div>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -1697,7 +1698,7 @@ function openBroadcast() {
   document.getElementById('broadcastPinContent').style.display = 'none';
   document.getElementById('broadcastPinError').textContent = '';
   document.getElementById('broadcastModal').classList.add('open');
-  document.getElementById('overlay').classList.add('open');
+  // Don't use shared overlay — broadcast modal handles its own backdrop
 }
 function updateBcastPinDots() {
   for (var i=0; i<4; i++) {
@@ -1730,7 +1731,6 @@ function checkBcastPin() {
 function closeBroadcastModal(e) {
   if (e && e.target !== document.getElementById('broadcastModal')) return;
   document.getElementById('broadcastModal').classList.remove('open');
-  document.getElementById('overlay').classList.remove('open');
 }
 function sendBroadcast() {
   // Try both ID variants (modal uses bcastTitle, old messages used bcastTitle2)
@@ -1741,7 +1741,6 @@ function sendBroadcast() {
   var tval = t.value.trim(), mval = m.value.trim();
   if (!tval || !mval) { showToast('Add a title and message first', 'warn'); return; }
   document.getElementById('broadcastModal').classList.remove('open');
-  document.getElementById('overlay').classList.remove('open');
   showToast('Broadcast sent to ' + (cnt ? cnt.textContent : '87 members') + ' ✓', 'success');
   t.value = ''; m.value = '';
 }
