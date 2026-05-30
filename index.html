@@ -450,7 +450,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <button class="nav-btn" onclick="switchScreen('messages')" id="nav-messages"><i class="ti ti-message-circle"></i>Messages</button>
   <button class="nav-btn" onclick="switchScreen('community')" id="nav-community"><i class="ti ti-brand-whatsapp"></i>Community</button>
   <button class="nav-btn" onclick="switchScreen('coaches')" id="nav-coaches"><i class="ti ti-shield"></i>Coaches</button>
-  <button class="nav-btn" onclick="switchScreen('comps')" id="nav-comps"><i class="ti ti-trophy"></i>Comps</button>
+  <button class="nav-btn" onclick="switchScreen('comps')" id="nav-comps"><i class="ti ti-trophy"></i>Events</button>
 </nav>
 
 <!-- ════════════════════════════════════
@@ -956,7 +956,6 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <button class="bookings-tab active" onclick="setDisciplineFilter(this,'all')">All</button>
       <button class="bookings-tab" onclick="setDisciplineFilter(this,'bjj')">BJJ</button>
       <button class="bookings-tab" onclick="setDisciplineFilter(this,'muay')">Muay Thai</button>
-      <button class="bookings-tab" onclick="setDisciplineFilter(this,'kids')">Kids</button>
     </div>
   </div>
   <!-- Filter row 2: Event Type -->
@@ -1592,9 +1591,9 @@ function renderAdminComps() {
     var div = document.createElement('div');
     div.className = 'comp-admin-item';
     // Type options
-    var discLabels = {bjj:'BJJ', muay:'Muay Thai', kids:'Kids', mixed:'Mixed'};
+    var discLabels = {bjj:'BJJ', muay:'Muay Thai', mixed:'Mixed'};
     var evLabels  = {comp:'Competition', grading:'Grading', other:'Other / Seminar'};
-    var discOpts = ['bjj','muay','kids','mixed'].map(function(d){
+    var discOpts = ['bjj','muay','mixed'].map(function(d){
       return '<option value="'+d+'"'+((c.discipline||c.type)===d?' selected':'')+'>'+discLabels[d]+'</option>';
     }).join('');
     var evTypeOpts = ['comp','grading','other'].map(function(e){
@@ -1602,7 +1601,9 @@ function renderAdminComps() {
     }).join('');
     div.innerHTML =
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+
-      '<span class="tag" style="background:rgba(52,152,219,0.15);color:#3498db" id="type-tag-'+i+'">'+(typeLabels[c.type]||c.type.toUpperCase())+'</span>'+
+      '<span class="tag" style="background:rgba(52,152,219,0.15);color:#3498db" id="type-tag-'+i+'">'+
+      (discLabels[c.discipline||c.type]||'BJJ')+' · '+(evLabels[c.eventType||'comp']||'Competition')+
+      '</span>'+
       (c.featured?'<span class="tag tag-req">Featured</span>':'')+
       '<div style="margin-left:auto;display:flex;align-items:center;gap:8px">'+
       '<span style="font-size:12px;color:var(--muted)">'+(c.visible?'Visible':'Hidden')+'</span>'+
@@ -1628,12 +1629,14 @@ function renderAdminComps() {
     // Wire up save and delete buttons
     (function(idx, card) {
       // Show/hide other label field based on type selection
-      var typeSelect = card.querySelector('#type-'+idx);
-      if (typeSelect) {
-        typeSelect.addEventListener('change', function() {
-          var otherRow = card.querySelector('#otherLabelRow-'+idx);
-          if (otherRow) otherRow.style.display = this.value === 'other' ? 'flex' : 'none';
-        });
+      var typeSelect = card.querySelector('#evtype-'+idx);
+      if (typeSelect && typeSelect.addEventListener) {
+        (function(ix){
+          typeSelect.addEventListener('change', function() {
+            var otherRow = card.querySelector('#otherLabelRow-'+ix);
+            if (otherRow) otherRow.style.display = this.value === 'other' ? 'flex' : 'none';
+          });
+        })(idx);
       }
       card.querySelector('#save-'+idx).onclick = function() {
         competitions[idx].title      = card.querySelector('#title-'+idx).value;
@@ -1696,6 +1699,7 @@ function switchScreen(id) {
   if (id==='waiver')      renderWaiverList();
   if (id==='admin-waivers') renderAdminWaivers();
   if (id==='comps')       renderCompList();
+  if (id==='admin-comps') { renderAdminComps(); }
   if (id==='profile')     renderProfileWaiverStatus();
   if (id==='bookings')    renderBookingsScreen();
   if (id==='admin-comps') {
@@ -2465,7 +2469,7 @@ renderProfileWaiverStatus();
 renderHomeBookingsCard();
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '1.4'; // bumped with each new release — I do this automatically
+var APP_VERSION = '1.5'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
