@@ -300,7 +300,6 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .comp-past{opacity:0.5}
 .add-comp-btn{width:100%;padding:12px;background:none;border:1px dashed var(--border);border-radius:var(--radius);color:var(--muted);font-family:var(--font);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;margin-bottom:12px}
 .add-comp-btn:hover{border-color:#555;color:var(--text)}
-  </div>
 .comp-admin-item{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
 .comp-admin-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
 .comp-admin-input{flex:1;background:#2a2a2a;border:1px solid var(--border);border-radius:6px;padding:7px 10px;color:var(--text);font-family:var(--font);font-size:12px;outline:none}
@@ -519,7 +518,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     </div>
     <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px;grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:12px" onclick="switchScreen('comps')">
       <i class="ti ti-trophy" style="font-size:22px;color:var(--gold)"></i>
-      <div style="font-size:13px;font-weight:600">Upcoming Competitions</div>
+      <div style="font-size:13px;font-weight:600">Upcoming Events</div>
       <i class="ti ti-chevron-right" style="font-size:16px;color:var(--muted);margin-left:auto"></i>
     </div>
   </div>
@@ -950,12 +949,25 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">UPCOMING EVENTS</h2>
     <button style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font)" onclick="switchScreen('admin-comps')"><i class="ti ti-settings" style="font-size:14px"></i>Admin</button>
   </div>
-  <!-- Event type filter -->
-  <div class="bookings-tabs" style="margin-bottom:14px" id="eventFilterTabs">
-    <button class="bookings-tab active" onclick="setEventFilter(this,'all')">All</button>
-    <button class="bookings-tab" onclick="setEventFilter(this,'comp')">Competitions</button>
-    <button class="bookings-tab" onclick="setEventFilter(this,'grading')">Gradings</button>
-    <button class="bookings-tab" onclick="setEventFilter(this,'other')">Other</button>
+  <!-- Filter row 1: Martial Art -->
+  <div style="margin-bottom:8px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:1px;color:var(--muted);margin-bottom:6px;text-transform:uppercase">Martial Art</div>
+    <div class="bookings-tabs" id="disciplineFilterTabs">
+      <button class="bookings-tab active" onclick="setDisciplineFilter(this,'all')">All</button>
+      <button class="bookings-tab" onclick="setDisciplineFilter(this,'bjj')">BJJ</button>
+      <button class="bookings-tab" onclick="setDisciplineFilter(this,'muay')">Muay Thai</button>
+      <button class="bookings-tab" onclick="setDisciplineFilter(this,'kids')">Kids</button>
+    </div>
+  </div>
+  <!-- Filter row 2: Event Type -->
+  <div style="margin-bottom:14px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:1px;color:var(--muted);margin-bottom:6px;text-transform:uppercase">Event Type</div>
+    <div class="bookings-tabs" id="eventTypeFilterTabs">
+      <button class="bookings-tab active" onclick="setEventTypeFilter(this,'all')">All</button>
+      <button class="bookings-tab" onclick="setEventTypeFilter(this,'comp')">Competition</button>
+      <button class="bookings-tab" onclick="setEventTypeFilter(this,'grading')">Grading</button>
+      <button class="bookings-tab" onclick="setEventTypeFilter(this,'other')">Other</button>
+    </div>
   </div>
   <div id="compListItems"></div>
 </div>
@@ -1504,10 +1516,10 @@ function lockStaff() {
 
 // ── COMPETITIONS ──
 let competitions = [
-  {id:'c1',title:'Grappling Industries Melbourne',date:'2026-07-12',location:'Melbourne Showgrounds',     type:'bjj', tags:['BJJ','Gi & No-Gi','All Levels'],           regUrl:'https://grapplingindustries.com', regOpen:true,  notes:'Team reg closes 2 weeks prior. Speak to Coach Marcus about weight categories.',featured:true, visible:true},
-  {id:'c2',title:'IBJJF Sydney Open',             date:'2026-08-23',location:'Sydney Olympic Park',       type:'bjj', tags:['BJJ','Gi','IBJJF Rules','Adults & Juveniles'],regUrl:'https://ibjjf.com',               regOpen:true,  notes:'IBJJF membership required. Medical certificate needed.',                         featured:false,visible:true},
-  {id:'c3',title:'Fightmaster Muay Thai — Rd 4',  date:'2026-09-06',location:'Dallas Brooks Centre, Melb',type:'muay',tags:['Muay Thai','Amateur','C & B Class'],         regUrl:'https://fightmaster.com.au',      regOpen:false, notes:'Registration opens 6 weeks out. Speak to Coach Sam first.',                      featured:false,visible:true},
-  {id:'c4',title:'Kids Grappling League — Rd 3',  date:'2026-07-26',location:'Frankston Sports Centre',   type:'kids',tags:['Kids BJJ','Ages 5–15','No-Gi'],              regUrl:'',                                regOpen:true,  notes:'Great first comp for kids. Medals for all participants.',                        featured:true, visible:true},
+  {id:'c1',title:'Grappling Industries Melbourne',date:'2026-07-12',location:'Melbourne Showgrounds',     discipline:'bjj', eventType:'comp',    type:'bjj', tags:['BJJ','Gi & No-Gi','All Levels'],           regUrl:'https://grapplingindustries.com', regOpen:true,  notes:'Team reg closes 2 weeks prior. Speak to Coach Marcus about weight categories.',featured:true, visible:true, otherLabel:''},
+  {id:'c2',title:'IBJJF Sydney Open',             date:'2026-08-23',location:'Sydney Olympic Park',       discipline:'bjj', eventType:'comp',    type:'bjj', tags:['BJJ','Gi','IBJJF Rules','Adults & Juveniles'],regUrl:'https://ibjjf.com',               regOpen:true,  notes:'IBJJF membership required. Medical certificate needed.',                         featured:false,visible:true, otherLabel:''},
+  {id:'c3',title:'Fightmaster Muay Thai — Rd 4',  date:'2026-09-06',location:'Dallas Brooks Centre, Melb',discipline:'muay',eventType:'comp',    type:'muay',tags:['Muay Thai','Amateur','C & B Class'],         regUrl:'https://fightmaster.com.au',      regOpen:false, notes:'Registration opens 6 weeks out. Speak to Coach Sam first.',                      featured:false,visible:true, otherLabel:''},
+  {id:'c4',title:'Kids Grappling League — Rd 3',  date:'2026-07-26',location:'Frankston Sports Centre',   discipline:'kids',eventType:'comp',    type:'kids',tags:['Kids BJJ','Ages 5–15','No-Gi'],              regUrl:'',                                regOpen:true,  notes:'Great first comp for kids. Medals for all participants.',                        featured:true, visible:true, otherLabel:''},
 ];
 
 function daysUntil(dateStr) {
@@ -1527,8 +1539,17 @@ function renderCompList() {
   });
   var vis = competitions.filter(function(c) {
     if (!c.visible || daysUntil(c.date) < 0) return false;
-    if (currentEventFilter === 'all') return true;
-    return c.type === currentEventFilter;
+    // Discipline filter
+    if (currentDisciplineFilter !== 'all') {
+      var disc = c.discipline || c.type; // fallback for old data
+      if (disc !== currentDisciplineFilter) return false;
+    }
+    // Event type filter
+    if (currentEventTypeFilter !== 'all') {
+      var evType = c.eventType || c.type; // fallback for old data
+      if (evType !== currentEventTypeFilter) return false;
+    }
+    return true;
   });
   if (!vis.length) {
     el.innerHTML = '<div class="info-box" style="text-align:center"><i class="ti ti-trophy" style="font-size:24px;color:var(--muted);display:block;margin-bottom:8px"></i><div style="font-size:13px;font-weight:600;margin-bottom:4px">No competitions posted yet</div><div style="font-size:12px">Tap Admin to add events.</div></div>';
@@ -1571,9 +1592,13 @@ function renderAdminComps() {
     var div = document.createElement('div');
     div.className = 'comp-admin-item';
     // Type options
-    var typeLabels = {comp:'Competition', grading:'Grading', muay:'Muay Thai', kids:'Kids', other:'Other / Seminar'};
-    var typeOpts = ['comp','grading','muay','kids','other'].map(function(t) {
-      return '<option value="'+t+'"'+(c.type===t?' selected':'')+'>'+typeLabels[t]+'</option>';
+    var discLabels = {bjj:'BJJ', muay:'Muay Thai', kids:'Kids', mixed:'Mixed'};
+    var evLabels  = {comp:'Competition', grading:'Grading', other:'Other / Seminar'};
+    var discOpts = ['bjj','muay','kids','mixed'].map(function(d){
+      return '<option value="'+d+'"'+((c.discipline||c.type)===d?' selected':'')+'>'+discLabels[d]+'</option>';
+    }).join('');
+    var evTypeOpts = ['comp','grading','other'].map(function(e){
+      return '<option value="'+e+'"'+((c.eventType||c.type)===e?' selected':'')+'>'+evLabels[e]+'</option>';
     }).join('');
     div.innerHTML =
       '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">'+
@@ -1589,7 +1614,8 @@ function renderAdminComps() {
       '<input class="comp-admin-input" type="text" id="loc-'+i+'" value="'+c.location+'" placeholder="Location">'+
       '</div>'+
       '<div class="comp-admin-row">'+
-      '<select class="comp-admin-input" id="type-'+i+'" style="flex:0 0 120px">'+typeOpts+'</select>'+
+      '<select class="comp-admin-input" id="disc-'+i+'">'+discOpts+'</select>'+
+      '<select class="comp-admin-input" id="evtype-'+i+'">'+evTypeOpts+'</select>'+
       '<input class="comp-admin-input" type="text" id="url-'+i+'" value="'+c.regUrl+'" placeholder="Registration URL">'+
       '</div>'+
       '<div class="comp-admin-row" id="otherLabelRow-'+i+'" style="'+(c.type==='other'?'':'display:none')+'">'+
@@ -1613,7 +1639,11 @@ function renderAdminComps() {
         competitions[idx].title      = card.querySelector('#title-'+idx).value;
         competitions[idx].date       = card.querySelector('#date-'+idx).value;
         competitions[idx].location   = card.querySelector('#loc-'+idx).value;
-        competitions[idx].type       = card.querySelector('#type-'+idx).value;
+        var discEl   = card.querySelector('#disc-'+idx);
+        var evtEl    = card.querySelector('#evtype-'+idx);
+        competitions[idx].discipline = discEl   ? discEl.value   : 'bjj';
+        competitions[idx].eventType  = evtEl    ? evtEl.value    : 'comp';
+        competitions[idx].type       = competitions[idx].discipline; // keep type for compat
         competitions[idx].otherLabel = card.querySelector('#otherLabel-'+idx) ? card.querySelector('#otherLabel-'+idx).value : '';
         competitions[idx].regUrl     = card.querySelector('#url-'+idx).value;
         competitions[idx].notes      = card.querySelector('#notes-'+idx).value;
@@ -1636,7 +1666,7 @@ function renderAdminComps() {
 
 function addComp() {
   var today = new Date().toISOString().split('T')[0];
-  competitions.push({id:'c'+Date.now(),title:'New Event',date:today,location:'',type:'comp',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'',featured:false,visible:false});
+  competitions.push({id:'c'+Date.now(),title:'New Event',date:today,location:'',discipline:'bjj',eventType:'comp',type:'comp',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'',featured:false,visible:false});
   renderAdminComps();
   renderCompList();
   showToast('Competition added — fill in details and tap Save','info');
@@ -2408,12 +2438,20 @@ function renderCoachWaiverAlert() {
   }
 }
 
-// ── EVENT FILTER ──
-var currentEventFilter = 'all';
-function setEventFilter(el, filter) {
-  document.querySelectorAll('#eventFilterTabs .bookings-tab').forEach(function(b){ b.classList.remove('active'); });
+// ── EVENT FILTERS (two independent selectors) ──
+var currentDisciplineFilter = 'all';
+var currentEventTypeFilter  = 'all';
+
+function setDisciplineFilter(el, filter) {
+  document.querySelectorAll('#disciplineFilterTabs .bookings-tab').forEach(function(b){ b.classList.remove('active'); });
   el.classList.add('active');
-  currentEventFilter = filter;
+  currentDisciplineFilter = filter;
+  renderCompList();
+}
+function setEventTypeFilter(el, filter) {
+  document.querySelectorAll('#eventTypeFilterTabs .bookings-tab').forEach(function(b){ b.classList.remove('active'); });
+  el.classList.add('active');
+  currentEventTypeFilter = filter;
   renderCompList();
 }
 
@@ -2427,7 +2465,7 @@ renderProfileWaiverStatus();
 renderHomeBookingsCard();
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '1.3'; // bumped with each new release — I do this automatically
+var APP_VERSION = '1.4'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
