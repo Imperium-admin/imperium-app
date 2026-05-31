@@ -1904,9 +1904,10 @@ function renderAdminComps() {
           featured:    competitions[idx].featured || false,
         };
         var eventId = competitions[idx].id;
-        var isNew = typeof eventId === 'string' && eventId.startsWith('c');
-        var saveUrl = 'https://imperium-backend.vercel.app/api/events' + (isNew ? '' : '/' + eventId);
-        var saveMethod = isNew ? 'POST' : 'PUT';
+        // Supabase UUIDs are 36 chars with hyphens; local temp IDs start with 'c'
+        var isSupabaseId = typeof eventId === 'string' && eventId.length === 36 && eventId.indexOf('-') > 0;
+        var saveUrl = 'https://imperium-backend.vercel.app/api/events' + (isSupabaseId ? '/' + eventId : '');
+        var saveMethod = isSupabaseId ? 'PUT' : 'POST';
         fetch(saveUrl, {
           method: saveMethod,
           headers: {'Content-Type':'application/json','X-User-Role': currentUser ? currentUser.role : 'admin'},
@@ -3160,7 +3161,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '3.8'; // bumped with each new release — I do this automatically
+var APP_VERSION = '3.9'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
