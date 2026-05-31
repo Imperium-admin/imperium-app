@@ -2835,7 +2835,7 @@ async function doLogin() {
     // ── CALL BACKEND AUTH ENDPOINT ──
     // In mock mode this hits our Vercel function which uses mock data
     // When API key arrives it calls Clubworx directly
-    var response = await fetch('/api/auth/login', {
+    var response = await fetch('https://imperium-backend.vercel.app/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: email, password: password }),
@@ -2981,7 +2981,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '2.1'; // bumped with each new release — I do this automatically
+var APP_VERSION = '2.2'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
