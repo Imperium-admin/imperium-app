@@ -2809,6 +2809,49 @@ function loginNext() {
   document.getElementById('loginPassword').focus();
 }
 
+// ── MOCK AUTH (used while Vercel backend is being configured) ──
+// Three test accounts — any password works
+// jake@example.com        → Member
+// marcus@imperiummma.com.au → Coach  
+// admin@imperiummma.com.au  → Admin
+async function mockAuth(email, password) {
+  // Simulate network delay
+  await new Promise(function(r){ setTimeout(r, 800); });
+
+  var accounts = {
+    'jake@example.com': {
+      success: true, role: 'member', token: 'mock_member_' + Date.now(),
+      permissions: { canViewApp:true, canViewCoachesHub:false, canManageEvents:false, canManageWaivers:false, canBroadcast:false },
+      contact: { id:'c001', first_name:'Jake', last_name:'Davidson', email:'jake@example.com',
+                 member_number:'IMP-0042', join_date:'2022-01-15', membership_type:'Unlimited',
+                 membership_status:'active', belt:'Blue Belt', discipline:'BJJ',
+                 trial:false, pass_credits:7, next_billing:'2026-06-15' }
+    },
+    'marcus@imperiummma.com.au': {
+      success: true, role: 'coach', token: 'mock_coach_' + Date.now(),
+      permissions: { canViewApp:true, canViewCoachesHub:true, canManageEvents:true, canManageWaivers:false, canBroadcast:false },
+      contact: { id:'c002', first_name:'Marcus', last_name:'Coach', email:'marcus@imperiummma.com.au',
+                 member_number:'IMP-0003', join_date:'2020-06-01', membership_type:'Staff',
+                 membership_status:'active', belt:'Black Belt', discipline:'BJJ',
+                 trial:false, pass_credits:0, next_billing:null }
+    },
+    'admin@imperiummma.com.au': {
+      success: true, role: 'admin', token: 'mock_admin_' + Date.now(),
+      permissions: { canViewApp:true, canViewCoachesHub:true, canManageEvents:true, canManageWaivers:true, canBroadcast:true },
+      contact: { id:'c003', first_name:'Admin', last_name:'User', email:'admin@imperiummma.com.au',
+                 member_number:'IMP-0001', join_date:'2019-01-01', membership_type:'Owner',
+                 membership_status:'active', belt:'Black Belt', discipline:'BJJ',
+                 trial:false, pass_credits:0, next_billing:null }
+    },
+  };
+
+  var account = accounts[email.toLowerCase().trim()];
+  if (!account) {
+    return { success:false, error:'Invalid email or password' };
+  }
+  return account;
+}
+
 // ── MAIN LOGIN FUNCTION ──
 async function doLogin() {
   var email    = (document.getElementById('loginEmail').value    || '').trim();
@@ -2832,18 +2875,12 @@ async function doLogin() {
   loading.classList.add('show');
 
   try {
-    // ── CALL BACKEND AUTH ENDPOINT ──
-    // In mock mode this hits our Vercel function which uses mock data
-    // When API key arrives it calls Clubworx directly
-    var response = await fetch('https://imperium-backend.vercel.app/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, password: password }),
-    });
+    // ── MOCK AUTH (direct, no backend call needed for testing) ──
+    // Simulates Clubworx login while API key is pending
+    // Replace mockAuth with fetch call when Vercel backend is confirmed working
+    var data = await mockAuth(email, password);
 
-    var data = await response.json();
-
-    if (!response.ok || !data.success) {
+    if (!data.success) {
       throw new Error(data.error || 'Invalid email or password');
     }
 
@@ -2852,7 +2889,6 @@ async function doLogin() {
     onLoginSuccess(data);
 
   } catch (err) {
-    // Show error
     errorMsg.textContent = err.message || 'Could not sign in. Please try again.';
     errorEl.classList.add('show');
     btn.disabled = false;
@@ -2981,7 +3017,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '2.2'; // bumped with each new release — I do this automatically
+var APP_VERSION = '2.3'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
