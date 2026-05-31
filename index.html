@@ -912,14 +912,18 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <div class="card">
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
       <div style="width:56px;height:56px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:22px" id="profileAvatar">JD</div>
-      <div>
+      <div style="flex:1">
         <div style="font-family:var(--head);font-size:20px;letter-spacing:1px" id="profileName">JAKE DAVIDSON</div>
         <div style="font-size:12px;color:var(--muted);margin-top:2px" id="profileMeta">IMP-0042 · Member since Jan 2022</div>
+        <div style="margin-top:6px">
+          <span id="profileBadge" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:rgba(192,57,43,0.15);color:var(--red2);letter-spacing:1px">ACCOUNT HOLDER</span>
+        </div>
       </div>
     </div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50">Unlimited · Active</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Belt / Grade</span><span style="font-size:13px;font-weight:600" id="profileBelt">BJJ Blue Belt</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50" id="profileMembership">Unlimited · Active</span></div>
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Next Billing</span><span style="font-size:13px;font-weight:600">15 Jun 2026</span></div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600;color:var(--red2)">7 remaining</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600" id="profileCredits">7 remaining</span></div>
     <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">General Waiver</span><span id="profileWaiverStatus" style="font-size:13px;font-weight:600">Checking...</span></div>
   </div>
   <div class="sl">Notifications</div>
@@ -1188,9 +1192,12 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 // ── MEMBER / FAMILY STATE ──
 const familyMembers = [
-  {name:'Jake Davidson', short:'Jake (You)',   initials:'JD', belt:'BJJ Blue Belt',     color:'#c0392b', type:'adult'},
-  {name:'Lila Davidson', short:'Lila (Age 9)', initials:'LJ', belt:'Kids BJJ · Minis',  color:'#27ae60', type:'kids'},
-  {name:'Tom Davidson',  short:'Tom (Age 12)', initials:'TJ', belt:'Kids BJJ · Teens',  color:'#2980b9', type:'kids'},
+  {name:'Jake Davidson', short:'Jake (You)',   initials:'JD', belt:'BJJ Blue Belt',    color:'#c0392b', type:'adult',
+   memberNo:'IMP-0042', since:'Jan 2022', membership:'Unlimited · Active', billing:'15 Jun 2026', credits:'7 remaining'},
+  {name:'Lila Davidson', short:'Lila (Age 9)', initials:'LJ', belt:'Kids BJJ · Minis', color:'#27ae60', type:'kids',
+   memberNo:'IMP-0087', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—'},
+  {name:'Tom Davidson',  short:'Tom (Age 12)', initials:'TJ', belt:'Kids BJJ · Teens', color:'#2980b9', type:'kids',
+   memberNo:'IMP-0091', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—'},
 ];
 let activeFamilyIdx = 0;
 
@@ -1220,6 +1227,11 @@ function setActiveMember(idx) {
 
   renderHomeBookingsCard();
   if (document.getElementById('screen-bookings').classList.contains('active')) renderBookingsScreen();
+  // Refresh profile if it's the active screen
+  if (document.getElementById('screen-profile') &&
+      document.getElementById('screen-profile').classList.contains('active')) {
+    renderProfileScreen();
+  }
   showToast('Switched to ' + m.name + ' — showing their bookings', 'info');
 }
 
@@ -1703,7 +1715,7 @@ function switchScreen(id) {
   if (id==='admin-waivers') renderAdminWaivers();
   if (id==='comps')       renderCompList();
   if (id==='admin-comps') { renderAdminComps(); }
-  if (id==='profile')     renderProfileWaiverStatus();
+  if (id==='profile')     renderProfileScreen();
   if (id==='bookings')    renderBookingsScreen();
   if (id==='admin-comps') {
     // Reset lock each time admin-comps is opened
@@ -2513,17 +2525,59 @@ function setEventTypeFilter(el, filter) {
   renderCompList();
 }
 
+// ── PROFILE SCREEN ──
+function renderProfileScreen() {
+  var m = familyMembers[activeFamilyIdx];
+  var isYou = activeFamilyIdx === 0;
+
+  // Avatar
+  var av = document.getElementById('profileAvatar');
+  if (av) { av.textContent = m.initials; av.style.background = m.color; }
+
+  // Name and meta
+  var nm = document.getElementById('profileName');
+  if (nm) nm.textContent = m.name.toUpperCase();
+
+  var mt = document.getElementById('profileMeta');
+  if (mt) mt.textContent = m.memberNo + ' · Member since ' + m.since;
+
+  // Membership details
+  var memEl = document.getElementById('profileMembership');
+  if (memEl) memEl.textContent = m.membership;
+
+  var credEl = document.getElementById('profileCredits');
+  if (credEl) {
+    credEl.textContent = m.credits;
+    credEl.style.color = m.credits === '—' ? 'var(--muted)' : 'var(--red2)';
+  }
+
+  // Belt / grade
+  var beltEl = document.getElementById('profileBelt');
+  if (beltEl) beltEl.textContent = m.belt;
+
+  // Member type badge
+  var badgeEl = document.getElementById('profileBadge');
+  if (badgeEl) {
+    badgeEl.textContent = isYou ? 'ACCOUNT HOLDER' : 'FAMILY MEMBER';
+    badgeEl.style.background = isYou ? 'rgba(192,57,43,0.15)' : 'rgba(39,174,96,0.15)';
+    badgeEl.style.color = isYou ? 'var(--red2)' : '#4caf50';
+  }
+
+  // Waiver status
+  renderProfileWaiverStatus();
+}
+
 // ── INIT ──
 renderTT('Mon');
 renderPasses('adult');
 renderWaiverList();
 renderCompList();
 renderCheckinScreen();
-renderProfileWaiverStatus();
+renderProfileScreen();
 renderHomeBookingsCard();
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '1.8'; // bumped with each new release — I do this automatically
+var APP_VERSION = '1.9'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
