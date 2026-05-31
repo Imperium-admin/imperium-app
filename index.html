@@ -1705,6 +1705,42 @@ function daysUntil(dateStr) {
   const d=new Date(dateStr), n=new Date(); n.setHours(0,0,0,0); d.setHours(0,0,0,0);
   return Math.round((d-n)/(1000*60*60*24));
 }
+// ── FETCH EVENTS FROM SUPABASE VIA BACKEND ──
+var eventsLoaded = false;
+
+async function fetchEvents() {
+  try {
+    var response = await fetch('https://imperium-backend.vercel.app/api/events');
+    var data = await response.json();
+    if (data.success && data.events && data.events.length > 0) {
+      // Map Supabase fields to app competition format
+      competitions = data.events.map(function(e) {
+        return {
+          id:         e.id,
+          title:      e.title,
+          date:       e.date,
+          location:   e.location || '',
+          discipline: e.discipline || 'bjj',
+          eventType:  e.event_type || 'comp',
+          type:       e.discipline || 'bjj',
+          otherLabel: e.other_label || '',
+          regUrl:     e.reg_url || '',
+          regOpen:    e.reg_open || false,
+          notes:      e.notes || '',
+          visible:    e.visible !== false,
+          featured:   e.featured || false,
+          tags:       [],
+        };
+      });
+      eventsLoaded = true;
+      renderCompList();
+    }
+  } catch (err) {
+    // Backend unavailable — keep using local data
+    console.log('Events fetch failed, using local data:', err.message);
+  }
+}
+
 function renderCompList() {
   var el = document.getElementById('compListItems'); if (!el) return;
   // Auto sort: upcoming soonest first, past events at bottom
@@ -1885,7 +1921,7 @@ function switchScreen(id) {
   if (id==='checkin')     renderCheckinScreen();
   if (id==='waiver')      renderWaiverList();
   if (id==='admin-waivers') renderAdminWaivers();
-  if (id==='comps')       renderCompList();
+  if (id==='comps')       { fetchEvents(); renderCompList(); }
   if (id==='admin-comps') { renderAdminComps(); }
   if (id==='profile')     renderProfileScreen();
   if (id==='bookings')    renderBookingsScreen();
@@ -3047,7 +3083,7 @@ function checkExistingSession() {
 renderTT('Mon');
 renderPasses('adult');
 renderWaiverList();
-renderCompList();
+fetchEvents();
 renderCheckinScreen();
 renderProfileScreen();
 renderHomeBookingsCard();
@@ -3065,7 +3101,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '3.1'; // bumped with each new release — I do this automatically
+var APP_VERSION = '3.2'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
