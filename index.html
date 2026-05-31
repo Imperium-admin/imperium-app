@@ -2795,8 +2795,8 @@ function showLoginScreen() {
 function hideLoginScreen() {
   var loginScreen = document.getElementById('screen-login');
   if (loginScreen) loginScreen.classList.add('hidden');
-  // Restore main app
-  document.querySelectorAll('.topbar, .nav').forEach(function(el) {
+  // Restore main app — topbar, nav AND screens
+  document.querySelectorAll('.topbar, .nav, .screen').forEach(function(el) {
     el.style.display = '';
   });
   setTimeout(function() {
@@ -3017,7 +3017,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '2.3'; // bumped with each new release — I do this automatically
+var APP_VERSION = '2.4'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
