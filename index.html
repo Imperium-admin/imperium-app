@@ -20,7 +20,7 @@
   --text:#f0f0f0;--muted:#888;--border:#2a2a2a;
   --radius:12px;--font:'DM Sans',sans-serif;--head:'Bebas Neue',sans-serif;
 }
-html,body{height:100%;width:100%;background:var(--black);color:var(--text);font-family:var(--font);overscroll-behavior:none;overflow:hidden;touch-action:pan-y}
+html,body{height:100%;width:100%;background:var(--black);color:var(--text);font-family:var(--font);overscroll-behavior:none;touch-action:pan-y}
 body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 /* ─── SAFE AREA — keeps topbar below phone status bar ─── */
@@ -47,7 +47,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 /* ─── SCREENS ─── */
 .screen{display:none;width:100%;max-width:480px;padding:16px;animation:fadeIn .15s ease}
-.screen.active{display:block}
+.screen.active{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── SHARED COMPONENTS ─── */
@@ -1733,6 +1733,13 @@ async function fetchEvents() {
         };
       });
       eventsLoaded = true;
+      currentDisciplineFilter = 'all';
+      currentEventTypeFilter  = 'all';
+      // Reset filter tabs to All
+      var discTabs = document.querySelectorAll('#disciplineFilterTabs .bookings-tab');
+      if (discTabs) discTabs.forEach(function(b,i){ b.classList.toggle('active', i===0); });
+      var evTabs = document.querySelectorAll('#eventTypeFilterTabs .bookings-tab');
+      if (evTabs) evTabs.forEach(function(b,i){ b.classList.toggle('active', i===0); });
       renderCompList();
     }
   } catch (err) {
@@ -2143,7 +2150,8 @@ function sendBroadcast() {
 // ── RECEPTION WHATSAPP NUMBER ──
 // Replace with your actual WhatsApp Business number in international format
 // e.g. Australian number 0412 345 678 becomes 61412345678
-var RECEPTION_WHATSAPP = '61395870746'; // ← REPLACE with your number
+var RECEPTION_WHATSAPP = '61395870746';
+var RECEPTION_WA_URL = 'https://wa.me/61395870746'; // ← REPLACE with your number
 
 function sendReception() {
   var inp = document.getElementById('receptionInput');
@@ -2161,10 +2169,11 @@ function sendReception() {
   }
   inp.value = '';
 
-  // Open WhatsApp with the message pre-filled
-  var waUrl = 'https://wa.me/' + RECEPTION_WHATSAPP + '?text=' + encodeURIComponent(txt);
+  // Open WhatsApp Business directly using deep link (bypasses OS chooser)
+  var encodedMsg = encodeURIComponent(txt);
   setTimeout(function() {
-    location.href = waUrl;
+    // whatsapp:// scheme opens WhatsApp Business directly without the iOS picker
+    location.href = 'whatsapp://send?phone=61395870746&text=' + encodedMsg;
   }, 300);
 }
 
@@ -3101,7 +3110,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '3.2'; // bumped with each new release — I do this automatically
+var APP_VERSION = '3.4'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
