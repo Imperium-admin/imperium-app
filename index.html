@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Imperium MMA">
@@ -20,7 +20,7 @@
   --text:#f0f0f0;--muted:#888;--border:#2a2a2a;
   --radius:12px;--font:'DM Sans',sans-serif;--head:'Bebas Neue',sans-serif;
 }
-html,body{height:100%;background:var(--black);color:var(--text);font-family:var(--font);overscroll-behavior:none}
+html,body{height:100%;width:100%;background:var(--black);color:var(--text);font-family:var(--font);overscroll-behavior:none;overflow:hidden;touch-action:pan-y}
 body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 /* ─── SAFE AREA — keeps topbar below phone status bar ─── */
@@ -906,7 +906,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <!--
   ╔══════════════════════════════════════════════════════════════╗
   ║  HOW TO UPDATE WHATSAPP LINKS                               ║
-  ║  Search for REPLACE_ below and swap with your real link.    ║
+  ║  All WhatsApp links configured — no replacements needed.    ║
   ║  WhatsApp invite links look like:                           ║
   ║  https://chat.whatsapp.com/AbCdEfGhIjKlMnOpQrStUv           ║
   ║  To get a link: open group → tap name → Invite via link     ║
@@ -2104,24 +2104,57 @@ function sendBroadcast() {
   }
   showToast('Broadcast sent to ' + countNum + ' ✓', 'success');
 }
+// ── RECEPTION WHATSAPP NUMBER ──
+// Replace with your actual WhatsApp Business number in international format
+// e.g. Australian number 0412 345 678 becomes 61412345678
+var RECEPTION_WHATSAPP = '61395870746'; // ← REPLACE with your number
+
 function sendReception() {
-  var inp=document.getElementById('receptionInput'), txt=inp.value.trim(); if(!txt)return;
-  var box=document.getElementById('receptionMsgs');
-  var d=document.createElement('div'); d.className='msg sent'; d.innerHTML=txt+'<div class="msg-time">Now</div>';
-  box.appendChild(d); inp.value=''; box.scrollTop=box.scrollHeight;
-  setTimeout(function(){
-    var r=document.createElement('div'); r.className='msg recv';
-    r.innerHTML='Thanks for your message! A team member will reply shortly.<div class="msg-time">Now</div>';
-    box.appendChild(r); box.scrollTop=box.scrollHeight;
-  },1100);
+  var inp = document.getElementById('receptionInput');
+  var txt = inp ? inp.value.trim() : '';
+  if (!txt) return;
+
+  // Show message in chat UI
+  var box = document.getElementById('receptionMsgs');
+  if (box) {
+    var d = document.createElement('div');
+    d.className = 'msg sent';
+    d.innerHTML = txt + '<div class="msg-time">Now</div>';
+    box.appendChild(d);
+    box.scrollTop = box.scrollHeight;
+  }
+  inp.value = '';
+
+  // Open WhatsApp with the message pre-filled
+  var waUrl = 'https://wa.me/' + RECEPTION_WHATSAPP + '?text=' + encodeURIComponent(txt);
+  setTimeout(function() {
+    location.href = waUrl;
+  }, 300);
 }
 
 // ── COACHES ──
+// ── STAFF INTERNAL CHAT — routes to WhatsApp group ──
+var STAFF_WHATSAPP_GROUP = 'https://chat.whatsapp.com/G5ITC5u44xK1X2Dc1pAzFk';
+
 function sendCoach() {
-  const i=document.getElementById('coachInput'), txt=i.value.trim(); if(!txt)return;
-  const b=document.getElementById('coachMsgs');
-  const d=document.createElement('div'); d.className='msg sent'; d.innerHTML=txt+'<div class="msg-time">Now</div>';
-  b.appendChild(d); i.value=''; b.scrollTop=b.scrollHeight;
+  var i = document.getElementById('coachInput');
+  var txt = i ? i.value.trim() : '';
+  if (!txt) return;
+
+  // Show message in chat UI
+  var b = document.getElementById('coachMsgs');
+  if (b) {
+    var d = document.createElement('div');
+    d.className = 'msg sent';
+    d.innerHTML = txt + '<div class="msg-time">Now</div>';
+    b.appendChild(d);
+    b.scrollTop = b.scrollHeight;
+  }
+  i.value = '';
+
+  // Open WhatsApp group with message pre-filled
+  var waUrl = STAFF_WHATSAPP_GROUP;
+  setTimeout(function() { location.href = waUrl; }, 300);
 }
 function setCtab(el) { document.querySelectorAll('.ctab').forEach(b=>b.classList.remove('active')); el.classList.add('active'); }
 
@@ -3032,7 +3065,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '2.7'; // bumped with each new release — I do this automatically
+var APP_VERSION = '3.1'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
