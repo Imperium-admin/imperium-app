@@ -625,6 +625,10 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <i class="ti ti-calendar" style="font-size:24px;color:var(--blue)"></i>
       <div style="margin-top:7px;font-size:12px;font-weight:600">Timetable</div>
     </div>
+    <div class="card" id="qaCoachesHub" style="cursor:pointer;text-align:center;padding:14px 8px;display:none" onclick="switchScreen('coaches')">
+      <i class="ti ti-shield-star" style="font-size:24px;color:var(--gold)"></i>
+      <div style="margin-top:7px;font-size:12px;font-weight:600">Coaches Hub</div>
+    </div>
     <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('waiver')">
       <i class="ti ti-file-text" style="font-size:24px;color:#4caf50"></i>
       <div style="margin-top:7px;font-size:12px;font-weight:600">Waivers</div>
@@ -2928,6 +2932,10 @@ function applyRolePermissions(role, permissions) {
   var coachNav = document.getElementById('nav-coaches');
   if (coachNav) coachNav.style.display = permissions.canViewCoachesHub ? '' : 'none';
 
+  // ── Coaches Hub quick action on home — coach and admin only ──
+  var qaCoach = document.getElementById('qaCoachesHub');
+  if (qaCoach) qaCoach.style.display = permissions.canViewCoachesHub ? '' : 'none';
+
   // ── Auto-unlock coaches hub for coach/admin (skip PIN) ──
   if (permissions.canViewCoachesHub) {
     staffUnlocked = true;
@@ -3021,7 +3029,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '2.5'; // bumped with each new release — I do this automatically
+var APP_VERSION = '2.6'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
