@@ -41,13 +41,13 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 /* ─── NAV ─── */
 .nav{display:flex;width:100%;max-width:480px;background:var(--dark);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:calc(env(safe-area-inset-top,0px) + 53px);z-index:99}
 .nav::-webkit-scrollbar{display:none}
-.nav-btn{flex:1;min-width:58px;padding:9px 2px;background:none;border:none;color:var(--muted);font-family:var(--font);font-size:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
+.nav-btn{flex:1;min-width:58px;padding:9px 2px;background:none;border:none;color:var(--muted);font-family:var(--font);font-size:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;line-height:1.2;white-space:nowrap}
 .nav-btn i{font-size:17px}
 .nav-btn.active{color:var(--red2);border-bottom-color:var(--red2)}
 
 /* ─── SCREENS ─── */
 .screen{display:none;width:100%;max-width:480px;padding:16px;animation:fadeIn .15s ease;box-sizing:border-box}
-.screen.active{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch;height:100%;box-sizing:border-box;padding-bottom:80px}
+.screen.active{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:100%;box-sizing:border-box;padding-bottom:90px}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── SHARED COMPONENTS ─── */
@@ -627,7 +627,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     </div>
     <div class="card" id="qaCoachesHub" style="cursor:pointer;text-align:center;padding:14px 8px;display:none" onclick="switchScreen('coaches')">
       <i class="ti ti-shield-star" style="font-size:24px;color:var(--gold)"></i>
-      <div style="margin-top:7px;font-size:12px;font-weight:600">Coaches Hub</div>
+      <div style="margin-top:7px;font-size:12px;font-weight:600;color:var(--text)">Coaches Hub</div>
     </div>
     <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('waiver')">
       <i class="ti ti-file-text" style="font-size:24px;color:#4caf50"></i>
@@ -1729,7 +1729,7 @@ async function fetchEvents() {
           location:   e.location || '',
           discipline: e.discipline || 'bjj',
           eventType:  e.event_type || 'comp',
-          type:       e.discipline || 'bjj',  // type synced to discipline for filter compat
+          type:       e.discipline || '',  // type synced to discipline for filter compat
           otherLabel: e.other_label || '',
           regUrl:     e.reg_url || '',
           regOpen:    e.reg_open || false,
@@ -1791,8 +1791,13 @@ function renderCompList() {
     var shortDate = new Date(c.date).toLocaleDateString('en-AU',{day:'numeric',month:'short'});
     var badgeClass = past ? '' : days<=14 ? 'soon' : c.regOpen ? 'open' : 'upcoming';
     var badgeText = past ? 'Completed' : days<=14 ? (days===0?'Today!':days===1?'Tomorrow':days+' days away') : shortDate;
-    var typeColor = c.type==='comp' ? '#3498db' : c.type==='grading' ? '#9b59b6' : c.type==='muay' ? 'var(--red2)' : c.type==='other' ? '#e67e22' : '#4caf50';
-    var typeLabel = c.type==='comp' ? 'COMPETITION' : c.type==='grading' ? 'GRADING' : c.type==='muay' ? 'MUAY THAI' : c.type==='kids' ? 'KIDS' : c.type==='other' ? (c.otherLabel||'EVENT') : c.type.toUpperCase();
+    // Colour by discipline, label by event type
+    var disc = c.discipline || c.type;
+    var evT  = c.eventType  || c.type;
+    var typeColor = disc==='muay' ? 'var(--red2)' : disc==='mixed' ? '#e67e22' : disc==='kids' ? '#27ae60' : '#3498db';
+    var evLabel   = evT==='grading' ? 'GRADING' : evT==='other' ? (c.otherLabel||'EVENT').toUpperCase() : 'COMPETITION';
+    var discLabel = disc==='muay' ? 'MUAY THAI' : disc==='mixed' ? 'MIXED' : disc==='kids' ? 'KIDS BJJ' : 'BJJ';
+    var typeLabel = discLabel + ' · ' + evLabel;
     var regBtn = (c.regUrl && !past) ? '<button class="comp-btn comp-btn-primary" data-url="'+c.regUrl+'">'+(c.regOpen?'Register Now':'View Details')+'</button>' : '';
     return '<div class="comp-card '+(c.featured&&!past?'featured':'upcoming')+' '+(past?'comp-past':'')+'">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">'+
@@ -1884,14 +1889,53 @@ function renderAdminComps() {
         competitions[idx].visible    = card.querySelector('#vis-'+idx).checked;
         renderCompList();
         renderAdminComps();
-        showToast('Event saved ✓', 'success');
+        // Save to Supabase via backend
+        var saveData = {
+          title:       competitions[idx].title,
+          date:        competitions[idx].date,
+          location:    competitions[idx].location,
+          discipline:  competitions[idx].discipline,
+          event_type:  competitions[idx].eventType,
+          other_label: competitions[idx].otherLabel || '',
+          reg_url:     competitions[idx].regUrl || '',
+          reg_open:    competitions[idx].regOpen || false,
+          notes:       competitions[idx].notes || '',
+          visible:     competitions[idx].visible || false,
+          featured:    competitions[idx].featured || false,
+        };
+        var eventId = competitions[idx].id;
+        var isNew = typeof eventId === 'string' && eventId.startsWith('c');
+        var saveUrl = 'https://imperium-backend.vercel.app/api/events' + (isNew ? '' : '/' + eventId);
+        var saveMethod = isNew ? 'POST' : 'PUT';
+        fetch(saveUrl, {
+          method: saveMethod,
+          headers: {'Content-Type':'application/json','X-User-Role': currentUser ? currentUser.role : 'admin'},
+          body: JSON.stringify(saveData),
+          mode: 'cors',
+        }).then(function(r){ return r.json(); })
+          .then(function(data){
+            if (data.success && data.event && data.event.id) {
+              competitions[idx].id = data.event.id; // update with real Supabase UUID
+            }
+            showToast('Event saved ✓', 'success');
+          })
+          .catch(function(){ showToast('Event saved locally ✓', 'info'); });
       };
       card.querySelector('#del-'+idx).onclick = function() {
         if (!confirm('Delete "' + competitions[idx].title + '"? This cannot be undone.')) return;
+        var delId = competitions[idx].id;
         competitions.splice(idx, 1);
         renderAdminComps();
         renderCompList();
-        showToast('Competition deleted', 'info');
+        // Delete from Supabase if it has a real UUID (not a local temp id)
+        if (delId && !String(delId).startsWith('c')) {
+          fetch('https://imperium-backend.vercel.app/api/events/' + delId, {
+            method: 'DELETE',
+            headers: {'X-User-Role': currentUser ? currentUser.role : 'admin'},
+            mode: 'cors',
+          }).catch(function(){});
+        }
+        showToast('Event deleted', 'info');
       };
     })(i, div);
     el.appendChild(div);
@@ -3116,7 +3160,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '3.6'; // bumped with each new release — I do this automatically
+var APP_VERSION = '3.8'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
