@@ -752,7 +752,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <div id="waiverListView">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
       <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">WAIVERS</h2>
-      <button style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font)" onclick="switchScreen('admin-waivers')"><i class="ti ti-settings" style="font-size:14px"></i>Admin</button>
+      <button id="btnWaiverAdmin" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font);display:none" onclick="switchScreen('admin-waivers')"><i class="ti ti-settings" style="font-size:14px"></i>Admin</button>
     </div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Complete any required forms. Stored in your Clubworx member record.</p>
     <div id="waiverListItems"></div>
@@ -983,7 +983,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">COACHES HUB</h2>
     <div style="display:flex;align-items:center;gap:8px">
       <span class="badge-staff">STAFF</span>
-      <button onclick="openBroadcast()" style="background:rgba(192,57,43,0.15);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:var(--red2);cursor:pointer;font-size:11px;font-weight:600;padding:5px 10px;font-family:var(--font);display:flex;align-items:center;gap:4px" title="Broadcast"><i class="ti ti-speakerphone" style="font-size:13px"></i> Broadcast</button>
+      <button id="btnBroadcast" style="display:none" onclick="openBroadcast()" style="background:rgba(192,57,43,0.15);border:1px solid rgba(231,76,60,0.3);border-radius:6px;color:var(--red2);cursor:pointer;font-size:11px;font-weight:600;padding:5px 10px;font-family:var(--font);display:flex;align-items:center;gap:4px" title="Broadcast"><i class="ti ti-speakerphone" style="font-size:13px"></i> Broadcast</button>
       <button onclick="lockStaff()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px" title="Lock"><i class="ti ti-lock"></i></button>
     </div>
   </div>
@@ -1115,7 +1115,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <div class="screen" id="screen-comps">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
     <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">UPCOMING EVENTS</h2>
-    <button style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font)" onclick="switchScreen('admin-comps')"><i class="ti ti-settings" style="font-size:14px"></i>Admin</button>
+    <button id="btnEventsAdmin" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font);display:none" onclick="switchScreen('admin-comps')"><i class="ti ti-settings" style="font-size:14px"></i>Admin</button>
   </div>
   <!-- Filter row 1: Martial Art -->
   <div style="margin-bottom:8px">
@@ -2924,31 +2924,35 @@ function onLoginSuccess(user) {
 // ── APPLY ROLE-BASED UI ──
 // Shows/hides features based on what the logged-in user can access
 function applyRolePermissions(role, permissions) {
-  // Coaches Hub nav button — only for coach and admin
+  // ── Coaches Hub nav button — coach and admin only ──
   var coachNav = document.getElementById('nav-coaches');
-  if (coachNav) {
-    coachNav.style.display = permissions.canViewCoachesHub ? '' : 'none';
-  }
+  if (coachNav) coachNav.style.display = permissions.canViewCoachesHub ? '' : 'none';
 
-  // The PIN locks in coaches hub and admin screens are replaced
-  // by server-side role checks in Phase 3
-  // For now, if the role permits, auto-unlock those screens
+  // ── Auto-unlock coaches hub for coach/admin (skip PIN) ──
   if (permissions.canViewCoachesHub) {
-    staffUnlocked = true; // Coach/Admin skip PIN
-    if (document.getElementById('staffLock'))
-      document.getElementById('staffLock').style.display = 'none';
-    if (document.getElementById('staffContent'))
-      document.getElementById('staffContent').style.display = 'block';
+    staffUnlocked = true;
+    var staffLock    = document.getElementById('staffLock');
+    var staffContent = document.getElementById('staffContent');
+    if (staffLock)    staffLock.style.display    = 'none';
+    if (staffContent) staffContent.style.display = 'block';
   }
 
-  if (permissions.canManageEvents || permissions.canManageWaivers) {
-    compAdminUnlocked = true;
-    waiverAdminUnlocked = true;
-  }
+  // ── Events admin button — coach and admin only ──
+  var btnEvents = document.getElementById('btnEventsAdmin');
+  if (btnEvents) btnEvents.style.display = permissions.canManageEvents ? '' : 'none';
 
-  if (permissions.canBroadcast) {
-    broadcastAdminUnlocked = false; // Still require broadcast PIN for now
-  }
+  // ── Waiver admin button — admin only ──
+  var btnWaiver = document.getElementById('btnWaiverAdmin');
+  if (btnWaiver) btnWaiver.style.display = permissions.canManageWaivers ? '' : 'none';
+
+  // ── Broadcast button — admin only ──
+  var btnBcast = document.getElementById('btnBroadcast');
+  if (btnBcast) btnBcast.style.display = permissions.canBroadcast ? '' : 'none';
+
+  // ── Auto-unlock admin areas for correct roles ──
+  if (permissions.canManageEvents)  compAdminUnlocked  = true;
+  if (permissions.canManageWaivers) waiverAdminUnlocked = true;
+  if (permissions.canBroadcast)     broadcastAdminUnlocked = true;
 }
 
 // ── LOGOUT ──
@@ -3017,7 +3021,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '2.4'; // bumped with each new release — I do this automatically
+var APP_VERSION = '2.5'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
