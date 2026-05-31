@@ -651,13 +651,50 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 ════════════════════════════════════ -->
 <div class="screen" id="screen-admin-waivers">
   <button class="back-btn" onclick="switchScreen('waiver')"><i class="ti ti-arrow-left"></i> Back to Waivers</button>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MANAGE WAIVERS</h2>
-    <span class="badge-staff">ADMIN</span>
+
+  <!-- WAIVER ADMIN PIN LOCK -->
+  <div id="waiverAdminLock">
+    <div class="staff-lock">
+      <i class="ti ti-file-certificate" style="color:var(--gold)"></i>
+      <h3>ADMIN ACCESS</h3>
+      <p>Enter your admin PIN to manage waivers.</p>
+      <div class="pin-row" id="waiverPinDots">
+        <div class="pin-dot" id="wpd0"></div>
+        <div class="pin-dot" id="wpd1"></div>
+        <div class="pin-dot" id="wpd2"></div>
+        <div class="pin-dot" id="wpd3"></div>
+      </div>
+      <div class="pin-keypad">
+        <button class="pin-key" onclick="waiverPinPress('1')">1</button>
+        <button class="pin-key" onclick="waiverPinPress('2')">2</button>
+        <button class="pin-key" onclick="waiverPinPress('3')">3</button>
+        <button class="pin-key" onclick="waiverPinPress('4')">4</button>
+        <button class="pin-key" onclick="waiverPinPress('5')">5</button>
+        <button class="pin-key" onclick="waiverPinPress('6')">6</button>
+        <button class="pin-key" onclick="waiverPinPress('7')">7</button>
+        <button class="pin-key" onclick="waiverPinPress('8')">8</button>
+        <button class="pin-key" onclick="waiverPinPress('9')">9</button>
+        <button class="pin-key" onclick="waiverPinPress('clr')" style="font-size:13px;color:var(--muted)">CLR</button>
+        <button class="pin-key" onclick="waiverPinPress('0')">0</button>
+        <button class="pin-key" onclick="waiverPinPress('del')" style="font-size:16px">⌫</button>
+      </div>
+      <div class="pin-error" id="waiverPinError"></div>
+      <p style="font-size:11px;color:var(--muted);margin-top:16px">Uses same admin PIN as Events · Clubworx role once connected</p>
+    </div>
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Add, edit or hide waivers without touching the app code. Changes go live instantly.</p>
-  <div id="adminWaiverList"></div>
-  <button class="add-waiver-btn" onclick="addWaiver()"><i class="ti ti-plus"></i> Add New Waiver</button>
+
+  <!-- WAIVER ADMIN CONTENT (shown after PIN) -->
+  <div id="waiverAdminContent" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MANAGE WAIVERS</h2>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span class="badge-staff">ADMIN</span>
+        <button onclick="lockWaiverAdmin()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:2px" title="Lock"><i class="ti ti-lock"></i></button>
+      </div>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Add, edit or hide waivers. Changes go live instantly.</p>
+    <div id="adminWaiverList"></div>
+    <button class="add-waiver-btn" onclick="addWaiver()"><i class="ti ti-plus"></i> Add New Waiver</button>
   <div class="info-box">
     <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)">How this works</div>
     <div style="font-size:12px;color:var(--muted);line-height:1.8">
@@ -665,6 +702,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <div style="margin-top:4px"><i class="ti ti-external-link" style="font-size:13px;vertical-align:-1px;color:var(--gold)"></i> <b style="color:var(--text)">External link</b> — paste any URL (Clubworx form, Google Form, DocuSign)</div>
       <div style="margin-top:4px"><i class="ti ti-eye-off" style="font-size:13px;vertical-align:-1px;color:var(--muted)"></i> <b style="color:var(--text)">Toggle off</b> — hides waiver without deleting it</div>
     </div>
+    </div><!-- end waiverAdminContent -->
   </div>
 </div>
 
@@ -1697,6 +1735,10 @@ function switchScreen(id) {
   if (id !== 'coaches' && typeof lockStaff === 'function') {
     lockStaff();
   }
+  // Lock waiver admin when navigating away
+  if (id !== 'admin-waivers' && typeof lockWaiverAdmin === 'function') {
+    lockWaiverAdmin();
+  }
   // Lock broadcast admin when navigating away
   if (id !== 'coaches' && typeof lockCompAdmin === 'function') {
     // Don't lock comp admin on nav — it's a separate screen
@@ -2194,6 +2236,46 @@ function lockCompAdmin() {
   document.getElementById('compPinError').textContent = '';
 }
 
+// ── WAIVER ADMIN PIN (shares COMP_ADMIN_PIN) ──
+var waiverAdminUnlocked = false;
+var waiverPinEntry = '';
+
+function updateWaiverPinDots() {
+  for (var i=0; i<4; i++) {
+    var d = document.getElementById('wpd'+i);
+    if (d) d.classList.toggle('filled', i < waiverPinEntry.length);
+  }
+}
+function waiverPinPress(key) {
+  if (key==='clr') { waiverPinEntry=''; updateWaiverPinDots(); var e=document.getElementById('waiverPinError'); if(e)e.textContent=''; return; }
+  if (key==='del') { waiverPinEntry=waiverPinEntry.slice(0,-1); updateWaiverPinDots(); return; }
+  if (waiverPinEntry.length>=4) return;
+  waiverPinEntry+=key;
+  updateWaiverPinDots();
+  if (waiverPinEntry.length===4) setTimeout(checkWaiverPin, 180);
+}
+function checkWaiverPin() {
+  if (waiverPinEntry === COMP_ADMIN_PIN) {
+    waiverAdminUnlocked = true;
+    document.getElementById('waiverAdminLock').style.display = 'none';
+    document.getElementById('waiverAdminContent').style.display = 'block';
+    var e=document.getElementById('waiverPinError'); if(e)e.textContent='';
+    renderWaiverList();
+  } else {
+    var e=document.getElementById('waiverPinError'); if(e)e.textContent='Incorrect PIN';
+    waiverPinEntry=''; updateWaiverPinDots();
+  }
+}
+function lockWaiverAdmin() {
+  waiverAdminUnlocked = false;
+  waiverPinEntry = '';
+  if (typeof updateWaiverPinDots === 'function') updateWaiverPinDots();
+  var lock=document.getElementById('waiverAdminLock');
+  var cont=document.getElementById('waiverAdminContent');
+  if (lock) lock.style.display = 'block';
+  if (cont) cont.style.display = 'none';
+}
+
 // ── CANCEL BOOKING (member) ──
 let cancelTargetId = null;
 let cancelIsLate = false;
@@ -2577,7 +2659,7 @@ renderProfileScreen();
 renderHomeBookingsCard();
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '1.9'; // bumped with each new release — I do this automatically
+var APP_VERSION = '2.0'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
