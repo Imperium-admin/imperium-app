@@ -2915,14 +2915,14 @@ function onLoginSuccess(user) {
     }));
   } catch(e) {}
 
-  // Apply role-based UI
-  applyRolePermissions(user.role, user.permissions);
-
   // Hide login, show app
   hideLoginScreen();
 
   // Render home screen
   switchScreen('home');
+
+  // Apply role-based UI AFTER screen renders so elements exist in DOM
+  applyRolePermissions(user.role, user.permissions);
 }
 
 // ── APPLY ROLE-BASED UI ──
@@ -3024,12 +3024,15 @@ renderHomeBookingsCard();
 if (!checkExistingSession()) {
   showLoginScreen();
 } else {
-  // Existing session — go straight to app
+  // Existing session — restore app and apply permissions
   switchScreen('home');
+  if (currentUser && currentUser.permissions) {
+    applyRolePermissions(currentUser.role, currentUser.permissions);
+  }
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '2.6'; // bumped with each new release — I do this automatically
+var APP_VERSION = '2.7'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
