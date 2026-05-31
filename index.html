@@ -46,8 +46,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .nav-btn.active{color:var(--red2);border-bottom-color:var(--red2)}
 
 /* ─── SCREENS ─── */
-.screen{display:none;width:100%;max-width:480px;padding:16px;animation:fadeIn .15s ease}
-.screen.active{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen{display:none;width:100%;max-width:480px;padding:16px;animation:fadeIn .15s ease;box-sizing:border-box}
+.screen.active{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch;height:100%;box-sizing:border-box;padding-bottom:80px}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── SHARED COMPONENTS ─── */
@@ -1710,7 +1710,14 @@ var eventsLoaded = false;
 
 async function fetchEvents() {
   try {
-    var response = await fetch('https://imperium-backend.vercel.app/api/events');
+    var response = await fetch('https://imperium-backend.vercel.app/api/events', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      mode: 'cors',
+    });
     var data = await response.json();
     if (data.success && data.events && data.events.length > 0) {
       // Map Supabase fields to app competition format
@@ -1722,7 +1729,7 @@ async function fetchEvents() {
           location:   e.location || '',
           discipline: e.discipline || 'bjj',
           eventType:  e.event_type || 'comp',
-          type:       e.discipline || 'bjj',
+          type:       e.discipline || 'bjj',  // type synced to discipline for filter compat
           otherLabel: e.other_label || '',
           regUrl:     e.reg_url || '',
           regOpen:    e.reg_open || false,
@@ -1743,8 +1750,7 @@ async function fetchEvents() {
       renderCompList();
     }
   } catch (err) {
-    // Backend unavailable — keep using local data
-    console.log('Events fetch failed, using local data:', err.message);
+    // Backend unavailable — silently keep using local data
   }
 }
 
@@ -1764,8 +1770,8 @@ function renderCompList() {
     // Discipline filter — kids BJJ events show under BJJ filter
     if (currentDisciplineFilter !== 'all') {
       var disc = c.discipline || c.type;
-      var matchesBJJ  = currentDisciplineFilter === 'bjj'  && (disc === 'bjj' || disc === 'kids');
-      var matchesMuay = currentDisciplineFilter === 'muay' && disc === 'muay';
+      var matchesBJJ  = currentDisciplineFilter === 'bjj'  && (disc === 'bjj' || disc === 'kids' || disc === 'mixed');
+      var matchesMuay = currentDisciplineFilter === 'muay' && (disc === 'muay' || disc === 'mixed');
       if (!matchesBJJ && !matchesMuay) return false;
     }
     // Event type filter
@@ -1871,7 +1877,7 @@ function renderAdminComps() {
         var evtEl    = card.querySelector('#evtype-'+idx);
         competitions[idx].discipline = discEl   ? discEl.value   : 'bjj';
         competitions[idx].eventType  = evtEl    ? evtEl.value    : 'comp';
-        competitions[idx].type       = competitions[idx].discipline; // keep type for compat
+        competitions[idx].type = competitions[idx].discipline; // sync for filter compatibility // keep type for compat
         competitions[idx].otherLabel = card.querySelector('#otherLabel-'+idx) ? card.querySelector('#otherLabel-'+idx).value : '';
         competitions[idx].regUrl     = card.querySelector('#url-'+idx).value;
         competitions[idx].notes      = card.querySelector('#notes-'+idx).value;
@@ -1895,7 +1901,7 @@ function renderAdminComps() {
 function addComp() {
   var future = new Date(); future.setDate(future.getDate()+30);
   var futureDate = future.toISOString().split('T')[0];
-  competitions.push({id:'c'+Date.now(),title:'New Event',date:futureDate,location:'',discipline:'bjj',eventType:'comp',type:'comp',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'',featured:false,visible:false});
+  competitions.push({id:'c'+Date.now(),title:'New Event',date:futureDate,location:'',discipline:'bjj',eventType:'comp',type:'bjj',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'',featured:false,visible:false});
   renderAdminComps();
   renderCompList();
   showToast('Competition added — fill in details and tap Save','info');
@@ -3092,7 +3098,7 @@ function checkExistingSession() {
 renderTT('Mon');
 renderPasses('adult');
 renderWaiverList();
-fetchEvents();
+setTimeout(fetchEvents, 1000); // delay allows iOS PWA to finish loading
 renderCheckinScreen();
 renderProfileScreen();
 renderHomeBookingsCard();
@@ -3110,7 +3116,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '3.4'; // bumped with each new release — I do this automatically
+var APP_VERSION = '3.6'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
