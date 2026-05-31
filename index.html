@@ -381,6 +381,85 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .hb-badge-up{background:rgba(192,57,43,0.15);color:var(--red2)}
 .hb-badge-ci{background:rgba(26,107,42,0.2);color:#4caf50}
 
+
+/* ─── LOGIN SCREEN ─── */
+#screen-login {
+  position:fixed;inset:0;z-index:1000;
+  background:var(--black);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 24px;
+  transition:opacity .4s ease, transform .4s ease;
+}
+#screen-login.hidden {
+  opacity:0;pointer-events:none;transform:translateY(-20px);
+}
+.login-logo {
+  font-family:var(--head);font-size:48px;letter-spacing:4px;
+  color:var(--text);margin-bottom:4px;text-align:center;
+}
+.login-logo span { color:#3498db; }
+.login-tagline {
+  font-size:12px;color:var(--muted);letter-spacing:3px;text-transform:uppercase;
+  margin-bottom:48px;text-align:center;
+}
+.login-card {
+  width:100%;max-width:400px;
+  background:var(--card);border:1px solid var(--border);
+  border-radius:16px;padding:28px 24px;
+}
+.login-field {
+  margin-bottom:16px;
+}
+.login-label {
+  font-size:11px;font-weight:600;letter-spacing:1px;
+  color:var(--muted);text-transform:uppercase;margin-bottom:6px;display:block;
+}
+.login-input {
+  width:100%;background:var(--card2);border:1px solid var(--border);
+  border-radius:10px;padding:14px 16px;color:var(--text);
+  font-family:var(--font);font-size:15px;outline:none;
+  transition:border-color .2s;box-sizing:border-box;
+}
+.login-input:focus { border-color:var(--red2); }
+.login-input::placeholder { color:#555; }
+.login-btn {
+  width:100%;padding:15px;background:var(--red);border:none;
+  border-radius:10px;color:#fff;font-family:var(--head);
+  font-size:20px;letter-spacing:2px;cursor:pointer;
+  transition:background .2s, transform .1s;margin-top:8px;
+}
+.login-btn:hover { background:var(--red2); }
+.login-btn:active { transform:scale(0.98); }
+.login-btn:disabled { background:#333;color:#666;cursor:not-allowed; }
+.login-forgot {
+  text-align:center;margin-top:16px;
+  font-size:12px;color:var(--muted);
+}
+.login-forgot a {
+  color:var(--blue);text-decoration:none;font-weight:600;
+}
+.login-error {
+  background:rgba(192,57,43,0.12);border:1px solid rgba(231,76,60,0.3);
+  border-radius:8px;padding:10px 14px;margin-bottom:16px;
+  font-size:13px;color:var(--red2);display:none;
+  text-align:center;
+}
+.login-error.show { display:block; }
+.login-loading {
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:13px;color:var(--muted);margin-top:16px;display:none;
+}
+.login-loading.show { display:flex; }
+.login-spinner {
+  width:16px;height:16px;border:2px solid var(--border);
+  border-top-color:var(--red2);border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.login-version {
+  margin-top:32px;font-size:11px;color:#333;text-align:center;
+}
+
 </style>
   <!-- App version check — shows update banner when new version is available -->
   <meta name="app-version" content="1.0">
@@ -388,6 +467,48 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <body>
 
 <!-- ── OVERLAY ── -->
+<!-- ── LOGIN SCREEN ── -->
+<div id="screen-login">
+  <div class="login-logo">IMPERIUM <span>MMA</span></div>
+  <div class="login-tagline">Member Portal</div>
+
+  <div class="login-card">
+    <div class="login-error" id="loginError">
+      <i class="ti ti-alert-circle" style="font-size:14px;vertical-align:-2px"></i>
+      <span id="loginErrorMsg">Invalid email or password. Please try again.</span>
+    </div>
+
+    <div class="login-field">
+      <label class="login-label" for="loginEmail">Email Address</label>
+      <input class="login-input" type="email" id="loginEmail"
+        placeholder="you@example.com" autocomplete="email"
+        onkeydown="if(event.key==='Enter') loginNext()">
+    </div>
+
+    <div class="login-field">
+      <label class="login-label" for="loginPassword">Password</label>
+      <input class="login-input" type="password" id="loginPassword"
+        placeholder="Your Clubworx password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">SIGN IN</button>
+
+    <div class="login-forgot">
+      <a href="https://app.clubworx.com/users/password/new" target="_blank">
+        Forgot your password?
+      </a>
+    </div>
+
+    <div class="login-loading" id="loginLoading">
+      <div class="login-spinner"></div>
+      Signing in...
+    </div>
+  </div>
+
+  <div class="login-version">Imperium MMA · Powered by Clubworx</div>
+</div>
+
 <div class="overlay" id="overlay" onclick="closeNotif()"></div>
 
 <!-- Update available banner -->
@@ -946,7 +1067,12 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
      SCREEN: PROFILE
 ════════════════════════════════════ -->
 <div class="screen" id="screen-profile">
-  <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:16px">MY PROFILE</h2>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MY PROFILE</h2>
+    <button onclick="doLogout()" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;padding:6px 12px;cursor:pointer;font-family:var(--font);display:flex;align-items:center;gap:4px">
+      <i class="ti ti-logout" style="font-size:13px"></i> Sign Out
+    </button>
+  </div>
   <div class="card">
     <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
       <div style="width:56px;height:56px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:22px" id="profileAvatar">JD</div>
@@ -2649,6 +2775,193 @@ function renderProfileScreen() {
   renderProfileWaiverStatus();
 }
 
+// ══════════════════════════════════════════
+// LOGIN SYSTEM
+// ══════════════════════════════════════════
+
+// Current logged-in user session
+var currentUser = null;
+
+// ── Show login screen on load (gate the app) ──
+function showLoginScreen() {
+  var loginScreen = document.getElementById('screen-login');
+  if (loginScreen) loginScreen.classList.remove('hidden');
+  // Hide main app content behind login
+  document.querySelectorAll('.topbar, .nav, .screen').forEach(function(el) {
+    el.style.display = 'none';
+  });
+}
+
+function hideLoginScreen() {
+  var loginScreen = document.getElementById('screen-login');
+  if (loginScreen) loginScreen.classList.add('hidden');
+  // Restore main app
+  document.querySelectorAll('.topbar, .nav').forEach(function(el) {
+    el.style.display = '';
+  });
+  setTimeout(function() {
+    if (loginScreen) loginScreen.style.display = 'none';
+  }, 400);
+}
+
+// ── TAB key moves from email to password ──
+function loginNext() {
+  document.getElementById('loginPassword').focus();
+}
+
+// ── MAIN LOGIN FUNCTION ──
+async function doLogin() {
+  var email    = (document.getElementById('loginEmail').value    || '').trim();
+  var password = (document.getElementById('loginPassword').value || '').trim();
+  var errorEl  = document.getElementById('loginError');
+  var errorMsg = document.getElementById('loginErrorMsg');
+  var btn      = document.getElementById('loginBtn');
+  var loading  = document.getElementById('loginLoading');
+
+  // Validate
+  if (!email || !password) {
+    errorMsg.textContent = 'Please enter your email and password.';
+    errorEl.classList.add('show');
+    return;
+  }
+  errorEl.classList.remove('show');
+
+  // Show loading state
+  btn.disabled = true;
+  btn.textContent = 'SIGNING IN...';
+  loading.classList.add('show');
+
+  try {
+    // ── CALL BACKEND AUTH ENDPOINT ──
+    // In mock mode this hits our Vercel function which uses mock data
+    // When API key arrives it calls Clubworx directly
+    var response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password }),
+    });
+
+    var data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.error || 'Invalid email or password');
+    }
+
+    // ── LOGIN SUCCESS ──
+    currentUser = data;
+    onLoginSuccess(data);
+
+  } catch (err) {
+    // Show error
+    errorMsg.textContent = err.message || 'Could not sign in. Please try again.';
+    errorEl.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'SIGN IN';
+    loading.classList.remove('show');
+  }
+}
+
+// ── ON SUCCESSFUL LOGIN ──
+function onLoginSuccess(user) {
+  // Store session in localStorage
+  try {
+    localStorage.setItem('imperium_session', JSON.stringify({
+      email:       user.contact.email,
+      name:        user.contact.first_name + ' ' + user.contact.last_name,
+      role:        user.role,
+      permissions: user.permissions,
+      token:       user.token,
+      loginTime:   Date.now(),
+    }));
+  } catch(e) {}
+
+  // Apply role-based UI
+  applyRolePermissions(user.role, user.permissions);
+
+  // Hide login, show app
+  hideLoginScreen();
+
+  // Render home screen
+  switchScreen('home');
+}
+
+// ── APPLY ROLE-BASED UI ──
+// Shows/hides features based on what the logged-in user can access
+function applyRolePermissions(role, permissions) {
+  // Coaches Hub nav button — only for coach and admin
+  var coachNav = document.getElementById('nav-coaches');
+  if (coachNav) {
+    coachNav.style.display = permissions.canViewCoachesHub ? '' : 'none';
+  }
+
+  // The PIN locks in coaches hub and admin screens are replaced
+  // by server-side role checks in Phase 3
+  // For now, if the role permits, auto-unlock those screens
+  if (permissions.canViewCoachesHub) {
+    staffUnlocked = true; // Coach/Admin skip PIN
+    if (document.getElementById('staffLock'))
+      document.getElementById('staffLock').style.display = 'none';
+    if (document.getElementById('staffContent'))
+      document.getElementById('staffContent').style.display = 'block';
+  }
+
+  if (permissions.canManageEvents || permissions.canManageWaivers) {
+    compAdminUnlocked = true;
+    waiverAdminUnlocked = true;
+  }
+
+  if (permissions.canBroadcast) {
+    broadcastAdminUnlocked = false; // Still require broadcast PIN for now
+  }
+}
+
+// ── LOGOUT ──
+function doLogout() {
+  currentUser = null;
+  try { localStorage.removeItem('imperium_session'); } catch(e) {}
+  // Reset role-based UI
+  staffUnlocked        = false;
+  compAdminUnlocked    = false;
+  waiverAdminUnlocked  = false;
+  broadcastAdminUnlocked = false;
+  // Show login screen
+  var loginScreen = document.getElementById('screen-login');
+  if (loginScreen) {
+    loginScreen.style.display = 'flex';
+    loginScreen.classList.remove('hidden');
+  }
+  document.querySelectorAll('.topbar, .nav, .screen').forEach(function(el) {
+    el.style.display = el.classList.contains('screen') ? '' : '';
+  });
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginBtn').disabled = false;
+  document.getElementById('loginBtn').textContent = 'SIGN IN';
+  document.getElementById('loginLoading').classList.remove('show');
+  document.getElementById('loginError').classList.remove('show');
+}
+
+// ── CHECK FOR EXISTING SESSION ON LOAD ──
+function checkExistingSession() {
+  try {
+    var stored = localStorage.getItem('imperium_session');
+    if (!stored) return false;
+    var session = JSON.parse(stored);
+    // Session expires after 12 hours
+    var TWELVE_HOURS = 12 * 60 * 60 * 1000;
+    if (Date.now() - session.loginTime > TWELVE_HOURS) {
+      localStorage.removeItem('imperium_session');
+      return false;
+    }
+    // Restore session
+    currentUser = session;
+    applyRolePermissions(session.role, session.permissions);
+    return true;
+  } catch(e) {
+    return false;
+  }
+}
+
 // ── INIT ──
 renderTT('Mon');
 renderPasses('adult');
@@ -2658,8 +2971,17 @@ renderCheckinScreen();
 renderProfileScreen();
 renderHomeBookingsCard();
 
+// ── GATE APP BEHIND LOGIN ──
+// Check for existing valid session, otherwise show login screen
+if (!checkExistingSession()) {
+  showLoginScreen();
+} else {
+  // Existing session — go straight to app
+  switchScreen('home');
+}
+
 // ── UPDATE BANNER ──
-var APP_VERSION = '2.0'; // bumped with each new release — I do this automatically
+var APP_VERSION = '2.1'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
