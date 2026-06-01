@@ -1728,7 +1728,7 @@ async function fetchEvents() {
           date:       e.date,
           location:   e.location || '',
           discipline: e.discipline || 'bjj',
-          eventType:  e.event_type || 'comp',
+          eventType:  (e.event_type && e.event_type !== '') ? e.event_type : 'comp',
           type:       e.discipline || '',  // type synced to discipline for filter compat
           otherLabel: e.other_label || '',
           regUrl:     e.reg_url || '',
@@ -1776,7 +1776,7 @@ function renderCompList() {
     }
     // Event type filter
     if (currentEventTypeFilter !== 'all') {
-      var evType = c.eventType || c.type;
+      var evType = (c.eventType && c.eventType !== '') ? c.eventType : c.type;
       if (evType !== currentEventTypeFilter) return false;
     }
     return true;
@@ -1819,11 +1819,14 @@ function renderCompList() {
 }
 
 function renderAdminComps() {
-  // Sort by date before rendering admin list
-  competitions.sort(function(a,b){ return new Date(a.date)-new Date(b.date); });
+  // Build a sorted display index without mutating competitions[]
+  // This preserves capturedIdx values so save/delete work correctly
+  var sortedIndices = competitions.map(function(_,i){ return i; });
+  sortedIndices.sort(function(a,b){ return new Date(competitions[a].date)-new Date(competitions[b].date); });
   var el = document.getElementById('adminCompList'); if (!el) return;
   el.innerHTML = '';
-  competitions.forEach(function(c, i) {
+  sortedIndices.forEach(function(i) {
+    var c = competitions[i];
     var div = document.createElement('div');
     div.className = 'comp-admin-item';
     // Type options
@@ -1918,12 +1921,14 @@ function renderAdminComps() {
           if (data.success && data.event && data.event.id) {
             competitions[capturedIdx].id = data.event.id;
           }
+          renderAdminComps();
+          renderCompList();
           showToast('Event saved ✓', 'success');
-          fetchEvents();
         })
         .catch(function() {
-          showToast('Saved locally ✓', 'info');
           renderAdminComps();
+          renderCompList();
+          showToast('Saved locally ✓', 'info');
         });
       };
 
@@ -3176,7 +3181,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '4.4'; // bumped with each new release — I do this automatically
+var APP_VERSION = '4.5'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
