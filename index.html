@@ -1871,14 +1871,10 @@ function saveEvent(idx) {
   showToast('Saving...', 'info');
 
   var el = document.getElementById('adminCompList');
-  if (!el) return;
-  var items = el.querySelectorAll('.comp-admin-item');
-  // Find the card that corresponds to this index by looking at sorted order
-  var sortedIndices = competitions.map(function(_,i){ return i; });
-  sortedIndices.sort(function(a,b){ return new Date(competitions[a].date)-new Date(competitions[b].date); });
-  var displayPos = sortedIndices.indexOf(idx);
-  var card = items[displayPos];
-  if (!card) { showToast('Form not found', 'info'); return; }
+  if (!el) { showToast('Form not found', 'info'); return; }
+  // Find card by data-idx attribute — immune to sort order changes
+  var card = el.querySelector('[data-idx="'+idx+'"]');
+  if (!card) { showToast('Form not found (idx='+idx+')', 'info'); return; }
 
   // Read values from form
   var titleEl   = card.querySelector('[data-field="title"]');
@@ -1946,6 +1942,7 @@ function renderAdminComps() {
     var c = competitions[idx];
     var div = document.createElement('div');
     div.className = 'comp-admin-item';
+    div.setAttribute('data-idx', idx);
     var discLabels = {bjj:'BJJ', muay:'Muay Thai', mixed:'Mixed', other:'Not set'};
     var evLabels   = {comp:'Competition', grading:'Grading', other:'Other / Seminar'};
     var discOpts = ['bjj','muay','mixed','other'].map(function(d){
@@ -2028,9 +2025,26 @@ function switchScreen(id) {
   if (id==='passes')      renderPasses(curPassType);
   if (id==='checkin')     renderCheckinScreen();
   if (id==='waiver')      renderWaiverList();
-  if (id==='admin-waivers') renderAdminWaivers();
+  if (id==='admin-waivers') {
+    renderAdminWaivers();
+    if (waiverAdminUnlocked) {
+      var wLock = document.getElementById('waiverAdminLock');
+      var wBody = document.getElementById('waiverAdminContent');
+      if (wLock) wLock.style.display = 'none';
+      if (wBody) wBody.style.display = 'block';
+    }
+  }
   if (id==='comps')       { fetchEvents(); }
-  if (id==='admin-comps') { renderAdminComps(); }
+  if (id==='admin-comps') {
+    renderAdminComps();
+    // Auto-hide PIN lock if already unlocked by role
+    if (compAdminUnlocked) {
+      var lock = document.getElementById('compAdminLock');
+      var body = document.getElementById('compAdminContent');
+      if (lock) lock.style.display = 'none';
+      if (body) body.style.display = 'block';
+    }
+  }
   if (id==='profile')     renderProfileScreen();
   if (id==='bookings')    renderBookingsScreen();
   if (id==='admin-comps') {
@@ -3214,7 +3228,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '4.7'; // bumped with each new release — I do this automatically
+var APP_VERSION = '4.8'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
