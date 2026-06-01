@@ -1695,10 +1695,10 @@ function lockStaff() {
 
 // ── COMPETITIONS ──
 let competitions = [
-  {id:'c1',title:'Grappling Industries Melbourne',date:'2026-07-12',location:'Melbourne Showgrounds',     discipline:'bjj', eventType:'comp',    type:'bjj', tags:['BJJ','Gi & No-Gi','All Levels'],           regUrl:'https://grapplingindustries.com', regOpen:true,  notes:'Team reg closes 2 weeks prior. Speak to Coach Marcus about weight categories.',featured:true, visible:true, otherLabel:''},
-  {id:'c2',title:'IBJJF Sydney Open',             date:'2026-08-23',location:'Sydney Olympic Park',       discipline:'bjj', eventType:'comp',    type:'bjj', tags:['BJJ','Gi','IBJJF Rules','Adults & Juveniles'],regUrl:'https://ibjjf.com',               regOpen:true,  notes:'IBJJF membership required. Medical certificate needed.',                         featured:false,visible:true, otherLabel:''},
-  {id:'c3',title:'Fightmaster Muay Thai — Rd 4',  date:'2026-09-06',location:'Dallas Brooks Centre, Melb',discipline:'muay',eventType:'comp',    type:'muay',tags:['Muay Thai','Amateur','C & B Class'],         regUrl:'https://fightmaster.com.au',      regOpen:false, notes:'Registration opens 6 weeks out. Speak to Coach Sam first.',                      featured:false,visible:true, otherLabel:''},
-  {id:'c4',title:'Kids Grappling League — Rd 3',  date:'2026-07-26',location:'Frankston Sports Centre',   discipline:'kids',eventType:'comp',    type:'kids',tags:['Kids BJJ','Ages 5–15','No-Gi'],              regUrl:'',                                regOpen:true,  notes:'Great first comp for kids. Medals for all participants.',                        featured:true, visible:true, otherLabel:''},
+  {id:'4e45941d-ef3e-4899-84eb-19c35d67aff7',title:'Grappling Industries Melbourne',date:'2026-07-12',location:'Melbourne Showgrounds',     discipline:'bjj', eventType:'comp',    type:'bjj', tags:['BJJ','Gi & No-Gi','All Levels'],           regUrl:'https://grapplingindustries.com', regOpen:true,  notes:'Team reg closes 2 weeks prior. Speak to Coach Marcus about weight categories.',featured:true, visible:true, otherLabel:''},
+  {id:'5720670e-e90a-4a11-8f04-12a5b5de91f8',title:'IBJJF Sydney Open',             date:'2026-08-23',location:'Sydney Olympic Park',       discipline:'bjj', eventType:'comp',    type:'bjj', tags:['BJJ','Gi','IBJJF Rules','Adults & Juveniles'],regUrl:'https://ibjjf.com',               regOpen:true,  notes:'IBJJF membership required. Medical certificate needed.',                         featured:false,visible:true, otherLabel:''},
+  {id:'d5d5d0bc-fb78-4727-aaa6-71f33cbcaa7e',title:'Fightmaster Muay Thai — Rd 4',  date:'2026-09-06',location:'Dallas Brooks Centre, Melb',discipline:'muay',eventType:'comp',    type:'muay',tags:['Muay Thai','Amateur','C & B Class'],         regUrl:'https://fightmaster.com.au',      regOpen:false, notes:'Registration opens 6 weeks out. Speak to Coach Sam first.',                      featured:false,visible:true, otherLabel:''},
+  {id:'7e419717-1bf1-4177-b8e6-9a007f81b63b',title:'Kids Grappling League — Rd 3',  date:'2026-07-26',location:'Frankston Sports Centre',   discipline:'kids',eventType:'comp',    type:'kids',tags:['Kids BJJ','Ages 5–15','No-Gi'],              regUrl:'',                                regOpen:true,  notes:'Great first comp for kids. Medals for all participants.',                        featured:true, visible:true, otherLabel:''},
 ];
 
 function daysUntil(dateStr) {
@@ -2036,6 +2036,10 @@ function switchScreen(id) {
   }
   if (id==='comps')       { fetchEvents(); }
   if (id==='admin-comps') {
+    // Fetch latest from Supabase first so IDs are real UUIDs
+    fetchEvents().then(function() {
+      renderAdminComps();
+    });
     renderAdminComps();
     // Auto-hide PIN lock if already unlocked by role
     if (compAdminUnlocked) {
@@ -3228,7 +3232,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '4.8'; // bumped with each new release — I do this automatically
+var APP_VERSION = '4.9'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
