@@ -1818,6 +1818,49 @@ function renderCompList() {
   });
 }
 
+// ── DELETE EVENT MODAL ──
+var pendingDeleteIdx = null;
+
+function showDeleteModal(idx) {
+  var c = competitions[idx];
+  if (!c) return;
+  pendingDeleteIdx = idx;
+  var msg = document.getElementById('deleteEventMsg');
+  if (msg) msg.textContent = 'Delete "' + c.title + '"? This cannot be undone.';
+  var modal = document.getElementById('deleteEventModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function dismissDeleteModal() {
+  pendingDeleteIdx = null;
+  var modal = document.getElementById('deleteEventModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function confirmDeleteEvent() {
+  var modal = document.getElementById('deleteEventModal');
+  if (modal) modal.style.display = 'none';
+  var idx = pendingDeleteIdx;
+  pendingDeleteIdx = null;
+  if (idx === null || !competitions[idx]) return;
+  var delId = competitions[idx].id;
+  competitions.splice(idx, 1);
+  renderAdminComps();
+  renderCompList();
+  var isSupabaseId = typeof delId === 'string' && delId.length === 36 && delId.indexOf('-') > 0;
+  if (isSupabaseId) {
+    fetch('https://imperium-backend.vercel.app/api/events/' + delId, {
+      method:  'DELETE',
+      headers: {'X-User-Role': currentUser ? currentUser.role : 'admin'},
+      mode:    'cors',
+    })
+    .then(function() { showToast('Event deleted ✓', 'info'); })
+    .catch(function() { showToast('Deleted locally', 'info'); });
+  } else {
+    showToast('Event deleted ✓', 'info');
+  }
+}
+
 function renderAdminComps() {
   // Build a sorted display index without mutating competitions[]
   // This preserves capturedIdx values so save/delete work correctly
@@ -1934,25 +1977,7 @@ function renderAdminComps() {
 
       // ── DELETE ──
       card.querySelector('#del-'+capturedIdx).onclick = function() {
-        if (!confirm('Delete this event? This cannot be undone.')) return;
-        var c = competitions[capturedIdx];
-        if (!c) return;
-        var delId = c.id;
-        competitions.splice(capturedIdx, 1);
-        renderAdminComps();
-        renderCompList();
-        var isSupabaseId = typeof delId === 'string' && delId.length === 36 && delId.indexOf('-') > 0;
-        if (isSupabaseId) {
-          fetch('https://imperium-backend.vercel.app/api/events/' + delId, {
-            method:  'DELETE',
-            headers: {'X-User-Role': currentUser ? currentUser.role : 'admin'},
-            mode:    'cors',
-          })
-          .then(function() { showToast('Event deleted ✓', 'info'); })
-          .catch(function() { showToast('Deleted locally', 'info'); });
-        } else {
-          showToast('Event deleted ✓', 'info');
-        }
+        showDeleteModal(capturedIdx);
       };
 
     })(i, div);
@@ -3181,7 +3206,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '4.5'; // bumped with each new release — I do this automatically
+var APP_VERSION = '4.6'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
@@ -3211,5 +3236,16 @@ window.addEventListener('load', function() {
 });
 </script>
 
+<!-- ── DELETE EVENT CONFIRM MODAL ── -->
+<div id="deleteEventModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:600;align-items:flex-end;justify-content:center">
+  <div style="background:var(--dark);width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:24px 20px 32px">
+    <div style="font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text)">Delete Event?</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:20px" id="deleteEventMsg">This will permanently remove the event.</div>
+    <div style="display:flex;gap:10px">
+      <button onclick="dismissDeleteModal()" style="flex:1;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer">Keep</button>
+      <button onclick="confirmDeleteEvent()" style="flex:1;padding:12px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer">Delete</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
