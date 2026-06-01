@@ -39,7 +39,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .top-avatar{width:34px;height:34px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;border:2px solid rgba(255,255,255,0.4);color:#fff;letter-spacing:0.5px;text-shadow:0 1px 2px rgba(0,0,0,0.5)}
 
 /* ─── NAV ─── */
-.nav{display:flex;width:100%;max-width:480px;background:var(--dark);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:sticky;top:calc(env(safe-area-inset-top,0px) + 53px);z-index:99}
+.nav{display:flex;width:100%;max-width:480px;background:var(--dark);border-top:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:99;padding-bottom:env(safe-area-inset-bottom,0px)}
 .nav::-webkit-scrollbar{display:none}
 .nav-btn{flex:1;min-width:58px;padding:9px 2px;background:none;border:none;color:var(--muted);font-family:var(--font);font-size:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;line-height:1.2;white-space:nowrap}
 .nav-btn i{font-size:17px}
@@ -47,7 +47,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 /* ─── SCREENS ─── */
 .screen{display:none;width:100%;max-width:480px;padding:16px;animation:fadeIn .15s ease;box-sizing:border-box}
-.screen.active{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch;min-height:100%;box-sizing:border-box;padding-bottom:90px}
+.screen.active{display:block;overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;padding-bottom:80px;height:calc(100vh - env(safe-area-inset-top,0px) - 53px - 49px)}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
 /* ─── SHARED COMPONENTS ─── */
@@ -1946,7 +1946,7 @@ function renderAdminComps() {
 function addComp() {
   var future = new Date(); future.setDate(future.getDate()+30);
   var futureDate = future.toISOString().split('T')[0];
-  competitions.push({id:'c'+Date.now(),title:'New Event',date:futureDate,location:'',discipline:'bjj',eventType:'comp',type:'bjj',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'',featured:false,visible:false});
+  competitions.push({id:'c'+Date.now(),title:'New Event',date:futureDate,location:'',discipline:'bjj',eventType:'comp',type:'bjj',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'',featured:false,visible:true});
   renderAdminComps();
   renderCompList();
   showToast('Competition added — fill in details and tap Save','info');
@@ -2220,11 +2220,10 @@ function sendReception() {
   }
   inp.value = '';
 
-  // Open WhatsApp Business directly using deep link (bypasses OS chooser)
+  // Open WhatsApp with message pre-filled
   var encodedMsg = encodeURIComponent(txt);
   setTimeout(function() {
-    // whatsapp:// scheme opens WhatsApp Business directly without the iOS picker
-    location.href = 'whatsapp://send?phone=61395870746&text=' + encodedMsg;
+    location.href = 'https://wa.me/61395870746?text=' + encodedMsg;
   }, 300);
 }
 
@@ -3161,7 +3160,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '3.9'; // bumped with each new release — I do this automatically
+var APP_VERSION = '4.0'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
