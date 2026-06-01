@@ -41,9 +41,9 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 /* ─── NAV ─── */
 .nav{display:flex;width:100%;max-width:480px;background:var(--dark);border-top:1px solid var(--border);overflow-x:auto;scrollbar-width:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);z-index:99;padding-bottom:env(safe-area-inset-bottom,0px)}
 .nav::-webkit-scrollbar{display:none}
-.nav-btn{flex:1;min-width:58px;padding:9px 2px;background:none;border:none;color:var(--muted);font-family:var(--font);font-size:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;line-height:1.2;white-space:nowrap}
+.nav-btn{flex:1;min-width:58px;padding:9px 2px 6px;background:none;border:none;color:var(--muted);font-family:var(--font);font-size:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;border-top:2px solid transparent;transition:color .2s,border-color .2s;line-height:1.2;white-space:nowrap}
 .nav-btn i{font-size:17px}
-.nav-btn.active{color:var(--red2);border-bottom-color:var(--red2)}
+.nav-btn.active{color:var(--red2);border-top-color:var(--red2)}
 
 /* ─── SCREENS ─── */
 .screen{display:none;width:100%;max-width:480px;padding:16px;animation:fadeIn .15s ease;box-sizing:border-box}
@@ -1922,22 +1922,28 @@ function renderAdminComps() {
           })
           .catch(function(){ showToast('Event saved locally ✓', 'info'); });
       };
-      card.querySelector('#del-'+idx).onclick = function() {
-        if (!confirm('Delete "' + competitions[idx].title + '"? This cannot be undone.')) return;
-        var delId = competitions[idx].id;
-        competitions.splice(idx, 1);
-        renderAdminComps();
-        renderCompList();
-        // Delete from Supabase if it has a real UUID (not a local temp id)
-        if (delId && !String(delId).startsWith('c')) {
-          fetch('https://imperium-backend.vercel.app/api/events/' + delId, {
-            method: 'DELETE',
-            headers: {'X-User-Role': currentUser ? currentUser.role : 'admin'},
-            mode: 'cors',
-          }).catch(function(){});
-        }
-        showToast('Event deleted', 'info');
-      };
+      (function(capturedIdx) {
+        card.querySelector('#del-'+capturedIdx).onclick = function() {
+          if (!confirm('Delete this event? This cannot be undone.')) return;
+          var delId = competitions[capturedIdx] ? competitions[capturedIdx].id : null;
+          competitions.splice(capturedIdx, 1);
+          renderAdminComps();
+          renderCompList();
+          if (delId && delId.length === 36 && delId.indexOf('-') > 0) {
+            fetch('https://imperium-backend.vercel.app/api/events/' + delId, {
+              method: 'DELETE',
+              headers: {'X-User-Role': currentUser ? currentUser.role : 'admin'},
+              mode: 'cors',
+            }).then(function(){
+              showToast('Event deleted ✓', 'info');
+            }).catch(function(){
+              showToast('Deleted locally', 'info');
+            });
+          } else {
+            showToast('Event deleted ✓', 'info');
+          }
+        };
+      })(idx);
     })(i, div);
     el.appendChild(div);
   });
@@ -1979,7 +1985,7 @@ function switchScreen(id) {
   if (id==='checkin')     renderCheckinScreen();
   if (id==='waiver')      renderWaiverList();
   if (id==='admin-waivers') renderAdminWaivers();
-  if (id==='comps')       { fetchEvents(); renderCompList(); }
+  if (id==='comps')       { fetchEvents(); }
   if (id==='admin-comps') { renderAdminComps(); }
   if (id==='profile')     renderProfileScreen();
   if (id==='bookings')    renderBookingsScreen();
@@ -2917,7 +2923,10 @@ var currentUser = null;
 // ── Show login screen on load (gate the app) ──
 function showLoginScreen() {
   var loginScreen = document.getElementById('screen-login');
-  if (loginScreen) loginScreen.classList.remove('hidden');
+  if (loginScreen) {
+    loginScreen.style.display = 'flex';
+    loginScreen.classList.remove('hidden');
+  }
   // Hide main app content behind login
   document.querySelectorAll('.topbar, .nav, .screen').forEach(function(el) {
     el.style.display = 'none';
@@ -2926,14 +2935,15 @@ function showLoginScreen() {
 
 function hideLoginScreen() {
   var loginScreen = document.getElementById('screen-login');
-  if (loginScreen) loginScreen.classList.add('hidden');
+  if (loginScreen) {
+    loginScreen.classList.add('hidden');
+    // Set display:none immediately so it doesn't block the nav or screens
+    loginScreen.style.display = 'none';
+  }
   // Restore main app — topbar, nav AND screens
   document.querySelectorAll('.topbar, .nav, .screen').forEach(function(el) {
     el.style.display = '';
   });
-  setTimeout(function() {
-    if (loginScreen) loginScreen.style.display = 'none';
-  }, 400);
 }
 
 // ── TAB key moves from email to password ──
@@ -3160,7 +3170,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '4.0'; // bumped with each new release — I do this automatically
+var APP_VERSION = '4.2'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
@@ -3180,7 +3190,7 @@ window.addEventListener('load', function() {
     var seen = localStorage.getItem('imperium_version');
     // Show banner if: version changed OR ?showbanner in URL (for testing)
     var isTesting = window.location.search.indexOf('showbanner') >= 0;
-    if (isTesting || (seen !== null && seen !== APP_VERSION)) {
+    if (isTesting || (seen !== APP_VERSION)) {
       setTimeout(showUpdateBanner, 300);
     }
     localStorage.setItem('imperium_version', APP_VERSION);
