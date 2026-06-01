@@ -1916,11 +1916,18 @@ function renderAdminComps() {
         }).then(function(r){ return r.json(); })
           .then(function(data){
             if (data.success && data.event && data.event.id) {
-              competitions[idx].id = data.event.id; // update with real Supabase UUID
+              competitions[capturedIdx].id = data.event.id;
             }
+            // Reload from Supabase to eliminate temp entry and prevent duplicates
+            fetchEvents().then(function(){
+              renderAdminComps();
+            });
             showToast('Event saved ✓', 'success');
           })
-          .catch(function(){ showToast('Event saved locally ✓', 'info'); });
+          .catch(function(){
+            renderAdminComps();
+            showToast('Event saved locally ✓', 'info');
+          });
       };
       (function(capturedIdx) {
         card.querySelector('#del-'+capturedIdx).onclick = function() {
@@ -1952,7 +1959,7 @@ function renderAdminComps() {
 function addComp() {
   var future = new Date(); future.setDate(future.getDate()+30);
   var futureDate = future.toISOString().split('T')[0];
-  competitions.push({id:'c'+Date.now(),title:'New Event',date:futureDate,location:'',discipline:'bjj',eventType:'comp',type:'bjj',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'',featured:false,visible:true});
+  competitions.push({id:'c'+Date.now(),title:'New Event',date:futureDate,location:'',discipline:'other',eventType:'other',type:'other',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'New Event',featured:false,visible:true});
   renderAdminComps();
   renderCompList();
   showToast('Competition added — fill in details and tap Save','info');
@@ -3170,7 +3177,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '4.2'; // bumped with each new release — I do this automatically
+var APP_VERSION = '4.3'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
