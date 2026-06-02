@@ -1875,8 +1875,8 @@ function confirmDeleteEvent() {
 function saveEvent(idx) {
   idx = parseInt(idx, 10);
   var c = (idx >= 0 && idx < competitions.length) ? competitions[idx] : null;
-  if (!c) { showToast('Error: event index ' + idx + ' not found (total: ' + competitions.length + ')', 'info'); return; }
-  showToast('Saving...', 'info');
+  if (!c) { showToast('Error: idx=' + idx + ' not found (total=' + competitions.length + ')', 'info'); return; }
+  showToast('Saving idx=' + idx + ': ' + (c.title||'untitled'), 'info');
 
   var el = document.getElementById('adminCompList');
   if (!el) { showToast('Form not found', 'info'); return; }
@@ -3343,7 +3343,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '6.0'; // bumped with each new release — I do this automatically
+var APP_VERSION = '6.2'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
@@ -3375,18 +3375,12 @@ window.addEventListener('pageshow', function(e) {
 window.addEventListener('load', function() {
   try {
     var seen = localStorage.getItem('imperium_version');
-    // Show banner if: version changed OR ?showbanner in URL (for testing)
     var isTesting = window.location.search.indexOf('showbanner') >= 0;
-    if (isTesting || (seen !== APP_VERSION)) {
-      // Only show banner if user is already logged in (not on login screen)
-      if (currentUser || isTesting) {
-        setTimeout(showUpdateBanner, 300);
-      }
+    if (isTesting || (seen !== null && seen !== APP_VERSION)) {
+      setTimeout(showUpdateBanner, 300);
     }
     localStorage.setItem('imperium_version', APP_VERSION);
-  } catch(e) {
-    // localStorage not available
-  }
+  } catch(e) {}
 });
 </script>
 
