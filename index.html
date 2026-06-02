@@ -1714,11 +1714,13 @@ var eventsLoaded = false;
 
 async function fetchEvents() {
   try {
+    var role = currentUser ? currentUser.role : 'member';
     var response = await fetch('https://imperium-backend.vercel.app/api/events', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
+        'X-User-Role': role,
       },
       mode: 'cors',
     });
@@ -3241,7 +3243,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '5.1'; // bumped with each new release — I do this automatically
+var APP_VERSION = '5.2'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
@@ -3256,6 +3258,20 @@ function applyUpdate() {
 }
 
 // Run version check after DOM and all content is loaded
+// Re-check session when app comes back to foreground
+window.addEventListener('pageshow', function(e) {
+  try {
+    if (e.persisted && !currentUser) {
+      // Page restored from bfcache - re-check session
+      checkExistingSession();
+      if (currentUser) {
+        switchScreen('home');
+        applyRolePermissions(currentUser.role, currentUser.permissions);
+      }
+    }
+  } catch(e2) {}
+});
+
 window.addEventListener('load', function() {
   try {
     var seen = localStorage.getItem('imperium_version');
