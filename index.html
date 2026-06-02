@@ -1873,8 +1873,9 @@ function confirmDeleteEvent() {
 }
 
 function saveEvent(idx) {
-  var c = competitions[idx];
-  if (!c) { showToast('Event not found', 'info'); return; }
+  idx = parseInt(idx, 10);
+  var c = (idx >= 0 && idx < competitions.length) ? competitions[idx] : null;
+  if (!c) { showToast('Error: event index ' + idx + ' not found (total: ' + competitions.length + ')', 'info'); return; }
   showToast('Saving...', 'info');
 
   var el = document.getElementById('adminCompList');
@@ -1996,7 +1997,7 @@ function renderAdminComps() {
 }
 
 function addComp() {
-  var future = new Date(); future.setDate(future.getDate()+30);
+  var future = new Date(); future.setFullYear(future.getFullYear()+1);
   var futureDate = future.toISOString().split('T')[0];
   competitions.push({id:'c'+Date.now(),title:'New Event',date:futureDate,location:'',discipline:'other',eventType:'other',type:'other',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'New Event',featured:false,visible:true});
   renderAdminComps();
@@ -3136,6 +3137,16 @@ function onLoginSuccess(user) {
       var remExp = new Date(Date.now() + 30*24*60*60*1000).toUTCString();
       document.cookie = 'imp_remember=' + encodeURIComponent(roleVal) + '; expires=' + remExp + '; path=/; SameSite=Lax';
     } catch(e2) {}
+    // Store in IndexedDB — survives iOS PWA memory clearing
+    try {
+      var idbReq = indexedDB.open('imperiumDB', 1);
+      idbReq.onupgradeneeded = function(e) { e.target.result.createObjectStore('session'); };
+      idbReq.onsuccess = function(e) {
+        var tx = e.target.result.transaction('session','readwrite');
+        tx.objectStore('session').put(roleVal, 'remember');
+        tx.objectStore('session').put(sessionStr, 'data');
+      };
+    } catch(e2) {}
   } catch(e) {}
 
   // Hide login, show app
@@ -3241,6 +3252,14 @@ function checkExistingSession() {
     try { localStorage.removeItem('imperium_remember'); } catch(e) {}
     try { sessionStorage.removeItem('imperium_remember'); } catch(e) {}
     try { document.cookie = 'imp_remember=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; } catch(e) {}
+    try {
+      var idbDel = indexedDB.open('imperiumDB', 1);
+      idbDel.onsuccess = function(e) {
+        var tx = e.target.result.transaction('session','readwrite');
+        tx.objectStore('session').delete('remember');
+        tx.objectStore('session').delete('data');
+      };
+    } catch(e) {}
       return false;
     }
     // Restore session and refresh loginTime so active users stay logged in
@@ -3272,7 +3291,7 @@ renderHomeBookingsCard();
 // ── GATE APP BEHIND LOGIN ──
 if (!checkExistingSession()) {
   // iOS clears localStorage when PWA is fully closed
-  // Try remember-me token to auto-restore without re-login
+  // Try sync sources first (cookie, sessionStorage)
   var rememberRole = null;
   try { rememberRole = localStorage.getItem('imperium_remember'); } catch(e) {}
   try { if (!rememberRole) rememberRole = sessionStorage.getItem('imperium_remember'); } catch(e) {}
@@ -3284,21 +3303,47 @@ if (!checkExistingSession()) {
   } catch(e) {}
 
   if (rememberRole) {
-    // Auto-restore session silently
+    // Auto-restore silently from sync storage
     mockAuth(rememberRole + '@imperiummma.com.au', 'auto').then(function(data) {
       if (data.success) { onLoginSuccess(data); }
-      else { showLoginScreen(); }
-    }).catch(function() { showLoginScreen(); });
+      else { tryIndexedDBRestore(); }
+    }).catch(function() { tryIndexedDBRestore(); });
   } else {
-    showLoginScreen();
+    tryIndexedDBRestore();
   }
 } else {
   try { applyRolePermissions(currentUser.role, currentUser.permissions); } catch(e) {}
   switchScreen('home');
 }
 
+function tryIndexedDBRestore() {
+  try {
+    var req = indexedDB.open('imperiumDB', 1);
+    req.onupgradeneeded = function(e) { e.target.result.createObjectStore('session'); };
+    req.onsuccess = function(e) {
+      var tx = e.target.result.transaction('session','readonly');
+      var get = tx.objectStore('session').get('remember');
+      get.onsuccess = function() {
+        var role = get.result;
+        if (role) {
+          mockAuth(role + '@imperiummma.com.au', 'auto').then(function(data) {
+            if (data.success) { onLoginSuccess(data); }
+            else { showLoginScreen(); }
+          }).catch(function() { showLoginScreen(); });
+        } else {
+          showLoginScreen();
+        }
+      };
+      get.onerror = function() { showLoginScreen(); };
+    };
+    req.onerror = function() { showLoginScreen(); };
+  } catch(e) {
+    showLoginScreen();
+  }
+}
+
 // ── UPDATE BANNER ──
-var APP_VERSION = '5.8'; // bumped with each new release — I do this automatically
+var APP_VERSION = '6.0'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
