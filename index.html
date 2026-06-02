@@ -3236,11 +3236,11 @@ function checkExistingSession() {
       document.cookie = 'imp_session=' + encodeURIComponent(refreshed) + '; expires=' + exp + '; path=/; SameSite=Lax';
     } catch(e) {}
     currentUser = session;
-    applyRolePermissions(session.role, session.permissions);
     return true;
   } catch(e) {
     return false;
   }
+  // applyRolePermissions called after checkExistingSession returns true
 }
 
 // ── INIT ──
@@ -3254,7 +3254,8 @@ renderHomeBookingsCard();
 
 // ── GATE APP BEHIND LOGIN ──
 // Check for existing valid session, otherwise show login screen
-if (!checkExistingSession()) {
+var sessionRestored = checkExistingSession();
+if (!sessionRestored) {
   // Debug: show what storage has on load
   var lsVal = ''; var ssVal = ''; var ckVal = '';
   try { lsVal = localStorage.getItem('imperium_session') ? 'YES' : 'NO'; } catch(e) { lsVal = 'ERR'; }
@@ -3264,15 +3265,13 @@ if (!checkExistingSession()) {
   if (debugEl) debugEl.textContent = 'Session: LS=' + lsVal + ' SS=' + ssVal + ' CK=' + ckVal + ' v' + APP_VERSION;
   showLoginScreen();
 } else {
-  // Existing session — restore app and apply permissions
+  // Existing session — restore app and apply permissions safely
+  try { applyRolePermissions(currentUser.role, currentUser.permissions); } catch(e) {}
   switchScreen('home');
-  if (currentUser && currentUser.permissions) {
-    applyRolePermissions(currentUser.role, currentUser.permissions);
-  }
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '5.7'; // bumped with each new release — I do this automatically
+var APP_VERSION = '5.8'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
