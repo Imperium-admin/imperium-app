@@ -3117,6 +3117,8 @@ function onLoginSuccess(user) {
       token:       user.token,
       loginTime:   Date.now(),
     }));
+    // Backup session flag in sessionStorage
+    try { sessionStorage.setItem('imperium_active', '1'); } catch(e) {}
   } catch(e) {}
 
   // Hide login, show app
@@ -3200,12 +3202,15 @@ function checkExistingSession() {
     if (!stored) return false;
     var session = JSON.parse(stored);
     // Session expires after 12 hours
-    var TWELVE_HOURS = 12 * 60 * 60 * 1000;
-    if (Date.now() - session.loginTime > TWELVE_HOURS) {
+    // Session lasts 7 days - refresh on each valid load
+    var SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+    if (Date.now() - session.loginTime > SEVEN_DAYS) {
       localStorage.removeItem('imperium_session');
       return false;
     }
-    // Restore session
+    // Restore session and refresh loginTime so active users stay logged in
+    session.loginTime = Date.now();
+    localStorage.setItem('imperium_session', JSON.stringify(session));
     currentUser = session;
     applyRolePermissions(session.role, session.permissions);
     return true;
@@ -3236,7 +3241,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '5.0'; // bumped with each new release — I do this automatically
+var APP_VERSION = '5.1'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
