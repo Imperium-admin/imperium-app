@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -3272,7 +3272,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '5.6'; // bumped with each new release — I do this automatically
+var APP_VERSION = '5.7'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
@@ -3307,7 +3307,10 @@ window.addEventListener('load', function() {
     // Show banner if: version changed OR ?showbanner in URL (for testing)
     var isTesting = window.location.search.indexOf('showbanner') >= 0;
     if (isTesting || (seen !== APP_VERSION)) {
-      setTimeout(showUpdateBanner, 300);
+      // Only show banner if user is already logged in (not on login screen)
+      if (currentUser || isTesting) {
+        setTimeout(showUpdateBanner, 300);
+      }
     }
     localStorage.setItem('imperium_version', APP_VERSION);
   } catch(e) {
