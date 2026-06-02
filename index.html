@@ -471,6 +471,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <div id="screen-login">
   <div class="login-logo">IMPERIUM <span>MMA</span></div>
   <div class="login-tagline">Member Portal</div>
+  <div id="loginDebug" style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:4px;text-align:center"></div>
 
   <div class="login-card">
     <div class="login-error" id="loginError">
@@ -1927,12 +1928,10 @@ function saveEvent(idx) {
     if (data.success && data.event && data.event.id) {
       competitions[idx].id = data.event.id;
     }
-    renderAdminComps();
     renderCompList();
     showToast('Event saved ✓', 'success');
   })
   .catch(function() {
-    renderAdminComps();
     renderCompList();
     showToast('Saved locally ✓', 'info');
   });
@@ -2049,18 +2048,9 @@ function switchScreen(id) {
       if (lock) lock.style.display = 'none';
       if (body) body.style.display = 'block';
     }
-    // Fetch from Supabase then render — single call, no race
-    fetchEvents().then(function() {
-      renderAdminComps();
-      if (compAdminUnlocked) {
-        var lock2 = document.getElementById('compAdminLock');
-        var body2 = document.getElementById('compAdminContent');
-        if (lock2) lock2.style.display = 'none';
-        if (body2) body2.style.display = 'block';
-      }
-    }).catch(function() {
-      renderAdminComps();
-    });
+    // Render with current local competitions[] — no fetchEvents here
+    // fetchEvents only runs on the public comps screen
+    renderAdminComps();
   }
   if (id==='profile')     renderProfileScreen();
   if (id==='bookings')    renderBookingsScreen();
@@ -3131,7 +3121,7 @@ function onLoginSuccess(user) {
     try { sessionStorage.setItem('imperium_session', sessionStr); } catch(e2) {}
     try {
       var cookieExp = new Date(Date.now() + 7*24*60*60*1000).toUTCString();
-      document.cookie = 'imp_session=' + encodeURIComponent(sessionStr) + '; expires=' + cookieExp + '; path=/; SameSite=Strict';
+      document.cookie = 'imp_session=' + encodeURIComponent(sessionStr) + '; expires=' + cookieExp + '; path=/; SameSite=Lax';
     } catch(e2) {}
   } catch(e) {}
 
@@ -3213,15 +3203,16 @@ function doLogout() {
 function checkExistingSession() {
   try {
     // Try localStorage first, then sessionStorage, then cookie
-    var stored = localStorage.getItem('imperium_session');
+    var stored = null;
+    var source = '';
+    try { stored = localStorage.getItem('imperium_session'); source = 'localStorage'; } catch(e1) {}
     if (!stored) {
-      try { stored = sessionStorage.getItem('imperium_session'); } catch(e2) {}
+      try { stored = sessionStorage.getItem('imperium_session'); source = 'sessionStorage'; } catch(e2) {}
     }
     if (!stored) {
-      // Try cookie
       try {
         var match = document.cookie.match(/imp_session=([^;]+)/);
-        if (match) stored = decodeURIComponent(match[1]);
+        if (match) { stored = decodeURIComponent(match[1]); source = 'cookie'; }
       } catch(e3) {}
     }
     if (!stored) return false;
@@ -3242,7 +3233,7 @@ function checkExistingSession() {
     try { sessionStorage.setItem('imperium_session', refreshed); } catch(e) {}
     try {
       var exp = new Date(Date.now() + 7*24*60*60*1000).toUTCString();
-      document.cookie = 'imp_session=' + encodeURIComponent(refreshed) + '; expires=' + exp + '; path=/; SameSite=Strict';
+      document.cookie = 'imp_session=' + encodeURIComponent(refreshed) + '; expires=' + exp + '; path=/; SameSite=Lax';
     } catch(e) {}
     currentUser = session;
     applyRolePermissions(session.role, session.permissions);
@@ -3264,6 +3255,13 @@ renderHomeBookingsCard();
 // ── GATE APP BEHIND LOGIN ──
 // Check for existing valid session, otherwise show login screen
 if (!checkExistingSession()) {
+  // Debug: show what storage has on load
+  var lsVal = ''; var ssVal = ''; var ckVal = '';
+  try { lsVal = localStorage.getItem('imperium_session') ? 'YES' : 'NO'; } catch(e) { lsVal = 'ERR'; }
+  try { ssVal = sessionStorage.getItem('imperium_session') ? 'YES' : 'NO'; } catch(e) { ssVal = 'ERR'; }
+  try { ckVal = document.cookie.indexOf('imp_session') >= 0 ? 'YES' : 'NO'; } catch(e) { ckVal = 'ERR'; }
+  var debugEl = document.getElementById('loginDebug');
+  if (debugEl) debugEl.textContent = 'Session: LS=' + lsVal + ' SS=' + ssVal + ' CK=' + ckVal + ' v' + APP_VERSION;
   showLoginScreen();
 } else {
   // Existing session — restore app and apply permissions
@@ -3274,7 +3272,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '5.3'; // bumped with each new release — I do this automatically
+var APP_VERSION = '5.6'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
