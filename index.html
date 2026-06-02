@@ -2251,26 +2251,10 @@ var RECEPTION_WHATSAPP = '61395870746';
 var RECEPTION_WA_URL = 'https://wa.me/61395870746'; // ← REPLACE with your number
 
 function sendReception() {
-  var inp = document.getElementById('receptionInput');
-  var txt = inp ? inp.value.trim() : '';
-  if (!txt) return;
-
-  // Show message in chat UI
-  var box = document.getElementById('receptionMsgs');
-  if (box) {
-    var d = document.createElement('div');
-    d.className = 'msg sent';
-    d.innerHTML = txt + '<div class="msg-time">Now</div>';
-    box.appendChild(d);
-    box.scrollTop = box.scrollHeight;
-  }
-  inp.value = '';
-
-  // Open WhatsApp with message pre-filled
+  // Open WhatsApp with a pre-filled greeting — member just taps Send
+  var txt = 'Hi Imperium MMA, I\'d like to get in touch.';
   var encodedMsg = encodeURIComponent(txt);
-  setTimeout(function() {
-    location.href = 'https://wa.me/61395870746?text=' + encodedMsg;
-  }, 300);
+  location.href = 'https://wa.me/61395870746?text=' + encodedMsg;
 }
 
 // ── COACHES ──
@@ -3317,7 +3301,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '6.5'; // bumped with each new release — I do this automatically
+var APP_VERSION = '6.6'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
