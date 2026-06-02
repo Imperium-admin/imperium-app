@@ -2251,10 +2251,9 @@ var RECEPTION_WHATSAPP = '61395870746';
 var RECEPTION_WA_URL = 'https://wa.me/61395870746'; // ← REPLACE with your number
 
 function sendReception() {
-  // Open WhatsApp with a pre-filled greeting — member just taps Send
   var txt = 'Hi Imperium MMA, I\'d like to get in touch.';
-  var encodedMsg = encodeURIComponent(txt);
-  location.href = 'https://wa.me/61395870746?text=' + encodedMsg;
+  var url = 'https://wa.me/61395870746?text=' + encodeURIComponent(txt);
+  window.open(url, '_blank');
 }
 
 // ── COACHES ──
