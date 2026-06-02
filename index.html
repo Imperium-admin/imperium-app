@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#0a0a0a">
 <title>Imperium MMA Member App</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
 <style>
 /* ─── RESET & ROOT ─── */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -836,75 +836,47 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
      SCREEN: MESSAGES
 ════════════════════════════════════ -->
 <div class="screen" id="screen-messages">
-  <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:12px">MESSAGES</h2>
-  <!-- Reception Chat only — Broadcast is staff-only via Coaches Hub -->
+  <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:4px">MESSAGES</h2>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Announcements and contact from Imperium MMA</p>
 
-  <div id="msgReception">
-    <div class="card" style="padding:12px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <div style="width:34px;height:34px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">IM</div>
-        <div>
-          <div style="font-weight:600;font-size:13px">Imperium Reception</div>
-          <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--muted)"><span style="width:6px;height:6px;border-radius:50%;background:#4caf50;display:inline-block"></span>Online now</div>
-        </div>
-          <div style="font-size:11px;color:#3498db;margin-top:3px;font-weight:600"><i class="ti ti-brand-whatsapp" style="font-size:12px;vertical-align:-1px"></i> Messages delivered to Imperium WhatsApp reception</div>
-      </div>
-      <div style="background:rgba(52,152,219,0.12);border:1px solid rgba(52,152,219,0.3);border-radius:8px;padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px">
-        <i class="ti ti-brand-whatsapp" style="font-size:18px;color:#3498db;flex-shrink:0"></i>
-        <div style="font-size:12px;color:#3498db;font-weight:600;line-height:1.4">Your message will be delivered directly to Imperium MMA's WhatsApp Business inbox</div>
-      </div>
-      <div class="chat-msgs" id="receptionMsgs">
-        <div class="msg recv">Hey! How can we help you today?<div class="msg-time">9:00 AM</div></div>
-        <div class="msg sent">Hi — can I bring a friend to try a class?<div class="msg-time">9:04 AM</div></div>
-        <div class="msg recv">Absolutely! They can book 2 free trial classes at imperiummma.com.au<div class="msg-time">9:06 AM</div></div>
-      </div>
-      <div class="chat-row">
-        <input type="text" id="receptionInput" placeholder="Message reception..." onkeydown="if(event.key==='Enter')sendReception()">
-        <button class="send-btn" onclick="sendReception()"><i class="ti ti-send"></i></button>
-      </div>
-    </div>
-  </div>
+  <!-- ── LATEST ANNOUNCEMENTS ── -->
+  <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Latest Announcements</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:10px">Messages sent to all members by Imperium MMA</div>
+  <div id="recentBroadcastList" style="max-height:220px;overflow-y:auto;margin-bottom:20px;padding-right:2px"></div>
 
-  <div id="msgBroadcast" style="display:none">
-    <div class="card" style="padding:14px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <i class="ti ti-speakerphone" style="font-size:20px;color:var(--red2)"></i>
-        <div><div style="font-family:var(--head);font-size:16px;letter-spacing:1px">BROADCAST TO MEMBERS</div><div style="font-size:11px;color:var(--muted)">Push to all or selected members</div></div>
-      </div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:5px">Send via</div>
-      <div class="ch-row">
-        <div class="ch push on" onclick="this.classList.toggle('on')"><i class="ti ti-device-mobile" style="font-size:13px"></i>Push</div>
-        <div class="ch sms" onclick="this.classList.toggle('on')"><i class="ti ti-message" style="font-size:13px"></i>SMS</div>
-        <div class="ch email" onclick="this.classList.toggle('on')"><i class="ti ti-mail" style="font-size:13px"></i>Email</div>
-      </div>
-      <label class="bcast-label">Audience</label>
-      <select class="bcast-input" id="bcastAudience2" onchange="updateCount()" style="margin-bottom:0">
-        <option value="87">All Active Members (87)</option>
-        <option value="43">BJJ Members Only (43)</option>
-        <option value="31">Muay Thai Members Only (31)</option>
-        <option value="28">Kids BJJ Members (28)</option>
-        <option value="19">Kids Muay Thai Members (19)</option>
-        <option value="12">Class Pass Holders (12)</option>
-        <option value="8">Trial Members (8)</option>
-        <option value="14">Lapsed Members (14)</option>
-      </select>
-      <label class="bcast-label">Title</label>
-      <input class="bcast-input" type="text" id="bcastTitle2" placeholder="e.g. Grading Night — This Friday!">
-      <label class="bcast-label">Message</label>
-      <textarea class="bcast-input" id="bcastMsg2" style="resize:vertical;min-height:90px;margin-bottom:0" placeholder="Type your message..."></textarea>
-      <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:12px;color:var(--muted)"><i class="ti ti-users" style="font-size:13px;vertical-align:-1px"></i> <span id="bcastCount2">87 members</span></span>
-        <button style="padding:10px 22px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:var(--head);font-size:15px;letter-spacing:1px;cursor:pointer;transition:background .15s" onclick="sendBroadcast()" onmouseover="this.style.background='var(--red2)'" onmouseout="this.style.background='var(--red)'">SEND NOW</button>
-      </div>
+  <!-- ── CONTACT RECEPTION ── -->
+  <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:12px">Contact Reception</div>
+  <button onclick="sendReception()" style="width:100%;background:linear-gradient(135deg,#1a6b35,#25d366);border:none;border-radius:16px;padding:20px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;text-align:left;box-shadow:0 4px 20px rgba(37,211,102,0.2);margin-bottom:20px">
+    <div style="width:52px;height:52px;background:rgba(255,255,255,0.18);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     </div>
+    <div style="flex:1">
+      <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:3px">Message Reception on WhatsApp</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.8)">Tap to start a chat with our team</div>
+    </div>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+  </button>
+
+  <!-- ── STAY CONNECTED ── -->
+  <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Stay Connected</div>
+  <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Keep up to date with news, events and highlights</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px">
+    <a href="https://www.facebook.com/mordialloc.vic/" target="_blank" style="background:linear-gradient(145deg,#1a3a6b,#1877f2);border-radius:14px;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none;cursor:pointer">
+      <div style="width:48px;height:48px;background:rgba(255,255,255,0.18);border-radius:14px;display:flex;align-items:center;justify-content:center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:#fff">Facebook</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.7);text-align:center;line-height:1.3">Imperium MMA<br>Mordialloc</div>
+    </a>
+    <a href="https://www.instagram.com/imperium_mixedmartialarts" target="_blank" style="background:linear-gradient(145deg,#2d1b3d,#833ab4 40%,#e1306c 70%,#f77737);border-radius:14px;padding:18px 12px;display:flex;flex-direction:column;align-items:center;gap:10px;text-decoration:none;cursor:pointer">
+      <div style="width:48px;height:48px;background:rgba(255,255,255,0.18);border-radius:14px;display:flex;align-items:center;justify-content:center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="#fff"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:#fff">Instagram</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.7);text-align:center;line-height:1.3">@imperium_<br>mixedmartialarts</div>
+    </a>
   </div>
 </div>
-
-<!-- ════════════════════════════════════
-     SCREEN: COMMUNITY (WHATSAPP)
-     *** REPLACE THE href="#" LINKS BELOW
-         WITH YOUR REAL WHATSAPP INVITE LINKS ***
-════════════════════════════════════ -->
 <div class="screen" id="screen-community">
   <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:4px">COMMUNITY</h2>
   <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Join your training group on WhatsApp</p>
@@ -2137,6 +2109,7 @@ function closeBroadcastModal(e) {
   document.getElementById('broadcastModal').classList.remove('open');
 }
 // Recent broadcasts store
+var MAX_ANNOUNCEMENTS = 5; // Change this to show more or fewer announcements
 var recentBroadcasts = [
   {title:'Grading night — Friday 7 PM',  audience:'All members', time:'Yesterday',  channel:'Push + SMS', count:87, message:'Reminder: Grading night is this Friday at 7 PM. All students who have been nominated please arrive by 6:45 PM in full gi. Supporters welcome!'},
   {title:'Gym closed public holiday',     audience:'All members', time:'3 days ago', channel:'Email',      count:87, message:'The gym will be closed this Monday for the public holiday. We will resume normal classes on Tuesday. Enjoy the long weekend!'},
@@ -2146,49 +2119,49 @@ function renderRecentBroadcasts() {
   var el = document.getElementById('recentBroadcastList');
   if (!el) return;
   el.innerHTML = '';
-  if (recentBroadcasts.length === 0) {
-    el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px 0">No broadcasts sent yet</div>';
+  if (!recentBroadcasts || recentBroadcasts.length === 0) {
+    el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:8px 0">No announcements yet</div>';
     return;
   }
-  recentBroadcasts.forEach(function(b, i) {
+  var toShow = recentBroadcasts.slice(0, MAX_ANNOUNCEMENTS);
+  toShow.forEach(function(b, i) {
     var msgId = 'rbmsg-' + i;
-
-    // Outer row
-    var row = document.createElement('div');
-    row.style.cssText = 'padding:10px 0;' + (i < recentBroadcasts.length-1 ? 'border-bottom:1px solid var(--border);' : '');
-
-    // Header (tappable)
-    var header = document.createElement('div');
-    header.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;cursor:pointer';
-
-    var titleBlock = document.createElement('div');
-    titleBlock.style.flex = '1';
-    titleBlock.innerHTML =
-      '<div style="font-weight:600;font-size:13px">' + b.title + '</div>' +
-      '<div style="font-size:11px;color:var(--muted);margin-top:2px">' + b.audience + ' · ' + b.time + ' · ' + b.channel + '</div>';
-
-    var rightBlock = document.createElement('div');
-    rightBlock.style.cssText = 'display:flex;align-items:center;gap:6px;flex-shrink:0;margin-left:8px';
-    rightBlock.innerHTML =
-      '<span style="font-size:11px;color:#4caf50;font-weight:600">' + b.count + ' sent</span>' +
-      '<i class="ti ti-chevron-down" style="font-size:12px;color:var(--muted);transition:transform .2s" id="' + msgId + '-icon"></i>';
-
-    header.appendChild(titleBlock);
-    header.appendChild(rightBlock);
-    (function(mid){ header.onclick = function(){ toggleBroadcastMsg(mid); }; })(msgId);
-
-    // Message body (hidden by default)
-    var msgBody = document.createElement('div');
-    msgBody.id = msgId;
-    msgBody.style.cssText = 'display:none;margin-top:8px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:2px solid rgba(52,152,219,0.4);font-size:12px;color:var(--text);line-height:1.6';
-    msgBody.textContent = b.message || '';
-    if (!b.message) {
-      msgBody.innerHTML = '<span style="color:var(--muted);font-style:italic">No message body recorded</span>';
+    var card = document.createElement('div');
+    card.style.cssText = 'background:linear-gradient(135deg,#1a1a2e,#16213e);border:1px solid rgba(52,152,219,0.2);border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer';
+    var timeStr = b.time || '';
+    if (b.timestamp) {
+      var d = new Date(b.timestamp);
+      var months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var hrs=d.getHours(), mins=d.getMinutes(), ampm=hrs>=12?'pm':'am';
+      hrs=hrs%12||12; var ms=mins<10?'0'+mins:mins;
+      timeStr = d.getDate()+' '+months[d.getMonth()]+', '+hrs+':'+ms+ampm;
     }
-
-    row.appendChild(header);
-    row.appendChild(msgBody);
-    el.appendChild(row);
+    card.innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">' +
+        '<div style="font-weight:700;font-size:13px;flex:1;line-height:1.3">'+(b.title||'Announcement')+'</div>' +
+        '<div style="font-size:10px;color:var(--muted);flex-shrink:0;padding-top:1px">'+timeStr+'</div>' +
+      '</div>' +
+      '<div id="'+msgId+'-preview" style="font-size:12px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(b.message||'')+'</div>' +
+      '<div id="'+msgId+'" style="display:none;font-size:12px;color:var(--text);margin-top:8px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border-left:2px solid rgba(52,152,219,0.4);line-height:1.6">'+(b.message||'')+'</div>' +
+      '<div style="margin-top:6px;display:flex;align-items:center;gap:4px">' +
+        '<i class="ti ti-chevron-down" id="'+msgId+'-icon" style="font-size:11px;color:var(--muted);transition:transform .2s"></i>' +
+        '<span style="font-size:10px;color:var(--muted)">Tap to read</span>' +
+      '</div>';
+    (function(mid,cardEl){
+      cardEl.onclick=function(){
+        var body=document.getElementById(mid);
+        var preview=document.getElementById(mid+'-preview');
+        var icon=document.getElementById(mid+'-icon');
+        var hint=icon?icon.parentNode.querySelector('span'):null;
+        if(!body)return;
+        var isOpen=body.style.display==='block';
+        body.style.display=isOpen?'none':'block';
+        if(preview)preview.style.display=isOpen?'block':'none';
+        if(icon)icon.style.transform=isOpen?'':'rotate(180deg)';
+        if(hint)hint.textContent=isOpen?'Tap to read':'Tap to close';
+      };
+    })(msgId,card);
+    el.appendChild(card);
   });
 }
 
@@ -2239,6 +2212,7 @@ function sendBroadcast() {
     title: tval,
     audience: audText.trim(),
     time: 'Just now',
+    timestamp: Date.now(),
     channel: channelStr,
     count: parseInt(countNum) || 87,
     message: mval,
@@ -3343,7 +3317,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '6.2'; // bumped with each new release — I do this automatically
+var APP_VERSION = '6.4'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
