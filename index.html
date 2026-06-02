@@ -2042,11 +2042,6 @@ function switchScreen(id) {
   }
   if (id==='comps')       { fetchEvents(); }
   if (id==='admin-comps') {
-    // Fetch latest from Supabase first so IDs are real UUIDs
-    fetchEvents().then(function() {
-      renderAdminComps();
-    });
-    renderAdminComps();
     // Auto-hide PIN lock if already unlocked by role
     if (compAdminUnlocked) {
       var lock = document.getElementById('compAdminLock');
@@ -2054,6 +2049,18 @@ function switchScreen(id) {
       if (lock) lock.style.display = 'none';
       if (body) body.style.display = 'block';
     }
+    // Fetch from Supabase then render — single call, no race
+    fetchEvents().then(function() {
+      renderAdminComps();
+      if (compAdminUnlocked) {
+        var lock2 = document.getElementById('compAdminLock');
+        var body2 = document.getElementById('compAdminContent');
+        if (lock2) lock2.style.display = 'none';
+        if (body2) body2.style.display = 'block';
+      }
+    }).catch(function() {
+      renderAdminComps();
+    });
   }
   if (id==='profile')     renderProfileScreen();
   if (id==='bookings')    renderBookingsScreen();
@@ -3111,16 +3118,21 @@ async function doLogin() {
 function onLoginSuccess(user) {
   // Store session in localStorage
   try {
-    localStorage.setItem('imperium_session', JSON.stringify({
+    var sessionObj = {
       email:       user.contact.email,
       name:        user.contact.first_name + ' ' + user.contact.last_name,
       role:        user.role,
       permissions: user.permissions,
       token:       user.token,
       loginTime:   Date.now(),
-    }));
-    // Backup session flag in sessionStorage
-    try { sessionStorage.setItem('imperium_active', '1'); } catch(e) {}
+    };
+    var sessionStr = JSON.stringify(sessionObj);
+    try { localStorage.setItem('imperium_session', sessionStr); } catch(e2) {}
+    try { sessionStorage.setItem('imperium_session', sessionStr); } catch(e2) {}
+    try {
+      var cookieExp = new Date(Date.now() + 7*24*60*60*1000).toUTCString();
+      document.cookie = 'imp_session=' + encodeURIComponent(sessionStr) + '; expires=' + cookieExp + '; path=/; SameSite=Strict';
+    } catch(e2) {}
   } catch(e) {}
 
   // Hide login, show app
@@ -3200,7 +3212,18 @@ function doLogout() {
 // ── CHECK FOR EXISTING SESSION ON LOAD ──
 function checkExistingSession() {
   try {
+    // Try localStorage first, then sessionStorage, then cookie
     var stored = localStorage.getItem('imperium_session');
+    if (!stored) {
+      try { stored = sessionStorage.getItem('imperium_session'); } catch(e2) {}
+    }
+    if (!stored) {
+      // Try cookie
+      try {
+        var match = document.cookie.match(/imp_session=([^;]+)/);
+        if (match) stored = decodeURIComponent(match[1]);
+      } catch(e3) {}
+    }
     if (!stored) return false;
     var session = JSON.parse(stored);
     // Session expires after 12 hours
@@ -3208,11 +3231,19 @@ function checkExistingSession() {
     var SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
     if (Date.now() - session.loginTime > SEVEN_DAYS) {
       localStorage.removeItem('imperium_session');
+    try { sessionStorage.removeItem('imperium_session'); } catch(e) {}
+    try { document.cookie = 'imp_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; } catch(e) {}
       return false;
     }
     // Restore session and refresh loginTime so active users stay logged in
     session.loginTime = Date.now();
-    localStorage.setItem('imperium_session', JSON.stringify(session));
+    var refreshed = JSON.stringify(session);
+    try { localStorage.setItem('imperium_session', refreshed); } catch(e) {}
+    try { sessionStorage.setItem('imperium_session', refreshed); } catch(e) {}
+    try {
+      var exp = new Date(Date.now() + 7*24*60*60*1000).toUTCString();
+      document.cookie = 'imp_session=' + encodeURIComponent(refreshed) + '; expires=' + exp + '; path=/; SameSite=Strict';
+    } catch(e) {}
     currentUser = session;
     applyRolePermissions(session.role, session.permissions);
     return true;
@@ -3243,7 +3274,7 @@ if (!checkExistingSession()) {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '5.2'; // bumped with each new release — I do this automatically
+var APP_VERSION = '5.3'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
