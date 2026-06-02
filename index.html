@@ -471,7 +471,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <div id="screen-login">
   <div class="login-logo">IMPERIUM <span>MMA</span></div>
   <div class="login-tagline">Member Portal</div>
-  <div id="loginDebug" style="font-size:10px;color:rgba(255,255,255,0.4);margin-top:4px;text-align:center"></div>
+  
 
   <div class="login-card">
     <div class="login-error" id="loginError">
@@ -3025,6 +3025,11 @@ async function mockAuth(email, password) {
   // Simulate network delay
   await new Promise(function(r){ setTimeout(r, 800); });
 
+  // Support role-based auto-restore
+  if (email === 'admin' || email === 'admin@imperiummma.com.au') email = 'admin@imperiummma.com.au';
+  if (email === 'coach' || email === 'marcus@imperiummma.com.au') email = 'marcus@imperiummma.com.au';
+  if (email === 'member' || email === 'jake@example.com') email = 'jake@example.com';
+
   var accounts = {
     'jake@example.com': {
       success: true, role: 'member', token: 'mock_member_' + Date.now(),
@@ -3122,6 +3127,14 @@ function onLoginSuccess(user) {
     try {
       var cookieExp = new Date(Date.now() + 7*24*60*60*1000).toUTCString();
       document.cookie = 'imp_session=' + encodeURIComponent(sessionStr) + '; expires=' + cookieExp + '; path=/; SameSite=Lax';
+    } catch(e2) {}
+    // Store role for auto-restore when iOS clears localStorage
+    var roleVal = sessionObj.role || 'member';
+    try { localStorage.setItem('imperium_remember', roleVal); } catch(e2) {}
+    try { sessionStorage.setItem('imperium_remember', roleVal); } catch(e2) {}
+    try {
+      var remExp = new Date(Date.now() + 30*24*60*60*1000).toUTCString();
+      document.cookie = 'imp_remember=' + encodeURIComponent(roleVal) + '; expires=' + remExp + '; path=/; SameSite=Lax';
     } catch(e2) {}
   } catch(e) {}
 
@@ -3224,6 +3237,10 @@ function checkExistingSession() {
       localStorage.removeItem('imperium_session');
     try { sessionStorage.removeItem('imperium_session'); } catch(e) {}
     try { document.cookie = 'imp_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; } catch(e) {}
+    // Clear remember-me on explicit logout
+    try { localStorage.removeItem('imperium_remember'); } catch(e) {}
+    try { sessionStorage.removeItem('imperium_remember'); } catch(e) {}
+    try { document.cookie = 'imp_remember=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; } catch(e) {}
       return false;
     }
     // Restore session and refresh loginTime so active users stay logged in
@@ -3253,19 +3270,29 @@ renderProfileScreen();
 renderHomeBookingsCard();
 
 // ── GATE APP BEHIND LOGIN ──
-// Check for existing valid session, otherwise show login screen
-var sessionRestored = checkExistingSession();
-if (!sessionRestored) {
-  // Debug: show what storage has on load
-  var lsVal = ''; var ssVal = ''; var ckVal = '';
-  try { lsVal = localStorage.getItem('imperium_session') ? 'YES' : 'NO'; } catch(e) { lsVal = 'ERR'; }
-  try { ssVal = sessionStorage.getItem('imperium_session') ? 'YES' : 'NO'; } catch(e) { ssVal = 'ERR'; }
-  try { ckVal = document.cookie.indexOf('imp_session') >= 0 ? 'YES' : 'NO'; } catch(e) { ckVal = 'ERR'; }
-  var debugEl = document.getElementById('loginDebug');
-  if (debugEl) debugEl.textContent = 'Session: LS=' + lsVal + ' SS=' + ssVal + ' CK=' + ckVal + ' v' + APP_VERSION;
-  showLoginScreen();
+if (!checkExistingSession()) {
+  // iOS clears localStorage when PWA is fully closed
+  // Try remember-me token to auto-restore without re-login
+  var rememberRole = null;
+  try { rememberRole = localStorage.getItem('imperium_remember'); } catch(e) {}
+  try { if (!rememberRole) rememberRole = sessionStorage.getItem('imperium_remember'); } catch(e) {}
+  try {
+    if (!rememberRole) {
+      var ck = document.cookie.match(/imp_remember=([^;]+)/);
+      if (ck) rememberRole = decodeURIComponent(ck[1]);
+    }
+  } catch(e) {}
+
+  if (rememberRole) {
+    // Auto-restore session silently
+    mockAuth(rememberRole + '@imperiummma.com.au', 'auto').then(function(data) {
+      if (data.success) { onLoginSuccess(data); }
+      else { showLoginScreen(); }
+    }).catch(function() { showLoginScreen(); });
+  } else {
+    showLoginScreen();
+  }
 } else {
-  // Existing session — restore app and apply permissions safely
   try { applyRolePermissions(currentUser.role, currentUser.permissions); } catch(e) {}
   switchScreen('home');
 }
