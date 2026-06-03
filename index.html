@@ -1072,8 +1072,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
         </div>
       </div>
     </div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Belt / Grade</span><span style="font-size:13px;font-weight:600" id="profileBelt">BJJ Blue Belt</span></div>
-      <div id="profileLastGrading" style="display:none;font-size:12px;color:var(--muted);margin-top:2px"></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Belt / Grade</span><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span style="font-size:13px;font-weight:600" id="profileBelt">BJJ Blue Belt</span><div id="profileLastGrading" style="display:none;font-size:11px;color:var(--muted)"></div></div></div>
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50" id="profileMembership">Unlimited · Active</span></div>
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Next Billing</span><span style="font-size:13px;font-weight:600">15 Jun 2026</span></div>
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600" id="profileCredits">7 remaining</span></div>
@@ -3310,7 +3309,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '6.8'; // bumped with each new release — I do this automatically
+var APP_VERSION = '6.9'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
