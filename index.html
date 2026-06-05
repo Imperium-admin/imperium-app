@@ -62,9 +62,9 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .badge-staff{font-size:11px;background:rgba(192,57,43,0.2);color:var(--red2);padding:3px 10px;border-radius:20px;font-weight:600}
 
 /* ─── HERO ─── */
-.hero{background:linear-gradient(135deg,var(--dark) 0%,#1a0505 100%);border:1px solid #3a1010;border-radius:var(--radius);padding:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.hero{background:linear-gradient(135deg,var(--dark) 0%,#1a0505 100%);border:1px solid #3a1010;border-radius:var(--radius);padding:12px 16px;margin-bottom:12px;position:relative;overflow:hidden}
 .hero::before{content:'IMPERIUM';position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-family:var(--head);font-size:80px;color:rgba(192,57,43,0.06);letter-spacing:4px;pointer-events:none}
-.hero h2{font-family:var(--head);font-size:26px;letter-spacing:2px;margin-bottom:4px}
+.hero h2{font-family:var(--head);font-size:20px;letter-spacing:2px;margin-bottom:2px}
 .hero p{color:var(--muted);font-size:13px}
 
 /* ─── TIMETABLE ─── */
@@ -365,10 +365,10 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .empty-state p{font-size:13px;color:var(--muted);margin-bottom:4px}
 .empty-state small{font-size:11px;color:var(--border)}
 /* Home bookings summary card */
-.home-bookings-card{background:linear-gradient(135deg,#0d1a0d 0%,#1a1a1a 100%);border:1px solid rgba(76,175,80,0.2);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;cursor:pointer;transition:border-color .15s}
+.home-bookings-card{background:linear-gradient(135deg,#0d1a0d 0%,#1a1a1a 100%);border:1px solid rgba(76,175,80,0.4);border-radius:var(--radius);padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:border-color .15s}
 .home-bookings-card:hover{border-color:rgba(76,175,80,0.4)}
 .home-bookings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.home-bookings-title{font-family:var(--head);font-size:16px;letter-spacing:1px;color:var(--text)}
+.home-bookings-title{font-family:var(--head);font-size:18px;letter-spacing:1px;color:var(--text)}
 .home-bookings-count{font-size:12px;color:#4caf50;font-weight:600}
 .home-booking-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
 .home-booking-row:last-child{border-bottom:none}
@@ -596,7 +596,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     </div>
   </div>
   <div class="badge-red" style="margin-bottom:10px" id="memberBadge">ACTIVE MEMBER</div>
-    <h2 id="heroGreeting">WELCOME BACK,<br>JAKE</h2>
+    <h2 id="heroGreeting" style="font-size:22px;line-height:1.15">WELCOME BACK,<br>JAKE</h2>
     <p id="heroSub">Mordialloc · BJJ Blue Belt · Member since 2022</p>
   </div>
 
@@ -613,7 +613,9 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   </div>
 
   <div class="sl">Quick Actions</div>
-  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+
+  <!-- Row 1: Primary actions -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
     <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('checkin')">
       <i class="ti ti-scan" style="font-size:24px;color:var(--red2)"></i>
       <div style="margin-top:7px;font-size:12px;font-weight:600">Check In</div>
@@ -626,26 +628,35 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <i class="ti ti-calendar" style="font-size:24px;color:var(--blue)"></i>
       <div style="margin-top:7px;font-size:12px;font-weight:600">Timetable</div>
     </div>
-    <div class="card" id="qaCoachesHub" style="cursor:pointer;text-align:center;padding:14px 8px;display:none" onclick="switchScreen('coaches')">
-      <i class="ti ti-shield-star" style="font-size:24px;color:var(--gold)"></i>
-      <div style="margin-top:7px;font-size:12px;font-weight:600;color:var(--text)">Coaches Hub</div>
+  </div>
+
+  <!-- Coaches Hub — full width, coach/admin only -->
+  <div class="card" id="qaCoachesHub" style="cursor:pointer;text-align:center;padding:14px 8px;display:none;align-items:center;justify-content:center;gap:12px;margin-bottom:8px;border-color:rgba(241,196,15,0.35)" onclick="switchScreen('coaches')">
+    <i class="ti ti-shield-star" style="font-size:22px;color:var(--gold)"></i>
+    <div style="font-size:13px;font-weight:600;color:var(--text)">Coaches Hub</div>
+    <i class="ti ti-chevron-right" style="font-size:16px;color:var(--muted);margin-left:auto"></i>
+  </div>
+
+  <!-- Upcoming Events — full width -->
+  <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px;display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px" onclick="switchScreen('comps')">
+    <i class="ti ti-trophy" style="font-size:22px;color:var(--gold)"></i>
+    <div style="font-size:13px;font-weight:600">Upcoming Events</div>
+    <i class="ti ti-chevron-right" style="font-size:16px;color:var(--muted);margin-left:auto"></i>
+  </div>
+
+  <!-- Row 3: Secondary smaller actions -->
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+    <div class="card" style="cursor:pointer;text-align:center;padding:7px 4px;border-color:rgba(255,255,255,0.06)" onclick="switchScreen('waiver')">
+      <i class="ti ti-file-text" style="font-size:15px;color:#4caf50"></i>
+      <div style="margin-top:4px;font-size:9px;font-weight:600;color:var(--muted)">Waivers</div>
     </div>
-    <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('waiver')">
-      <i class="ti ti-file-text" style="font-size:24px;color:#4caf50"></i>
-      <div style="margin-top:7px;font-size:12px;font-weight:600">Waivers</div>
+    <div class="card" style="cursor:pointer;text-align:center;padding:7px 4px;border-color:rgba(255,255,255,0.06)" onclick="switchScreen('messages')">
+      <i class="ti ti-message-circle" style="font-size:15px;color:var(--muted)"></i>
+      <div style="margin-top:4px;font-size:9px;font-weight:600;color:var(--muted)">Message Us</div>
     </div>
-    <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('messages')">
-      <i class="ti ti-message-circle" style="font-size:24px;color:var(--muted)"></i>
-      <div style="margin-top:7px;font-size:12px;font-weight:600">Message Us</div>
-    </div>
-    <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px" onclick="switchScreen('community')">
-      <i class="ti ti-brand-whatsapp" style="font-size:24px;color:var(--wa)"></i>
-      <div style="margin-top:7px;font-size:12px;font-weight:600">WhatsApp</div>
-    </div>
-    <div class="card" style="cursor:pointer;text-align:center;padding:14px 8px;grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:12px" onclick="switchScreen('comps')">
-      <i class="ti ti-trophy" style="font-size:22px;color:var(--gold)"></i>
-      <div style="font-size:13px;font-weight:600">Upcoming Events</div>
-      <i class="ti ti-chevron-right" style="font-size:16px;color:var(--muted);margin-left:auto"></i>
+    <div class="card" style="cursor:pointer;text-align:center;padding:7px 4px;border-color:rgba(255,255,255,0.06)" onclick="switchScreen('community')">
+      <i class="ti ti-brand-whatsapp" style="font-size:15px;color:var(--wa)"></i>
+      <div style="margin-top:4px;font-size:9px;font-weight:600;color:var(--muted)">WhatsApp</div>
     </div>
   </div>
 
@@ -3309,7 +3320,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '6.9'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.1'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
