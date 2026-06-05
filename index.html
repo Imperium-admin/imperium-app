@@ -2271,7 +2271,8 @@ var RECEPTION_WA_URL = 'https://wa.me/61395870746'; // ← REPLACE with your num
 function sendReception() {
   var txt = 'Hi Imperium MMA, I\'d like to get in touch.';
   var url = 'https://wa.me/61395870746?text=' + encodeURIComponent(txt);
-  window.open(url, '_blank');
+  showToast('Opening WhatsApp...', 'info');
+  setTimeout(function(){ window.location.href = url; }, 300);
 }
 
 // ── COACHES ──
@@ -3320,7 +3321,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.1'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.2'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
