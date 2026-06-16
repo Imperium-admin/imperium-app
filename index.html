@@ -459,6 +459,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .login-version {
   margin-top:32px;font-size:11px;color:#333;text-align:center;
 }
+.code-input{width:42px;height:52px;text-align:center;font-size:22px;font-weight:700;background:var(--card);border:2px solid var(--border);border-radius:10px;color:var(--text);outline:none}
+.code-input:focus{border-color:var(--red2)}
 
 </style>
   <!-- App version check — shows update banner when new version is available -->
@@ -471,43 +473,102 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <div id="screen-login">
   <div class="login-logo">IMPERIUM <span>MMA</span></div>
   <div class="login-tagline">Member Portal</div>
-  
 
-  <div class="login-card">
+  <!-- ── STEP 1: EMAIL ENTRY ── -->
+  <div class="login-card" id="authStepEmail">
     <div class="login-error" id="loginError">
       <i class="ti ti-alert-circle" style="font-size:14px;vertical-align:-2px"></i>
-      <span id="loginErrorMsg">Invalid email or password. Please try again.</span>
+      <span id="loginErrorMsg">Please try again.</span>
     </div>
-
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">
+      Enter your email address. We'll send a 6-digit code to sign you in.
+    </div>
     <div class="login-field">
       <label class="login-label" for="loginEmail">Email Address</label>
       <input class="login-input" type="email" id="loginEmail"
         placeholder="you@example.com" autocomplete="email"
-        onkeydown="if(event.key==='Enter') loginNext()">
+        onkeydown="if(event.key==='Enter') authSendCode()">
     </div>
-
-    <div class="login-field">
-      <label class="login-label" for="loginPassword">Password</label>
-      <input class="login-input" type="password" id="loginPassword"
-        placeholder="Your Clubworx password" autocomplete="current-password"
-        onkeydown="if(event.key==='Enter') doLogin()">
-    </div>
-
-    <button class="login-btn" id="loginBtn" onclick="doLogin()">SIGN IN</button>
-
-    <div class="login-forgot">
-      <a href="https://app.clubworx.com/users/password/new" target="_blank">
-        Forgot your password?
-      </a>
-    </div>
-
+    <button class="login-btn" id="loginBtn" onclick="authSendCode()">CONTINUE</button>
     <div class="login-loading" id="loginLoading">
       <div class="login-spinner"></div>
-      Signing in...
+      <span id="loginLoadingMsg">Sending code...</span>
     </div>
   </div>
 
-  <div class="login-version">Imperium MMA · Powered by Clubworx</div>
+  <!-- ── STEP 2: CODE ENTRY ── -->
+  <div class="login-card" id="authStepCode" style="display:none">
+    <div class="login-error" id="codeError">
+      <i class="ti ti-alert-circle" style="font-size:14px;vertical-align:-2px"></i>
+      <span id="codeErrorMsg">Incorrect code. Please try again.</span>
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:6px;line-height:1.6">
+      We sent a 6-digit code to
+    </div>
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px" id="codeEmailDisplay"></div>
+    <div class="login-field">
+      <label class="login-label">Verification Code</label>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:6px">
+        <input class="code-input" type="tel" maxlength="1" id="c0" oninput="codeInput(this,0)" onkeydown="codeKey(event,0)">
+        <input class="code-input" type="tel" maxlength="1" id="c1" oninput="codeInput(this,1)" onkeydown="codeKey(event,1)">
+        <input class="code-input" type="tel" maxlength="1" id="c2" oninput="codeInput(this,2)" onkeydown="codeKey(event,2)">
+        <input class="code-input" type="tel" maxlength="1" id="c3" oninput="codeInput(this,3)" onkeydown="codeKey(event,3)">
+        <input class="code-input" type="tel" maxlength="1" id="c4" oninput="codeInput(this,4)" onkeydown="codeKey(event,4)">
+        <input class="code-input" type="tel" maxlength="1" id="c5" oninput="codeInput(this,5)" onkeydown="codeKey(event,5)">
+      </div>
+    </div>
+    <button class="login-btn" id="verifyBtn" onclick="authVerifyCode()" style="margin-top:16px">VERIFY</button>
+    <div style="text-align:center;margin-top:12px">
+      <button onclick="authResendCode()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--font)" id="resendBtn">Resend code</button>
+      <span style="color:var(--muted);font-size:12px;margin:0 8px">·</span>
+      <button onclick="authBackToEmail()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--font)">Change email</button>
+    </div>
+    <div class="login-loading" id="codeLoading">
+      <div class="login-spinner"></div>
+      <span>Verifying...</span>
+    </div>
+  </div>
+
+  <!-- ── STEP 3: REGISTRATION (new members only) ── -->
+  <div class="login-card" id="authStepRegister" style="display:none">
+    <div style="font-family:var(--head);font-size:20px;letter-spacing:1px;margin-bottom:4px">WELCOME TO IMPERIUM</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">
+      Complete your profile to get started.
+    </div>
+    <div class="login-error" id="regError">
+      <i class="ti ti-alert-circle" style="font-size:14px;vertical-align:-2px"></i>
+      <span id="regErrorMsg">Please fill in all required fields.</span>
+    </div>
+    <div class="login-field">
+      <label class="login-label">First Name *</label>
+      <input class="login-input" type="text" id="regFirstName" placeholder="First name" autocomplete="given-name">
+    </div>
+    <div class="login-field">
+      <label class="login-label">Last Name *</label>
+      <input class="login-input" type="text" id="regLastName" placeholder="Last name" autocomplete="family-name">
+    </div>
+    <div class="login-field">
+      <label class="login-label">Clubworx Member Number <span style="color:var(--muted);font-weight:400">(optional)</span></label>
+      <input class="login-input" type="text" id="regMemberNumber" placeholder="e.g. IMP-0042">
+    </div>
+
+    <!-- Family members -->
+    <div style="margin-top:8px;margin-bottom:12px">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Family Members <span style="color:var(--muted);font-weight:400;letter-spacing:0">(optional)</span></div>
+      <div id="familyInputs"></div>
+      <button onclick="addFamilyInput()" style="background:none;border:1px dashed var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--font);padding:8px 12px;width:100%;margin-top:4px">
+        + Add family member
+      </button>
+    </div>
+
+    <button class="login-btn" id="regBtn" onclick="authRegister()">CREATE ACCOUNT</button>
+    <div class="login-loading" id="regLoading">
+      <div class="login-spinner"></div>
+      <span>Creating account...</span>
+    </div>
+  </div>
+
+  <div class="login-version">Imperium MMA · v<span id="versionDisplay"></span></div>
 </div>
 
 <div class="overlay" id="overlay" onclick="closeNotif()"></div>
@@ -3156,54 +3217,324 @@ async function mockAuth(email, password) {
 }
 
 // ── MAIN LOGIN FUNCTION ──
-async function doLogin() {
-  var email    = (document.getElementById('loginEmail').value    || '').trim();
-  var password = (document.getElementById('loginPassword').value || '').trim();
-  var errorEl  = document.getElementById('loginError');
-  var errorMsg = document.getElementById('loginErrorMsg');
-  var btn      = document.getElementById('loginBtn');
-  var loading  = document.getElementById('loginLoading');
+// ── AUTH STATE ──
+var authEmail = '';
+var authPendingCode = '';
+var authIsNewUser = false;
+var AUTH_BACKEND = 'https://imperium-backend.vercel.app';
 
-  if (!email) {
-    errorMsg.textContent = 'Please enter your email address.';
+// ── MOCK: generate 6-digit code ──
+function mockGenerateCode() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+// ── STEP 1: Send code ──
+async function authSendCode() {
+  var email = (document.getElementById('loginEmail').value || '').trim().toLowerCase();
+  var errorEl = document.getElementById('loginError');
+  var errorMsg = document.getElementById('loginErrorMsg');
+  var btn = document.getElementById('loginBtn');
+  var loading = document.getElementById('loginLoading');
+  var loadingMsg = document.getElementById('loginLoadingMsg');
+
+  if (!email || !email.includes('@')) {
+    errorMsg.textContent = 'Please enter a valid email address.';
     errorEl.classList.add('show');
     return;
   }
   errorEl.classList.remove('show');
   btn.disabled = true;
-  btn.textContent = 'SIGNING IN...';
   loading.classList.add('show');
 
   try {
-    // Call Vercel backend — uses real Clubworx API when key is set,
-    // falls back to mock accounts automatically when in mock mode
-    var response = await fetch('https://imperium-backend.vercel.app/api/auth/login', {
+    // MOCK MODE — generate code locally and show toast
+    var mockEmails = ['jake@example.com','marcus@imperiummma.com.au','admin@imperiummma.com.au'];
+    if (mockEmails.includes(email)) {
+      authEmail = email;
+      authIsNewUser = false;
+      authPendingCode = mockGenerateCode();
+      showToast('MOCK CODE: ' + authPendingCode, 'info');
+      authShowCodeStep();
+    } else {
+      // Try real backend
+      try {
+        var resp = await fetch(AUTH_BACKEND + '/api/auth/send-code', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email }),
+          mode: 'cors',
+        });
+        var data = await resp.json();
+        if (data.success) {
+          authEmail = email;
+          authIsNewUser = data.isNewUser || false;
+          authShowCodeStep();
+        } else {
+          throw new Error(data.error || 'Could not send code.');
+        }
+      } catch(fetchErr) {
+        // Fallback — treat as new user in mock mode
+        authEmail = email;
+        authIsNewUser = true;
+        authPendingCode = mockGenerateCode();
+        showToast('MOCK CODE (new user): ' + authPendingCode, 'info');
+        authShowCodeStep();
+      }
+    }
+  } catch(err) {
+    errorMsg.textContent = err.message || 'Could not send code. Please try again.';
+    errorEl.classList.add('show');
+  }
+  btn.disabled = false;
+  loading.classList.remove('show');
+}
+
+function authShowCodeStep() {
+  document.getElementById('authStepEmail').style.display = 'none';
+  document.getElementById('authStepCode').style.display = 'block';
+  document.getElementById('codeEmailDisplay').textContent = authEmail;
+  document.getElementById('c0').focus();
+  // Start resend timer
+  var secs = 30;
+  var resendBtn = document.getElementById('resendBtn');
+  resendBtn.disabled = true;
+  resendBtn.textContent = 'Resend in ' + secs + 's';
+  var timer = setInterval(function() {
+    secs--;
+    if (secs <= 0) {
+      clearInterval(timer);
+      resendBtn.disabled = false;
+      resendBtn.textContent = 'Resend code';
+    } else {
+      resendBtn.textContent = 'Resend in ' + secs + 's';
+    }
+  }, 1000);
+}
+
+// ── Code input helpers ──
+function codeInput(el, idx) {
+  el.value = el.value.replace(/[^0-9]/g,'');
+  if (el.value.length === 1 && idx < 5) {
+    document.getElementById('c'+(idx+1)).focus();
+  }
+  // Auto-verify when all 6 entered
+  var code = '';
+  for (var i=0;i<6;i++) code += (document.getElementById('c'+i).value||'');
+  if (code.length === 6) authVerifyCode();
+}
+
+function codeKey(event, idx) {
+  if (event.key === 'Backspace' && !event.target.value && idx > 0) {
+    document.getElementById('c'+(idx-1)).focus();
+  }
+}
+
+function getEnteredCode() {
+  var code = '';
+  for (var i=0;i<6;i++) code += (document.getElementById('c'+i).value||'');
+  return code;
+}
+
+function clearCodeInputs() {
+  for (var i=0;i<6;i++) { document.getElementById('c'+i).value = ''; }
+}
+
+// ── STEP 2: Verify code ──
+async function authVerifyCode() {
+  var code = getEnteredCode();
+  var errorEl = document.getElementById('codeError');
+  var errorMsg = document.getElementById('codeErrorMsg');
+  var btn = document.getElementById('verifyBtn');
+  var loading = document.getElementById('codeLoading');
+
+  if (code.length < 6) {
+    errorMsg.textContent = 'Please enter all 6 digits.';
+    errorEl.classList.add('show');
+    return;
+  }
+  errorEl.classList.remove('show');
+  btn.disabled = true;
+  loading.classList.add('show');
+
+  try {
+    // MOCK: check against locally generated code
+    if (authPendingCode && code === authPendingCode) {
+      if (authIsNewUser) {
+        loading.classList.remove('show');
+        btn.disabled = false;
+        authShowRegisterStep();
+        return;
+      }
+      // Known mock user — log them in
+      var resp2 = await fetch(AUTH_BACKEND + '/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: authEmail }),
+        mode: 'cors',
+      });
+      var loginData = await resp2.json();
+      if (loginData.success) {
+        currentUser = loginData;
+        onLoginSuccess(loginData);
+        return;
+      }
+    }
+
+    // Real backend verify
+    var resp = await fetch(AUTH_BACKEND + '/api/auth/verify-code', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email, password: password }),
+      body: JSON.stringify({ email: authEmail, code: code }),
       mode: 'cors',
     });
-    var data = await response.json();
+    var data = await resp.json();
 
     if (!data.success) {
-      throw new Error(data.error || 'Email not found. Please use your registered email address.');
+      throw new Error(data.error || 'Incorrect code. Please try again.');
     }
 
-    currentUser = data;
-    onLoginSuccess(data);
-
-  } catch (err) {
-    if (err.name === 'TypeError' || err.message.includes('fetch')) {
-      errorMsg.textContent = 'Connection error. Please check your internet and try again.';
+    if (data.isNewUser) {
+      loading.classList.remove('show');
+      btn.disabled = false;
+      authShowRegisterStep();
     } else {
-      errorMsg.textContent = err.message || 'Could not sign in. Please try again.';
+      currentUser = data;
+      onLoginSuccess(data);
     }
+
+  } catch(err) {
+    clearCodeInputs();
+    document.getElementById('c0').focus();
+    errorMsg.textContent = err.message || 'Incorrect code. Please try again.';
     errorEl.classList.add('show');
     btn.disabled = false;
-    btn.textContent = 'SIGN IN';
     loading.classList.remove('show');
   }
 }
+
+// ── Resend code ──
+async function authResendCode() {
+  clearCodeInputs();
+  document.getElementById('c0').focus();
+  document.getElementById('codeError').classList.remove('show');
+  showToast('Sending new code...', 'info');
+  authPendingCode = mockGenerateCode();
+  showToast('MOCK CODE: ' + authPendingCode, 'info');
+  // Restart timer
+  var secs = 30;
+  var resendBtn = document.getElementById('resendBtn');
+  resendBtn.disabled = true;
+  var timer = setInterval(function() {
+    secs--;
+    if (secs <= 0) { clearInterval(timer); resendBtn.disabled = false; resendBtn.textContent = 'Resend code'; }
+    else { resendBtn.textContent = 'Resend in ' + secs + 's'; }
+  }, 1000);
+}
+
+function authBackToEmail() {
+  document.getElementById('authStepCode').style.display = 'none';
+  document.getElementById('authStepEmail').style.display = 'block';
+  clearCodeInputs();
+  document.getElementById('loginEmail').focus();
+}
+
+// ── STEP 3: Registration ──
+function authShowRegisterStep() {
+  document.getElementById('authStepCode').style.display = 'none';
+  document.getElementById('authStepRegister').style.display = 'block';
+  document.getElementById('regFirstName').focus();
+}
+
+var familyCount = 0;
+function addFamilyInput() {
+  if (familyCount >= 6) { showToast('Maximum 6 family members', 'info'); return; }
+  var container = document.getElementById('familyInputs');
+  var div = document.createElement('div');
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
+  div.id = 'fam-' + familyCount;
+  div.innerHTML =
+    '<input class="login-input" type="text" placeholder="Name (e.g. Lila, age 9)" style="flex:1;margin-bottom:0" id="famName'+familyCount+'">' +
+    '<button onclick="removeFamilyInput('+familyCount+')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px;flex-shrink:0">×</button>';
+  container.appendChild(div);
+  familyCount++;
+}
+
+function removeFamilyInput(idx) {
+  var el = document.getElementById('fam-'+idx);
+  if (el) el.remove();
+}
+
+async function authRegister() {
+  var firstName = (document.getElementById('regFirstName').value || '').trim();
+  var lastName  = (document.getElementById('regLastName').value  || '').trim();
+  var memberNum = (document.getElementById('regMemberNumber').value || '').trim();
+  var errorEl   = document.getElementById('regError');
+  var errorMsg  = document.getElementById('regErrorMsg');
+  var btn       = document.getElementById('regBtn');
+  var loading   = document.getElementById('regLoading');
+
+  if (!firstName || !lastName) {
+    errorMsg.textContent = 'Please enter your first and last name.';
+    errorEl.classList.add('show');
+    return;
+  }
+  errorEl.classList.remove('show');
+  btn.disabled = true;
+  loading.classList.add('show');
+
+  // Collect family members
+  var family = [];
+  for (var i=0; i<familyCount; i++) {
+    var nameEl = document.getElementById('famName'+i);
+    if (nameEl && nameEl.value.trim()) {
+      family.push({ name: nameEl.value.trim() });
+    }
+  }
+
+  try {
+    var resp = await fetch(AUTH_BACKEND + '/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: authEmail,
+        first_name: firstName,
+        last_name: lastName,
+        member_number: memberNum || null,
+        family: family,
+      }),
+      mode: 'cors',
+    });
+    var data = await resp.json();
+
+    if (!data.success) throw new Error(data.error || 'Could not create account.');
+    currentUser = data;
+    onLoginSuccess(data);
+
+  } catch(err) {
+    // Mock fallback — create basic profile locally
+    var mockData = {
+      success: true, role: 'member',
+      token: 'mock_new_' + Date.now(),
+      permissions: { canViewApp:true, canViewCoachesHub:false, canManageEvents:false, canManageWaivers:false, canBroadcast:false },
+      contact: {
+        id: 'new_' + Date.now(),
+        first_name: firstName, last_name: lastName,
+        email: authEmail, member_number: memberNum || null,
+        membership_type: 'Member', membership_status: 'active',
+        belt: null, discipline: null, lastGrading: null,
+        trial: false, pass_credits: 0, next_billing: null,
+        family: family,
+      }
+    };
+    currentUser = mockData;
+    onLoginSuccess(mockData);
+  }
+  btn.disabled = false;
+  loading.classList.remove('show');
+}
+
+// ── Legacy doLogin (kept for compatibility) ──
+async function doLogin() { authSendCode(); }
 
 // ── ON SUCCESSFUL LOGIN ──
 function onLoginSuccess(user) {
@@ -3438,7 +3769,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.4'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.5'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
