@@ -672,27 +672,31 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
      SCREEN: TIMETABLE
 ════════════════════════════════════ -->
 <div class="screen" id="screen-timetable">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">LIVE TIMETABLE</h2>
-    <div class="badge-green"><span style="width:6px;height:6px;background:#4caf50;border-radius:50%;display:inline-block"></span>LIVE</div>
+  <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:4px">TIMETABLE</h2>
+
+  <!-- Cancellation notice -->
+  <div style="background:rgba(52,152,219,0.1);border:1px solid rgba(52,152,219,0.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="#25d366" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <div style="flex:1">
+      <div style="font-size:12px;font-weight:700;color:var(--text)">Need to cancel a class?</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:1px">Message our WhatsApp reception and we'll sort it for you</div>
+    </div>
+    <button onclick="sendReception()" style="background:#25d366;border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:700;padding:7px 10px;cursor:pointer;white-space:nowrap">Message Us</button>
   </div>
-  <div class="tt-day-tabs">
-    <div class="tt-day active" onclick="setDay(this,'Mon')">Mon</div>
-    <div class="tt-day" onclick="setDay(this,'Tue')">Tue</div>
-    <div class="tt-day" onclick="setDay(this,'Wed')">Wed</div>
-    <div class="tt-day" onclick="setDay(this,'Thu')">Thu</div>
-    <div class="tt-day" onclick="setDay(this,'Fri')">Fri</div>
-    <div class="tt-day" onclick="setDay(this,'Sat')">Sat</div>
-    <div class="tt-day" onclick="setDay(this,'Sun')">Sun</div>
+
+  <!-- Live Clubworx timetable iframe -->
+  <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#fff">
+    <iframe
+      src="https://app.clubworx.com/websites/imperium-mixed-martial-arts/calendar/weekly_agenda_iframe"
+      width="100%"
+      height="880"
+      style="border:0;display:block"
+      loading="lazy"
+      title="Imperium MMA Live Timetable">
+    </iframe>
   </div>
-  <div id="ttClasses"></div>
-  <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Timetable connects to your live Clubworx schedule once the backend is set up.</div>
+  <div style="text-align:center;padding:8px 0 4px;font-size:10px;color:var(--muted)">Live timetable powered by Clubworx</div>
 </div>
-
-
-<!-- ════════════════════════════════════
-     SCREEN: MY BOOKINGS
-════════════════════════════════════ -->
 <div class="screen" id="screen-bookings">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MY BOOKINGS</h2>
@@ -740,24 +744,108 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">CLASS PASSES</h2>
     <div class="badge-green"><i class="ti ti-link" style="font-size:11px"></i>Clubworx</div>
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Prices pulled live from your Clubworx membership plans</p>
+  <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Purchase passes and memberships securely via Clubworx</p>
+
+  <!-- Tabs: Adults | Kids | Memberships -->
   <div class="pass-tabs">
-    <button class="pass-tab active" onclick="setPassType(this,'adult')">Adult</button>
-    <button class="pass-tab" onclick="setPassType(this,'kids')">Kids</button>
-    <button class="pass-tab" onclick="setPassType(this,'casual')">Casual</button>
+    <button class="pass-tab active" onclick="setPassTab(this,'adult')">Adults</button>
+    <button class="pass-tab" onclick="setPassTab(this,'kids')">Kids</button>
+    <button class="pass-tab" onclick="setPassTab(this,'memberships')">Memberships</button>
   </div>
-  <div id="passCards"></div>
-  <div class="checkout-bar" id="checkoutBar">
-    <div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">SELECTED</div><div id="checkoutLabel" style="font-size:13px;font-weight:600"></div></div>
+
+  <!-- Adults tab -->
+  <div id="passTab-adult">
+    <div class="card pass-card" id="passCard-adult-10" onclick="selectPass('adult-10','Adult 10 Class Pass','https://app.clubworx.com/websites/imperium-mixed-martial-arts/book_and_pay/offers/af0629ac-a17e-452a-aa6d-31b051eff98a?ct=po')">
+      <div style="position:absolute;top:0;right:0;background:var(--gold);color:#000;font-size:9px;font-weight:800;padding:3px 10px;border-radius:0 var(--radius) 0 8px;letter-spacing:1px">POPULAR</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;background:rgba(241,196,15,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20M7 6V4M17 6V4"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-family:var(--head);font-size:18px;letter-spacing:1px">10 CLASS PASS</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Adult · Valid 6 months · BJJ & Muay Thai</div>
+        </div>
+        <div class="badge-green" style="font-size:10px">⟳ Live Price</div>
+      </div>
+    </div>
+
+    <div class="card pass-card" id="passCard-adult-casual" onclick="selectPass('adult-casual','Casual Class','https://app.clubworx.com/websites/imperium-mixed-martial-arts/book_and_pay/offers/301025bd-bad0-4ddb-bb00-377a95d3f40c')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;background:rgba(241,196,15,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20M7 6V4M17 6V4"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-family:var(--head);font-size:18px;letter-spacing:1px">CASUAL CLASS</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Adult · Single visit · Any class</div>
+        </div>
+        <div class="badge-green" style="font-size:10px">⟳ Live Price</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kids tab -->
+  <div id="passTab-kids" style="display:none">
+    <div class="card pass-card" id="passCard-kids-10" onclick="selectPass('kids-10','Kids 10 Pack','https://app.clubworx.com/websites/imperium-mixed-martial-arts/book_and_pay/offers/bba148c4-1e55-44db-ba0a-fcc859dcefb1?ct=po')">
+      <div style="position:absolute;top:0;right:0;background:var(--gold);color:#000;font-size:9px;font-weight:800;padding:3px 10px;border-radius:0 var(--radius) 0 8px;letter-spacing:1px">POPULAR</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;background:rgba(241,196,15,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20M7 6V4M17 6V4"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-family:var(--head);font-size:18px;letter-spacing:1px">KIDS 10 PACK</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Kids · Valid for any kids class</div>
+        </div>
+        <div class="badge-green" style="font-size:10px">⟳ Live Price</div>
+      </div>
+    </div>
+
+    <div class="card pass-card" id="passCard-kids-casual" onclick="selectPass('kids-casual','Casual Class','https://app.clubworx.com/websites/imperium-mixed-martial-arts/book_and_pay/offers/301025bd-bad0-4ddb-bb00-377a95d3f40c')">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;background:rgba(241,196,15,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20M7 6V4M17 6V4"/></svg>
+        </div>
+        <div style="flex:1">
+          <div style="font-family:var(--head);font-size:18px;letter-spacing:1px">CASUAL CLASS</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Kids · Single visit · Any class</div>
+        </div>
+        <div class="badge-green" style="font-size:10px">⟳ Live Price</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Memberships tab -->
+  <div id="passTab-memberships" style="display:none">
+    <div class="card" style="padding:16px;margin-bottom:12px">
+      <div style="font-family:var(--head);font-size:20px;letter-spacing:1px;margin-bottom:4px">ONGOING MEMBERSHIPS</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Monthly and upfront membership options. Managed securely via Clubworx.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button onclick="window.location.href='https://app.clubworx.com/s/Q4fnlEJB'" style="background:var(--red2);color:#fff;border:none;border-radius:8px;padding:12px 8px;font-family:var(--head);font-size:14px;letter-spacing:1px;cursor:pointer">🥋 ADULTS</button>
+        <button onclick="window.location.href='https://app.clubworx.com/s/FOYwe9Ow'" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:12px 8px;font-family:var(--head);font-size:14px;letter-spacing:1px;cursor:pointer">👦 KIDS</button>
+      </div>
+    </div>
+    <div style="font-size:10px;color:var(--muted);text-align:center;padding:4px 0 12px">Please allow a few minutes for membership changes to reflect in the app</div>
+  </div>
+
+  <!-- Checkout bar -->
+  <div class="checkout-bar" id="checkoutBar" style="display:none">
+    <div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">SELECTED</div>
+      <div id="checkoutLabel" style="font-size:13px;font-weight:600"></div>
+    </div>
     <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-family:var(--head);font-size:20px;color:var(--red2)" id="checkoutPrice"></span>
+      <span style="font-size:11px;color:var(--red2);font-family:var(--head);letter-spacing:1px">FROM CLUBWORX</span>
       <button class="btn-buy" onclick="buyPass()">BUY NOW</button>
     </div>
   </div>
+
   <div class="sl">Payment via Clubworx</div>
   <div class="card" style="padding:12px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><i class="ti ti-credit-card" style="font-size:18px;color:var(--muted)"></i><span style="font-size:13px;font-weight:600">Saved Card</span><span style="margin-left:auto;font-size:13px;color:var(--muted)">Visa •••• 4242</span></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+      <i class="ti ti-credit-card" style="font-size:18px;color:var(--muted)"></i>
+      <span style="font-size:13px;font-weight:600">Secure Payment</span>
+    </div>
     <div style="font-size:11px;color:var(--muted)">Processed securely via Clubworx / Ezidebit. Credits activate instantly.</div>
+    <div style="font-size:10px;color:var(--muted);margin-top:6px">Please allow a few minutes for pass credits to update in the app.</div>
   </div>
 </div>
 
@@ -1492,12 +1580,32 @@ const passData = {
 };
 let selPass = null, curPassType = 'adult';
 
-function setPassType(el, type) {
+function setPassTab(el, tab) {
   document.querySelectorAll('.pass-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active'); curPassType = type; selPass = null;
-  document.getElementById('checkoutBar').style.display = 'none';
-  renderPasses(type);
+  el.classList.add('active');
+  ['adult','kids','memberships'].forEach(t => {
+    var el2 = document.getElementById('passTab-'+t);
+    if (el2) el2.style.display = t === tab ? 'block' : 'none';
+  });
+  selPass = null;
+  var bar = document.getElementById('checkoutBar');
+  if (bar) bar.style.display = 'none';
+  // Clear selected state
+  document.querySelectorAll('.pass-card').forEach(c => c.style.borderColor = '');
 }
+
+function selectPass(id, label, url) {
+  selPass = { id: id, label: label, url: url };
+  document.querySelectorAll('.pass-card').forEach(c => {
+    c.style.borderColor = c.id === 'passCard-'+id ? 'var(--red2)' : '';
+  });
+  var bar = document.getElementById('checkoutBar');
+  var lbl = document.getElementById('checkoutLabel');
+  if (bar) bar.style.display = 'flex';
+  if (lbl) lbl.textContent = label;
+}
+
+function setPassType(el, type) { setPassTab(el, type); }
 function renderPasses(type) {
   document.getElementById('passCards').innerHTML = passData[type].map(p =>
     `<div class="pass-card${p.popular?' popular':''}" id="pc-${p.id}" onclick="selectPass('${p.id}')">
@@ -1518,7 +1626,11 @@ function selectPass(id) {
   document.getElementById('checkoutLabel').textContent = selPass.name;
   document.getElementById('checkoutPrice').textContent = 'From Clubworx';
 }
-function buyPass() { showToast('Opening Clubworx checkout...','info'); setTimeout(()=>showToast('Pass activated — credits added ✓','success'),2200); }
+function buyPass() {
+  if (!selPass || !selPass.url) return;
+  showToast('Opening Clubworx checkout...', 'info');
+  setTimeout(function() { window.location.href = selPass.url; }, 300);
+}
 
 // ── TIMETABLE ──
 const ttData = {
@@ -3052,35 +3164,40 @@ async function doLogin() {
   var btn      = document.getElementById('loginBtn');
   var loading  = document.getElementById('loginLoading');
 
-  // Validate
-  if (!email || !password) {
-    errorMsg.textContent = 'Please enter your email and password.';
+  if (!email) {
+    errorMsg.textContent = 'Please enter your email address.';
     errorEl.classList.add('show');
     return;
   }
   errorEl.classList.remove('show');
-
-  // Show loading state
   btn.disabled = true;
   btn.textContent = 'SIGNING IN...';
   loading.classList.add('show');
 
   try {
-    // ── MOCK AUTH (direct, no backend call needed for testing) ──
-    // Simulates Clubworx login while API key is pending
-    // Replace mockAuth with fetch call when Vercel backend is confirmed working
-    var data = await mockAuth(email, password);
+    // Call Vercel backend — uses real Clubworx API when key is set,
+    // falls back to mock accounts automatically when in mock mode
+    var response = await fetch('https://imperium-backend.vercel.app/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password }),
+      mode: 'cors',
+    });
+    var data = await response.json();
 
     if (!data.success) {
-      throw new Error(data.error || 'Invalid email or password');
+      throw new Error(data.error || 'Email not found. Please use your registered email address.');
     }
 
-    // ── LOGIN SUCCESS ──
     currentUser = data;
     onLoginSuccess(data);
 
   } catch (err) {
-    errorMsg.textContent = err.message || 'Could not sign in. Please try again.';
+    if (err.name === 'TypeError' || err.message.includes('fetch')) {
+      errorMsg.textContent = 'Connection error. Please check your internet and try again.';
+    } else {
+      errorMsg.textContent = err.message || 'Could not sign in. Please try again.';
+    }
     errorEl.classList.add('show');
     btn.disabled = false;
     btn.textContent = 'SIGN IN';
@@ -3321,7 +3438,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.2'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.4'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
