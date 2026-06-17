@@ -725,8 +725,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <div class="sl">Your Account</div>
   <div class="card">
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50">Unlimited · Active</span></div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600;color:var(--red2)">7 remaining</span></div>
-    <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">Classes This Month</span><span style="font-size:13px;font-weight:600">11</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600;color:var(--muted)">Sync coming soon</span></div>
+    <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">Classes This Month</span><span style="font-size:13px;font-weight:600;color:var(--muted)">--</span></div>
   </div>
 </div>
 
@@ -1236,7 +1236,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Belt / Grade</span><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span style="font-size:13px;font-weight:600" id="profileBelt">BJJ Blue Belt</span><div id="profileLastGrading" style="display:none;font-size:11px;color:var(--muted)"></div></div></div>
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50" id="profileMembership">Unlimited · Active</span></div>
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Next Billing</span><span style="font-size:13px;font-weight:600">15 Jun 2026</span></div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600" id="profileCredits">7 remaining</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600;color:var(--muted)" id="profileCredits">Sync coming soon</span></div>
     <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">General Waiver</span><span id="profileWaiverStatus" style="font-size:13px;font-weight:600">Checking...</span></div>
   </div>
   <div class="sl">Notifications</div>
@@ -3109,7 +3109,8 @@ function renderProfileScreen() {
 
   var credEl = document.getElementById('profileCredits');
   if (credEl) {
-    credEl.textContent = m.credits;
+    credEl.textContent = 'Sync coming soon';
+    credEl.style.color = 'var(--muted)';
     credEl.style.color = m.credits === '—' ? 'var(--muted)' : 'var(--red2)';
   }
 
@@ -3369,17 +3370,34 @@ async function authVerifyCode() {
         authShowRegisterStep();
         return;
       }
-      // Known mock user — log them in
-      var resp2 = await fetch(AUTH_BACKEND + '/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: authEmail }),
-        mode: 'cors',
-      });
-      var loginData = await resp2.json();
-      if (loginData.success) {
-        currentUser = loginData;
-        onLoginSuccess(loginData);
+      // Known mock user — log in directly without backend call
+      var mockAccounts = {
+        'jake@example.com':          { role:'member', first_name:'Jake',   last_name:'Davidson', belt:'BJJ Blue Belt', discipline:'BJJ', lastGrading:'14 Mar 2025', membership_type:'Unlimited', membership_status:'active', member_number:'IMP-0042', pass_credits:7 },
+        'marcus@imperiummma.com.au': { role:'coach',  first_name:'Marcus', last_name:'Silva',    belt:'Black Belt',   discipline:'BJJ', lastGrading:'3 Sep 2024',  membership_type:'Staff',     membership_status:'active', member_number:'IMP-0001', pass_credits:0 },
+        'admin@imperiummma.com.au':  { role:'admin',  first_name:'Admin',  last_name:'User',     belt:'Black Belt',   discipline:'BJJ', lastGrading:'22 Jun 2023', membership_type:'Owner',     membership_status:'active', member_number:'IMP-0000', pass_credits:0 },
+      };
+      var m = mockAccounts[authEmail];
+      if (m) {
+        var mockLogin = {
+          success: true, role: m.role, token: 'mock_' + m.role + '_' + Date.now(),
+          permissions: {
+            canViewApp: true,
+            canViewCoachesHub: m.role === 'coach' || m.role === 'admin',
+            canManageEvents:   m.role === 'coach' || m.role === 'admin',
+            canManageWaivers:  m.role === 'admin',
+            canBroadcast:      m.role === 'admin',
+          },
+          contact: {
+            id: 'mock_' + authEmail, first_name: m.first_name, last_name: m.last_name,
+            email: authEmail, member_number: m.member_number,
+            join_date: '2022-01-15', membership_type: m.membership_type,
+            membership_status: m.membership_status, belt: m.belt,
+            discipline: m.discipline, lastGrading: m.lastGrading,
+            trial: false, pass_credits: m.pass_credits, next_billing: null,
+          }
+        };
+        currentUser = mockLogin;
+        onLoginSuccess(mockLogin);
         return;
       }
     }
@@ -3775,7 +3793,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.6'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.8'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
