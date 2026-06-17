@@ -643,20 +643,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <div class="screen active" id="screen-home">
   <div class="hero">
     <!-- FAMILY SWITCHER — shows when account has linked family members -->
-  <div class="family-bar" id="familyBar">
-    <div class="family-pill active" onclick="setActiveMember(0)" id="fp-0">
-      <div class="family-pill-avatar" style="background:#c0392b">JD</div>
-      <span class="family-pill-name">Jake (You)</span>
-    </div>
-    <div class="family-pill" onclick="setActiveMember(1)" id="fp-1">
-      <div class="family-pill-avatar" style="background:#27ae60">LJ</div>
-      <span class="family-pill-name">Lila (Age 9)</span>
-    </div>
-    <div class="family-pill" onclick="setActiveMember(2)" id="fp-2">
-      <div class="family-pill-avatar" style="background:#2980b9">TJ</div>
-      <span class="family-pill-name">Tom (Age 12)</span>
-    </div>
-  </div>
+  <div class="family-bar" id="familyBar"><!-- populated dynamically by renderFamilyBar() after login --></div>
   <div class="badge-red" style="margin-bottom:10px" id="memberBadge">ACTIVE MEMBER</div>
     <h2 id="heroGreeting" style="font-size:22px;line-height:1.15">WELCOME BACK,<br>JAKE</h2>
     <p id="heroSub">Mordialloc · BJJ Blue Belt · Member since 2022</p>
@@ -1504,15 +1491,82 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 // ══════════════════════════════════════════════
 
 // ── MEMBER / FAMILY STATE ──
-const familyMembers = [
-  {name:'Jake Davidson', short:'Jake (You)',   initials:'JD', belt:'BJJ Blue Belt',    color:'#c0392b', type:'adult',
-   memberNo:'IMP-0042', since:'Jan 2022', membership:'Unlimited · Active', billing:'15 Jun 2026', credits:'7 remaining', lastGrading:'14 Mar 2025'},
-  {name:'Lila Davidson', short:'Lila (Age 9)', initials:'LJ', belt:'Kids BJJ · Minis', color:'#27ae60', type:'kids',
-   memberNo:'IMP-0087', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—', lastGrading:'8 Nov 2024'},
-  {name:'Tom Davidson',  short:'Tom (Age 12)', initials:'TJ', belt:'Kids BJJ · Teens', color:'#2980b9', type:'kids',
-   memberNo:'IMP-0091', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—', lastGrading:'8 Nov 2024'},
-];
+// Populated dynamically in onLoginSuccess() from the real logged-in user's data
+// plus any linked family_members records from Supabase. Never hardcoded.
+let familyMembers = [];
 let activeFamilyIdx = 0;
+
+// Build the primary (logged-in) family member entry from real backend contact data
+function buildPrimaryFamilyMember(contact) {
+  var fullName = ((contact.first_name||'') + ' ' + (contact.last_name||'')).trim() || 'Member';
+  var firstName = (contact.first_name || fullName.split(' ')[0] || 'Member');
+  var initials = ((contact.first_name||'?')[0] + (contact.last_name||'')[0]).toUpperCase();
+  return {
+    name: fullName,
+    short: firstName + ' (You)',
+    initials: initials,
+    belt: contact.belt || (contact.discipline ? contact.discipline : 'No belt on file'),
+    color: '#c0392b',
+    type: 'adult',
+    memberNo: contact.member_number || '—',
+    since: contact.join_date ? formatJoinDate(contact.join_date) : '—',
+    membership: (contact.membership_type || 'Member') + ' · ' + (contact.membership_status === 'active' ? 'Active' : (contact.membership_status || 'Active')),
+    billing: contact.next_billing || '—',
+    credits: (typeof contact.pass_credits === 'number') ? (contact.pass_credits + ' remaining') : 'Sync coming soon',
+    lastGrading: contact.lastGrading || null,
+    isPrimary: true,
+  };
+}
+
+// Build a family member entry from a family_members row { name }
+// Family members added at registration have no Clubworx/belt data yet —
+// admin can enrich these later via the admin panel.
+function buildFamilyMemberEntry(famRow, idx) {
+  var name = famRow.name || ('Family Member ' + (idx+1));
+  var parts = name.split(' ');
+  var initials = (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+  var palette = ['#27ae60','#2980b9','#8e44ad','#e67e22','#16a085'];
+  return {
+    name: name,
+    short: parts[0] + (parts.length > 1 ? ' (' + parts.slice(1).join(' ') + ')' : ''),
+    initials: initials,
+    belt: 'No belt on file',
+    color: palette[idx % palette.length],
+    type: 'kids',
+    memberNo: '—',
+    since: '—',
+    membership: 'Linked family member',
+    billing: '—',
+    credits: '—',
+    lastGrading: null,
+    isPrimary: false,
+  };
+}
+
+function formatJoinDate(dateStr) {
+  try {
+    var d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    return d.toLocaleDateString('en-AU', { month: 'short', year: 'numeric' });
+  } catch(e) { return dateStr; }
+}
+
+// Render the family switcher pills from the live familyMembers array.
+// Called after login and whenever family membership changes.
+function renderFamilyBar() {
+  var bar = document.getElementById('familyBar');
+  if (!bar) return;
+  if (!familyMembers.length) { bar.innerHTML = ''; return; }
+  var html = '';
+  familyMembers.forEach(function(m, i) {
+    var activeClass = (i === activeFamilyIdx) ? ' active' : '';
+    html += '<div class="family-pill' + activeClass + '" onclick="setActiveMember(' + i + ')" id="fp-' + i + '">' +
+              '<div class="family-pill-avatar" style="background:' + m.color + '">' + m.initials + '</div>' +
+              '<span class="family-pill-name">' + m.short + '</span>' +
+            '</div>';
+  });
+  bar.innerHTML = html;
+}
 
 function setActiveMember(idx) {
   // Save current member's bookings before switching
@@ -1525,11 +1579,12 @@ function setActiveMember(idx) {
   bookedIds = memberBookings[idx];
 
   const m = familyMembers[idx];
+  if (!m) return;
   document.querySelectorAll('.family-pill').forEach((p,i) => p.classList.toggle('active', i===idx));
   const first = m.name.split(' ')[0].toUpperCase();
-  const isYou = idx === 0;
+  const isYou = !!m.isPrimary;
   document.getElementById('heroGreeting').innerHTML = (isYou ? 'WELCOME BACK,<br>' : 'VIEWING PROFILE:<br>') + first;
-  document.getElementById('heroSub').textContent = 'Mordialloc · ' + m.belt + ' · Member since 2022';
+  document.getElementById('heroSub').textContent = 'Mordialloc · ' + m.belt + (m.since && m.since !== '—' ? ' · Member since ' + m.since : '');
   document.getElementById('topAvatar').textContent = m.initials;
   document.getElementById('topAvatar').style.background = m.color;
   document.getElementById('memberBadge').textContent = isYou ? 'ACTIVE MEMBER' : 'FAMILY MEMBER';
@@ -3372,9 +3427,12 @@ async function authVerifyCode() {
       }
       // Known mock user — log in directly without backend call
       var mockAccounts = {
-        'jake@example.com':          { role:'member', first_name:'Jake',   last_name:'Davidson', belt:'BJJ Blue Belt', discipline:'BJJ', lastGrading:'14 Mar 2025', membership_type:'Unlimited', membership_status:'active', member_number:'IMP-0042', pass_credits:7 },
-        'marcus@imperiummma.com.au': { role:'coach',  first_name:'Marcus', last_name:'Silva',    belt:'Black Belt',   discipline:'BJJ', lastGrading:'3 Sep 2024',  membership_type:'Staff',     membership_status:'active', member_number:'IMP-0001', pass_credits:0 },
-        'admin@imperiummma.com.au':  { role:'admin',  first_name:'Admin',  last_name:'User',     belt:'Black Belt',   discipline:'BJJ', lastGrading:'22 Jun 2023', membership_type:'Owner',     membership_status:'active', member_number:'IMP-0000', pass_credits:0 },
+        'jake@example.com':          { role:'member', first_name:'Jake',   last_name:'Davidson', belt:'BJJ Blue Belt', discipline:'BJJ', lastGrading:'14 Mar 2025', membership_type:'Unlimited', membership_status:'active', member_number:'IMP-0042', pass_credits:7,
+          family: [{name:'Lila Davidson'},{name:'Tom Davidson'}] },
+        'marcus@imperiummma.com.au': { role:'coach',  first_name:'Marcus', last_name:'Silva',    belt:'Black Belt',   discipline:'BJJ', lastGrading:'3 Sep 2024',  membership_type:'Staff',     membership_status:'active', member_number:'IMP-0001', pass_credits:0,
+          family: [] },
+        'admin@imperiummma.com.au':  { role:'admin',  first_name:'Admin',  last_name:'User',     belt:'Black Belt',   discipline:'BJJ', lastGrading:'22 Jun 2023', membership_type:'Owner',     membership_status:'active', member_number:'IMP-0000', pass_credits:0,
+          family: [] },
       };
       var m = mockAccounts[authEmail];
       if (m) {
@@ -3394,7 +3452,8 @@ async function authVerifyCode() {
             membership_status: m.membership_status, belt: m.belt,
             discipline: m.discipline, lastGrading: m.lastGrading,
             trial: false, pass_credits: m.pass_credits, next_billing: null,
-          }
+          },
+          family: m.family || [],
         };
         currentUser = mockLogin;
         onLoginSuccess(mockLogin);
@@ -3600,14 +3659,62 @@ function onLoginSuccess(user) {
     } catch(e2) {}
   } catch(e) {}
 
+  // ── Build real familyMembers array from this user's actual data ──
+  // Always starts with the logged-in person themselves (index 0).
+  familyMembers = [buildPrimaryFamilyMember(user.contact)];
+  activeFamilyIdx = 0;
+
+  // If the backend included linked family records, append them now.
+  // (Returned as user.family — an array of { name } rows from family_members table.)
+  if (Array.isArray(user.family) && user.family.length) {
+    user.family.forEach(function(f, i) { familyMembers.push(buildFamilyMemberEntry(f, i)); });
+  }
+
   // Hide login, show app
   hideLoginScreen();
 
   // Render home screen
   switchScreen('home');
 
+  // Now that home screen DOM exists, render the family switcher pills
+  renderFamilyBar();
+  // Apply the primary member's data to the hero/avatar immediately
+  setActiveMember(0);
+
   // Apply role-based UI AFTER screen renders so elements exist in DOM
   applyRolePermissions(user.role, user.permissions);
+
+  // If this is a real (non-mock) account, fetch linked family members from Supabase
+  // in case they weren't included in the login response.
+  if (!Array.isArray(user.family) && user.token && !String(user.token).startsWith('mock_')) {
+    fetchFamilyMembers(user.contact.email);
+  }
+}
+
+// Fetch linked family members for a parent email from the backend
+// and append them to familyMembers, then re-render the switcher.
+async function fetchFamilyMembers(parentEmail) {
+  try {
+    var resp = await fetch(AUTH_BACKEND + '/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Action': 'get-family' },
+      body: JSON.stringify({ email: parentEmail, action: 'get-family' }),
+      mode: 'cors',
+    });
+    var data = await resp.json();
+    if (data.success && Array.isArray(data.family) && data.family.length) {
+      data.family.forEach(function(f, i) {
+        // Avoid duplicating if already present
+        if (!familyMembers.some(function(fm){ return fm.name === f.name; })) {
+          familyMembers.push(buildFamilyMemberEntry(f, familyMembers.length));
+        }
+      });
+      renderFamilyBar();
+    }
+  } catch(e) {
+    // Family fetch is non-critical — fail silently, primary member still works fine
+    console.warn('Could not fetch family members:', e.message);
+  }
 }
 
 // ── APPLY ROLE-BASED UI ──
@@ -3794,7 +3901,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.10'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.11'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
