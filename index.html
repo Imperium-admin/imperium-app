@@ -3263,10 +3263,10 @@ async function authSendCode() {
     } else {
       // Try real backend
       try {
-        var resp = await fetch(AUTH_BACKEND + '/api/auth/send-code', {
+        var resp = await fetch(AUTH_BACKEND + '/api/auth', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: email }),
+          headers: { 'Content-Type': 'application/json', 'X-Action': 'send-code' },
+          body: JSON.stringify({ email: email, action: 'send-code' }),
           mode: 'cors',
         });
         var data = await resp.json();
@@ -3403,10 +3403,10 @@ async function authVerifyCode() {
     }
 
     // Real backend verify
-    var resp = await fetch(AUTH_BACKEND + '/api/auth/verify-code', {
+    var resp = await fetch(AUTH_BACKEND + '/api/auth', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: authEmail, code: code }),
+      headers: { 'Content-Type': 'application/json', 'X-Action': 'verify-code' },
+      body: JSON.stringify({ email: authEmail, code: code, action: 'verify-code' }),
       mode: 'cors',
     });
     var data = await resp.json();
@@ -3516,15 +3516,16 @@ async function authRegister() {
   }
 
   try {
-    var resp = await fetch(AUTH_BACKEND + '/api/auth/register', {
+    var resp = await fetch(AUTH_BACKEND + '/api/auth', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-Action': 'register' },
       body: JSON.stringify({
         email: authEmail,
         first_name: firstName,
         last_name: lastName,
         member_number: memberNum || null,
         family: family,
+        action: 'register',
       }),
       mode: 'cors',
     });
@@ -3793,7 +3794,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.8'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.9'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
