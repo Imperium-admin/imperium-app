@@ -3278,12 +3278,12 @@ async function authSendCode() {
           throw new Error(data.error || 'Could not send code.');
         }
       } catch(fetchErr) {
-        // Fallback — treat as new user in mock mode
-        authEmail = email;
-        authIsNewUser = true;
-        authPendingCode = mockGenerateCode();
-        showToast('MOCK CODE (new user): ' + authPendingCode, 'info');
-        authShowCodeStep();
+        // Show real error for debugging instead of silent mock fallback
+        errorMsg.textContent = 'Backend error: ' + fetchErr.message;
+        errorEl.classList.add('show');
+        btn.disabled = false;
+        loading.classList.remove('show');
+        return;
       }
     }
   } catch(err) {
@@ -3794,7 +3794,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.9'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.10'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
