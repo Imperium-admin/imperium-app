@@ -459,8 +459,6 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .login-version {
   margin-top:32px;font-size:11px;color:#333;text-align:center;
 }
-.code-input{width:42px;height:52px;text-align:center;font-size:22px;font-weight:700;background:var(--card);border:2px solid var(--border);border-radius:10px;color:var(--text);outline:none}
-.code-input:focus{border-color:var(--red2)}
 
 </style>
   <!-- App version check — shows update banner when new version is available -->
@@ -473,103 +471,43 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <div id="screen-login">
   <div class="login-logo">IMPERIUM <span>MMA</span></div>
   <div class="login-tagline">Member Portal</div>
+  
 
-  <!-- ── STEP 1: EMAIL ENTRY ── -->
-  <div class="login-card" id="authStepEmail">
+  <div class="login-card">
     <div class="login-error" id="loginError">
       <i class="ti ti-alert-circle" style="font-size:14px;vertical-align:-2px"></i>
-      <span id="loginErrorMsg">Please try again.</span>
+      <span id="loginErrorMsg">Invalid email or password. Please try again.</span>
     </div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">
-      Enter your email address. We'll send a 6-digit code to sign you in.
-    </div>
+
     <div class="login-field">
       <label class="login-label" for="loginEmail">Email Address</label>
       <input class="login-input" type="email" id="loginEmail"
         placeholder="you@example.com" autocomplete="email"
-        onkeydown="if(event.key==='Enter') authSendCode()">
+        onkeydown="if(event.key==='Enter') loginNext()">
     </div>
-    <button class="login-btn" id="loginBtn" onclick="authSendCode()">CONTINUE</button>
+
+    <div class="login-field">
+      <label class="login-label" for="loginPassword">Password</label>
+      <input class="login-input" type="password" id="loginPassword"
+        placeholder="Your Clubworx password" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter') doLogin()">
+    </div>
+
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">SIGN IN</button>
+
+    <div class="login-forgot">
+      <a href="https://app.clubworx.com/users/password/new" target="_blank">
+        Forgot your password?
+      </a>
+    </div>
+
     <div class="login-loading" id="loginLoading">
       <div class="login-spinner"></div>
-      <span id="loginLoadingMsg">Sending code...</span>
+      Signing in...
     </div>
   </div>
 
-  <!-- ── STEP 2: CODE ENTRY ── -->
-  <div class="login-card" id="authStepCode" style="display:none">
-    <div id="mockCodeBanner" style="display:none;background:rgba(241,196,15,0.15);border:1px solid var(--gold);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:14px;font-weight:700;color:var(--gold);text-align:center;letter-spacing:1px"></div>
-    <div class="login-error" id="codeError">
-      <i class="ti ti-alert-circle" style="font-size:14px;vertical-align:-2px"></i>
-      <span id="codeErrorMsg">Incorrect code. Please try again.</span>
-    </div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:6px;line-height:1.6">
-      We sent a 6-digit code to
-    </div>
-    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px" id="codeEmailDisplay"></div>
-    <div class="login-field">
-      <label class="login-label">Verification Code</label>
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:6px">
-        <input class="code-input" type="tel" maxlength="1" id="c0" oninput="codeInput(this,0)" onkeydown="codeKey(event,0)">
-        <input class="code-input" type="tel" maxlength="1" id="c1" oninput="codeInput(this,1)" onkeydown="codeKey(event,1)">
-        <input class="code-input" type="tel" maxlength="1" id="c2" oninput="codeInput(this,2)" onkeydown="codeKey(event,2)">
-        <input class="code-input" type="tel" maxlength="1" id="c3" oninput="codeInput(this,3)" onkeydown="codeKey(event,3)">
-        <input class="code-input" type="tel" maxlength="1" id="c4" oninput="codeInput(this,4)" onkeydown="codeKey(event,4)">
-        <input class="code-input" type="tel" maxlength="1" id="c5" oninput="codeInput(this,5)" onkeydown="codeKey(event,5)">
-      </div>
-    </div>
-    <button class="login-btn" id="verifyBtn" onclick="authVerifyCode()" style="margin-top:16px">VERIFY</button>
-    <div style="text-align:center;margin-top:12px">
-      <button onclick="authResendCode()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--font)" id="resendBtn">Resend code</button>
-      <span style="color:var(--muted);font-size:12px;margin:0 8px">·</span>
-      <button onclick="authBackToEmail()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--font)">Change email</button>
-    </div>
-    <div class="login-loading" id="codeLoading">
-      <div class="login-spinner"></div>
-      <span>Verifying...</span>
-    </div>
-  </div>
-
-  <!-- ── STEP 3: REGISTRATION (new members only) ── -->
-  <div class="login-card" id="authStepRegister" style="display:none">
-    <div style="font-family:var(--head);font-size:20px;letter-spacing:1px;margin-bottom:4px">WELCOME TO IMPERIUM</div>
-    <div style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6">
-      Complete your profile to get started.
-    </div>
-    <div class="login-error" id="regError">
-      <i class="ti ti-alert-circle" style="font-size:14px;vertical-align:-2px"></i>
-      <span id="regErrorMsg">Please fill in all required fields.</span>
-    </div>
-    <div class="login-field">
-      <label class="login-label">First Name *</label>
-      <input class="login-input" type="text" id="regFirstName" placeholder="First name" autocomplete="given-name">
-    </div>
-    <div class="login-field">
-      <label class="login-label">Last Name *</label>
-      <input class="login-input" type="text" id="regLastName" placeholder="Last name" autocomplete="family-name">
-    </div>
-    <div class="login-field">
-      <label class="login-label">Clubworx Member Number <span style="color:var(--muted);font-weight:400">(optional)</span></label>
-      <input class="login-input" type="text" id="regMemberNumber" placeholder="e.g. IMP-0042">
-    </div>
-
-    <!-- Family members -->
-    <div style="margin-top:8px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:8px">Family Members <span style="color:var(--muted);font-weight:400;letter-spacing:0">(optional)</span></div>
-      <div id="familyInputs"></div>
-      <button onclick="addFamilyInput()" style="background:none;border:1px dashed var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;font-family:var(--font);padding:8px 12px;width:100%;margin-top:4px">
-        + Add family member
-      </button>
-    </div>
-
-    <button class="login-btn" id="regBtn" onclick="authRegister()">CREATE ACCOUNT</button>
-    <div class="login-loading" id="regLoading">
-      <div class="login-spinner"></div>
-      <span>Creating account...</span>
-    </div>
-  </div>
-
-  <div class="login-version">Imperium MMA · v<span id="versionDisplay"></span></div>
+  <div class="login-version">Imperium MMA · Powered by Clubworx</div>
 </div>
 
 <div class="overlay" id="overlay" onclick="closeNotif()"></div>
@@ -643,7 +581,20 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <div class="screen active" id="screen-home">
   <div class="hero">
     <!-- FAMILY SWITCHER — shows when account has linked family members -->
-  <div class="family-bar" id="familyBar"><!-- populated dynamically by renderFamilyBar() after login --></div>
+  <div class="family-bar" id="familyBar">
+    <div class="family-pill active" onclick="setActiveMember(0)" id="fp-0">
+      <div class="family-pill-avatar" style="background:#c0392b">JD</div>
+      <span class="family-pill-name">Jake (You)</span>
+    </div>
+    <div class="family-pill" onclick="setActiveMember(1)" id="fp-1">
+      <div class="family-pill-avatar" style="background:#27ae60">LJ</div>
+      <span class="family-pill-name">Lila (Age 9)</span>
+    </div>
+    <div class="family-pill" onclick="setActiveMember(2)" id="fp-2">
+      <div class="family-pill-avatar" style="background:#2980b9">TJ</div>
+      <span class="family-pill-name">Tom (Age 12)</span>
+    </div>
+  </div>
   <div class="badge-red" style="margin-bottom:10px" id="memberBadge">ACTIVE MEMBER</div>
     <h2 id="heroGreeting" style="font-size:22px;line-height:1.15">WELCOME BACK,<br>JAKE</h2>
     <p id="heroSub">Mordialloc · BJJ Blue Belt · Member since 2022</p>
@@ -712,8 +663,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <div class="sl">Your Account</div>
   <div class="card">
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50">Unlimited · Active</span></div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600;color:var(--muted)">Sync coming soon</span></div>
-    <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">Classes This Month</span><span style="font-size:13px;font-weight:600;color:var(--muted)">--</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600;color:var(--red2)">7 remaining</span></div>
+    <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">Classes This Month</span><span style="font-size:13px;font-weight:600">11</span></div>
   </div>
 </div>
 
@@ -721,31 +672,27 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
      SCREEN: TIMETABLE
 ════════════════════════════════════ -->
 <div class="screen" id="screen-timetable">
-  <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;margin-bottom:4px">TIMETABLE</h2>
-
-  <!-- Cancellation notice -->
-  <div style="background:rgba(52,152,219,0.1);border:1px solid rgba(52,152,219,0.25);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="#25d366" style="flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-    <div style="flex:1">
-      <div style="font-size:12px;font-weight:700;color:var(--text)">Need to cancel a class?</div>
-      <div style="font-size:11px;color:var(--muted);margin-top:1px">Message our WhatsApp reception and we'll sort it for you</div>
-    </div>
-    <button onclick="sendReception()" style="background:#25d366;border:none;border-radius:8px;color:#fff;font-size:11px;font-weight:700;padding:7px 10px;cursor:pointer;white-space:nowrap">Message Us</button>
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">LIVE TIMETABLE</h2>
+    <div class="badge-green"><span style="width:6px;height:6px;background:#4caf50;border-radius:50%;display:inline-block"></span>LIVE</div>
   </div>
-
-  <!-- Live Clubworx timetable iframe -->
-  <div style="border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#fff">
-    <iframe
-      src="https://app.clubworx.com/websites/imperium-mixed-martial-arts/calendar/weekly_agenda_iframe"
-      width="100%"
-      height="880"
-      style="border:0;display:block"
-      loading="lazy"
-      title="Imperium MMA Live Timetable">
-    </iframe>
+  <div class="tt-day-tabs">
+    <div class="tt-day active" onclick="setDay(this,'Mon')">Mon</div>
+    <div class="tt-day" onclick="setDay(this,'Tue')">Tue</div>
+    <div class="tt-day" onclick="setDay(this,'Wed')">Wed</div>
+    <div class="tt-day" onclick="setDay(this,'Thu')">Thu</div>
+    <div class="tt-day" onclick="setDay(this,'Fri')">Fri</div>
+    <div class="tt-day" onclick="setDay(this,'Sat')">Sat</div>
+    <div class="tt-day" onclick="setDay(this,'Sun')">Sun</div>
   </div>
-  <div style="text-align:center;padding:8px 0 4px;font-size:10px;color:var(--muted)">Live timetable powered by Clubworx</div>
+  <div id="ttClasses"></div>
+  <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Timetable connects to your live Clubworx schedule once the backend is set up.</div>
 </div>
+
+
+<!-- ════════════════════════════════════
+     SCREEN: MY BOOKINGS
+════════════════════════════════════ -->
 <div class="screen" id="screen-bookings">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
     <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">MY BOOKINGS</h2>
@@ -793,108 +740,24 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">CLASS PASSES</h2>
     <div class="badge-green"><i class="ti ti-link" style="font-size:11px"></i>Clubworx</div>
   </div>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Purchase passes and memberships securely via Clubworx</p>
-
-  <!-- Tabs: Adults | Kids | Memberships -->
+  <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Prices pulled live from your Clubworx membership plans</p>
   <div class="pass-tabs">
-    <button class="pass-tab active" onclick="setPassTab(this,'adult')">Adults</button>
-    <button class="pass-tab" onclick="setPassTab(this,'kids')">Kids</button>
-    <button class="pass-tab" onclick="setPassTab(this,'memberships')">Memberships</button>
+    <button class="pass-tab active" onclick="setPassType(this,'adult')">Adult</button>
+    <button class="pass-tab" onclick="setPassType(this,'kids')">Kids</button>
+    <button class="pass-tab" onclick="setPassType(this,'casual')">Casual</button>
   </div>
-
-  <!-- Adults tab -->
-  <div id="passTab-adult">
-    <div class="card pass-card" id="passCard-adult-10" onclick="selectPass('adult-10','Adult 10 Class Pass','https://app.clubworx.com/websites/imperium-mixed-martial-arts/book_and_pay/offers/af0629ac-a17e-452a-aa6d-31b051eff98a?ct=po')">
-      <div style="position:absolute;top:0;right:0;background:var(--gold);color:#000;font-size:9px;font-weight:800;padding:3px 10px;border-radius:0 var(--radius) 0 8px;letter-spacing:1px">POPULAR</div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:40px;height:40px;background:rgba(241,196,15,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20M7 6V4M17 6V4"/></svg>
-        </div>
-        <div style="flex:1">
-          <div style="font-family:var(--head);font-size:18px;letter-spacing:1px">10 CLASS PASS</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">Adult · Valid 6 months · BJJ & Muay Thai</div>
-        </div>
-        <div class="badge-green" style="font-size:10px">⟳ Live Price</div>
-      </div>
-    </div>
-
-    <div class="card pass-card" id="passCard-adult-casual" onclick="selectPass('adult-casual','Casual Class','https://app.clubworx.com/websites/imperium-mixed-martial-arts/book_and_pay/offers/301025bd-bad0-4ddb-bb00-377a95d3f40c')">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:40px;height:40px;background:rgba(241,196,15,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20M7 6V4M17 6V4"/></svg>
-        </div>
-        <div style="flex:1">
-          <div style="font-family:var(--head);font-size:18px;letter-spacing:1px">CASUAL CLASS</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">Adult · Single visit · Any class</div>
-        </div>
-        <div class="badge-green" style="font-size:10px">⟳ Live Price</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Kids tab -->
-  <div id="passTab-kids" style="display:none">
-    <div class="card pass-card" id="passCard-kids-10" onclick="selectPass('kids-10','Kids 10 Pack','https://app.clubworx.com/websites/imperium-mixed-martial-arts/book_and_pay/offers/bba148c4-1e55-44db-ba0a-fcc859dcefb1?ct=po')">
-      <div style="position:absolute;top:0;right:0;background:var(--gold);color:#000;font-size:9px;font-weight:800;padding:3px 10px;border-radius:0 var(--radius) 0 8px;letter-spacing:1px">POPULAR</div>
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:40px;height:40px;background:rgba(241,196,15,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20M7 6V4M17 6V4"/></svg>
-        </div>
-        <div style="flex:1">
-          <div style="font-family:var(--head);font-size:18px;letter-spacing:1px">KIDS 10 PACK</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">Kids · Valid for any kids class</div>
-        </div>
-        <div class="badge-green" style="font-size:10px">⟳ Live Price</div>
-      </div>
-    </div>
-
-    <div class="card pass-card" id="passCard-kids-casual" onclick="selectPass('kids-casual','Casual Class','https://app.clubworx.com/websites/imperium-mixed-martial-arts/book_and_pay/offers/301025bd-bad0-4ddb-bb00-377a95d3f40c')">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div style="width:40px;height:40px;background:rgba(241,196,15,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M2 10h20M7 6V4M17 6V4"/></svg>
-        </div>
-        <div style="flex:1">
-          <div style="font-family:var(--head);font-size:18px;letter-spacing:1px">CASUAL CLASS</div>
-          <div style="font-size:11px;color:var(--muted);margin-top:2px">Kids · Single visit · Any class</div>
-        </div>
-        <div class="badge-green" style="font-size:10px">⟳ Live Price</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Memberships tab -->
-  <div id="passTab-memberships" style="display:none">
-    <div class="card" style="padding:16px;margin-bottom:12px">
-      <div style="font-family:var(--head);font-size:20px;letter-spacing:1px;margin-bottom:4px">ONGOING MEMBERSHIPS</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Monthly and upfront membership options. Managed securely via Clubworx.</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <button onclick="window.location.href='https://app.clubworx.com/s/Q4fnlEJB'" style="background:var(--red2);color:#fff;border:none;border-radius:8px;padding:12px 8px;font-family:var(--head);font-size:14px;letter-spacing:1px;cursor:pointer">🥋 ADULTS</button>
-        <button onclick="window.location.href='https://app.clubworx.com/s/FOYwe9Ow'" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:12px 8px;font-family:var(--head);font-size:14px;letter-spacing:1px;cursor:pointer">👦 KIDS</button>
-      </div>
-    </div>
-    <div style="font-size:10px;color:var(--muted);text-align:center;padding:4px 0 12px">Please allow a few minutes for membership changes to reflect in the app</div>
-  </div>
-
-  <!-- Checkout bar -->
-  <div class="checkout-bar" id="checkoutBar" style="display:none">
-    <div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:2px">SELECTED</div>
-      <div id="checkoutLabel" style="font-size:13px;font-weight:600"></div>
-    </div>
+  <div id="passCards"></div>
+  <div class="checkout-bar" id="checkoutBar">
+    <div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">SELECTED</div><div id="checkoutLabel" style="font-size:13px;font-weight:600"></div></div>
     <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-size:11px;color:var(--red2);font-family:var(--head);letter-spacing:1px">FROM CLUBWORX</span>
+      <span style="font-family:var(--head);font-size:20px;color:var(--red2)" id="checkoutPrice"></span>
       <button class="btn-buy" onclick="buyPass()">BUY NOW</button>
     </div>
   </div>
-
   <div class="sl">Payment via Clubworx</div>
   <div class="card" style="padding:12px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
-      <i class="ti ti-credit-card" style="font-size:18px;color:var(--muted)"></i>
-      <span style="font-size:13px;font-weight:600">Secure Payment</span>
-    </div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><i class="ti ti-credit-card" style="font-size:18px;color:var(--muted)"></i><span style="font-size:13px;font-weight:600">Saved Card</span><span style="margin-left:auto;font-size:13px;color:var(--muted)">Visa •••• 4242</span></div>
     <div style="font-size:11px;color:var(--muted)">Processed securely via Clubworx / Ezidebit. Credits activate instantly.</div>
-    <div style="font-size:10px;color:var(--muted);margin-top:6px">Please allow a few minutes for pass credits to update in the app.</div>
   </div>
 </div>
 
@@ -1223,7 +1086,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Belt / Grade</span><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span style="font-size:13px;font-weight:600" id="profileBelt">BJJ Blue Belt</span><div id="profileLastGrading" style="display:none;font-size:11px;color:var(--muted)"></div></div></div>
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50" id="profileMembership">Unlimited · Active</span></div>
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Next Billing</span><span style="font-size:13px;font-weight:600">15 Jun 2026</span></div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600;color:var(--muted)" id="profileCredits">Sync coming soon</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600" id="profileCredits">7 remaining</span></div>
     <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">General Waiver</span><span id="profileWaiverStatus" style="font-size:13px;font-weight:600">Checking...</span></div>
   </div>
   <div class="sl">Notifications</div>
@@ -1491,82 +1354,15 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 // ══════════════════════════════════════════════
 
 // ── MEMBER / FAMILY STATE ──
-// Populated dynamically in onLoginSuccess() from the real logged-in user's data
-// plus any linked family_members records from Supabase. Never hardcoded.
-let familyMembers = [];
+const familyMembers = [
+  {name:'Jake Davidson', short:'Jake (You)',   initials:'JD', belt:'BJJ Blue Belt',    color:'#c0392b', type:'adult',
+   memberNo:'IMP-0042', since:'Jan 2022', membership:'Unlimited · Active', billing:'15 Jun 2026', credits:'7 remaining', lastGrading:'14 Mar 2025'},
+  {name:'Lila Davidson', short:'Lila (Age 9)', initials:'LJ', belt:'Kids BJJ · Minis', color:'#27ae60', type:'kids',
+   memberNo:'IMP-0087', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—', lastGrading:'8 Nov 2024'},
+  {name:'Tom Davidson',  short:'Tom (Age 12)', initials:'TJ', belt:'Kids BJJ · Teens', color:'#2980b9', type:'kids',
+   memberNo:'IMP-0091', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—', lastGrading:'8 Nov 2024'},
+];
 let activeFamilyIdx = 0;
-
-// Build the primary (logged-in) family member entry from real backend contact data
-function buildPrimaryFamilyMember(contact) {
-  var fullName = ((contact.first_name||'') + ' ' + (contact.last_name||'')).trim() || 'Member';
-  var firstName = (contact.first_name || fullName.split(' ')[0] || 'Member');
-  var initials = ((contact.first_name||'?')[0] + (contact.last_name||'')[0]).toUpperCase();
-  return {
-    name: fullName,
-    short: firstName + ' (You)',
-    initials: initials,
-    belt: contact.belt || (contact.discipline ? contact.discipline : 'No belt on file'),
-    color: '#c0392b',
-    type: 'adult',
-    memberNo: contact.member_number || '—',
-    since: contact.join_date ? formatJoinDate(contact.join_date) : '—',
-    membership: (contact.membership_type || 'Member') + ' · ' + (contact.membership_status === 'active' ? 'Active' : (contact.membership_status || 'Active')),
-    billing: contact.next_billing || '—',
-    credits: (typeof contact.pass_credits === 'number') ? (contact.pass_credits + ' remaining') : 'Sync coming soon',
-    lastGrading: contact.lastGrading || null,
-    isPrimary: true,
-  };
-}
-
-// Build a family member entry from a family_members row { name }
-// Family members added at registration have no Clubworx/belt data yet —
-// admin can enrich these later via the admin panel.
-function buildFamilyMemberEntry(famRow, idx) {
-  var name = famRow.name || ('Family Member ' + (idx+1));
-  var parts = name.split(' ');
-  var initials = (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
-  var palette = ['#27ae60','#2980b9','#8e44ad','#e67e22','#16a085'];
-  return {
-    name: name,
-    short: parts[0] + (parts.length > 1 ? ' (' + parts.slice(1).join(' ') + ')' : ''),
-    initials: initials,
-    belt: 'No belt on file',
-    color: palette[idx % palette.length],
-    type: 'kids',
-    memberNo: '—',
-    since: '—',
-    membership: 'Linked family member',
-    billing: '—',
-    credits: '—',
-    lastGrading: null,
-    isPrimary: false,
-  };
-}
-
-function formatJoinDate(dateStr) {
-  try {
-    var d = new Date(dateStr);
-    if (isNaN(d.getTime())) return dateStr;
-    return d.toLocaleDateString('en-AU', { month: 'short', year: 'numeric' });
-  } catch(e) { return dateStr; }
-}
-
-// Render the family switcher pills from the live familyMembers array.
-// Called after login and whenever family membership changes.
-function renderFamilyBar() {
-  var bar = document.getElementById('familyBar');
-  if (!bar) return;
-  if (!familyMembers.length) { bar.innerHTML = ''; return; }
-  var html = '';
-  familyMembers.forEach(function(m, i) {
-    var activeClass = (i === activeFamilyIdx) ? ' active' : '';
-    html += '<div class="family-pill' + activeClass + '" onclick="setActiveMember(' + i + ')" id="fp-' + i + '">' +
-              '<div class="family-pill-avatar" style="background:' + m.color + '">' + m.initials + '</div>' +
-              '<span class="family-pill-name">' + m.short + '</span>' +
-            '</div>';
-  });
-  bar.innerHTML = html;
-}
 
 function setActiveMember(idx) {
   // Save current member's bookings before switching
@@ -1579,12 +1375,11 @@ function setActiveMember(idx) {
   bookedIds = memberBookings[idx];
 
   const m = familyMembers[idx];
-  if (!m) return;
   document.querySelectorAll('.family-pill').forEach((p,i) => p.classList.toggle('active', i===idx));
   const first = m.name.split(' ')[0].toUpperCase();
-  const isYou = !!m.isPrimary;
+  const isYou = idx === 0;
   document.getElementById('heroGreeting').innerHTML = (isYou ? 'WELCOME BACK,<br>' : 'VIEWING PROFILE:<br>') + first;
-  document.getElementById('heroSub').textContent = 'Mordialloc · ' + m.belt + (m.since && m.since !== '—' ? ' · Member since ' + m.since : '');
+  document.getElementById('heroSub').textContent = 'Mordialloc · ' + m.belt + ' · Member since 2022';
   document.getElementById('topAvatar').textContent = m.initials;
   document.getElementById('topAvatar').style.background = m.color;
   document.getElementById('memberBadge').textContent = isYou ? 'ACTIVE MEMBER' : 'FAMILY MEMBER';
@@ -1697,32 +1492,12 @@ const passData = {
 };
 let selPass = null, curPassType = 'adult';
 
-function setPassTab(el, tab) {
+function setPassType(el, type) {
   document.querySelectorAll('.pass-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  ['adult','kids','memberships'].forEach(t => {
-    var el2 = document.getElementById('passTab-'+t);
-    if (el2) el2.style.display = t === tab ? 'block' : 'none';
-  });
-  selPass = null;
-  var bar = document.getElementById('checkoutBar');
-  if (bar) bar.style.display = 'none';
-  // Clear selected state
-  document.querySelectorAll('.pass-card').forEach(c => c.style.borderColor = '');
+  el.classList.add('active'); curPassType = type; selPass = null;
+  document.getElementById('checkoutBar').style.display = 'none';
+  renderPasses(type);
 }
-
-function selectPass(id, label, url) {
-  selPass = { id: id, label: label, url: url };
-  document.querySelectorAll('.pass-card').forEach(c => {
-    c.style.borderColor = c.id === 'passCard-'+id ? 'var(--red2)' : '';
-  });
-  var bar = document.getElementById('checkoutBar');
-  var lbl = document.getElementById('checkoutLabel');
-  if (bar) bar.style.display = 'flex';
-  if (lbl) lbl.textContent = label;
-}
-
-function setPassType(el, type) { setPassTab(el, type); }
 function renderPasses(type) {
   document.getElementById('passCards').innerHTML = passData[type].map(p =>
     `<div class="pass-card${p.popular?' popular':''}" id="pc-${p.id}" onclick="selectPass('${p.id}')">
@@ -1743,11 +1518,7 @@ function selectPass(id) {
   document.getElementById('checkoutLabel').textContent = selPass.name;
   document.getElementById('checkoutPrice').textContent = 'From Clubworx';
 }
-function buyPass() {
-  if (!selPass || !selPass.url) return;
-  showToast('Opening Clubworx checkout...', 'info');
-  setTimeout(function() { window.location.href = selPass.url; }, 300);
-}
+function buyPass() { showToast('Opening Clubworx checkout...','info'); setTimeout(()=>showToast('Pass activated — credits added ✓','success'),2200); }
 
 // ── TIMETABLE ──
 const ttData = {
@@ -3164,8 +2935,7 @@ function renderProfileScreen() {
 
   var credEl = document.getElementById('profileCredits');
   if (credEl) {
-    credEl.textContent = 'Sync coming soon';
-    credEl.style.color = 'var(--muted)';
+    credEl.textContent = m.credits;
     credEl.style.color = m.credits === '—' ? 'var(--muted)' : 'var(--red2)';
   }
 
@@ -3274,351 +3044,49 @@ async function mockAuth(email, password) {
 }
 
 // ── MAIN LOGIN FUNCTION ──
-// ── AUTH STATE ──
-var authEmail = '';
-var authPendingCode = '';
-var authIsNewUser = false;
-var AUTH_BACKEND = 'https://imperium-backend.vercel.app';
-
-// ── MOCK: generate 6-digit code ──
-function mockGenerateCode() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-// ── STEP 1: Send code ──
-async function authSendCode() {
-  var email = (document.getElementById('loginEmail').value || '').trim().toLowerCase();
-  var errorEl = document.getElementById('loginError');
+async function doLogin() {
+  var email    = (document.getElementById('loginEmail').value    || '').trim();
+  var password = (document.getElementById('loginPassword').value || '').trim();
+  var errorEl  = document.getElementById('loginError');
   var errorMsg = document.getElementById('loginErrorMsg');
-  var btn = document.getElementById('loginBtn');
-  var loading = document.getElementById('loginLoading');
-  var loadingMsg = document.getElementById('loginLoadingMsg');
+  var btn      = document.getElementById('loginBtn');
+  var loading  = document.getElementById('loginLoading');
 
-  if (!email || !email.includes('@')) {
-    errorMsg.textContent = 'Please enter a valid email address.';
+  // Validate
+  if (!email || !password) {
+    errorMsg.textContent = 'Please enter your email and password.';
     errorEl.classList.add('show');
     return;
   }
   errorEl.classList.remove('show');
+
+  // Show loading state
   btn.disabled = true;
+  btn.textContent = 'SIGNING IN...';
   loading.classList.add('show');
 
   try {
-    // MOCK MODE — generate code locally and show toast
-    var mockEmails = ['jake@example.com','marcus@imperiummma.com.au','admin@imperiummma.com.au'];
-    if (mockEmails.includes(email)) {
-      authEmail = email;
-      authIsNewUser = false;
-      authPendingCode = mockGenerateCode();
-      authShowCodeStep();
-      // Show code prominently for testing
-      showToast('MOCK CODE: ' + authPendingCode, 'info');
-      var mockBanner = document.getElementById('mockCodeBanner');
-      if (mockBanner) { mockBanner.textContent = '🔑 TEST CODE: ' + authPendingCode; mockBanner.style.display = 'block'; }
-    } else {
-      // Try real backend
-      try {
-        var resp = await fetch(AUTH_BACKEND + '/api/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'X-Action': 'send-code' },
-          body: JSON.stringify({ email: email, action: 'send-code' }),
-          mode: 'cors',
-        });
-        var data = await resp.json();
-        if (data.success) {
-          authEmail = email;
-          authIsNewUser = data.isNewUser || false;
-          authShowCodeStep();
-        } else {
-          throw new Error(data.error || 'Could not send code.');
-        }
-      } catch(fetchErr) {
-        // Show real error for debugging instead of silent mock fallback
-        errorMsg.textContent = 'Backend error: ' + fetchErr.message;
-        errorEl.classList.add('show');
-        btn.disabled = false;
-        loading.classList.remove('show');
-        return;
-      }
-    }
-  } catch(err) {
-    errorMsg.textContent = err.message || 'Could not send code. Please try again.';
-    errorEl.classList.add('show');
-  }
-  btn.disabled = false;
-  loading.classList.remove('show');
-}
-
-function authShowCodeStep() {
-  document.getElementById('authStepEmail').style.display = 'none';
-  document.getElementById('authStepCode').style.display = 'block';
-  document.getElementById('codeEmailDisplay').textContent = authEmail;
-  document.getElementById('c0').focus();
-  // Start resend timer
-  var secs = 30;
-  var resendBtn = document.getElementById('resendBtn');
-  resendBtn.disabled = true;
-  resendBtn.textContent = 'Resend in ' + secs + 's';
-  var timer = setInterval(function() {
-    secs--;
-    if (secs <= 0) {
-      clearInterval(timer);
-      resendBtn.disabled = false;
-      resendBtn.textContent = 'Resend code';
-    } else {
-      resendBtn.textContent = 'Resend in ' + secs + 's';
-    }
-  }, 1000);
-}
-
-// ── Code input helpers ──
-function codeInput(el, idx) {
-  el.value = el.value.replace(/[^0-9]/g,'');
-  if (el.value.length === 1 && idx < 5) {
-    document.getElementById('c'+(idx+1)).focus();
-  }
-  // Auto-verify when all 6 entered
-  var code = '';
-  for (var i=0;i<6;i++) code += (document.getElementById('c'+i).value||'');
-  if (code.length === 6) authVerifyCode();
-}
-
-function codeKey(event, idx) {
-  if (event.key === 'Backspace' && !event.target.value && idx > 0) {
-    document.getElementById('c'+(idx-1)).focus();
-  }
-}
-
-function getEnteredCode() {
-  var code = '';
-  for (var i=0;i<6;i++) code += (document.getElementById('c'+i).value||'');
-  return code;
-}
-
-function clearCodeInputs() {
-  for (var i=0;i<6;i++) { document.getElementById('c'+i).value = ''; }
-}
-
-// ── STEP 2: Verify code ──
-async function authVerifyCode() {
-  var code = getEnteredCode();
-  var errorEl = document.getElementById('codeError');
-  var errorMsg = document.getElementById('codeErrorMsg');
-  var btn = document.getElementById('verifyBtn');
-  var loading = document.getElementById('codeLoading');
-
-  if (code.length < 6) {
-    errorMsg.textContent = 'Please enter all 6 digits.';
-    errorEl.classList.add('show');
-    return;
-  }
-  errorEl.classList.remove('show');
-  btn.disabled = true;
-  loading.classList.add('show');
-
-  try {
-    // MOCK: check against locally generated code
-    if (authPendingCode && code === authPendingCode) {
-      if (authIsNewUser) {
-        loading.classList.remove('show');
-        btn.disabled = false;
-        authShowRegisterStep();
-        return;
-      }
-      // Known mock user — log in directly without backend call
-      var mockAccounts = {
-        'jake@example.com':          { role:'member', first_name:'Jake',   last_name:'Davidson', belt:'BJJ Blue Belt', discipline:'BJJ', lastGrading:'14 Mar 2025', membership_type:'Unlimited', membership_status:'active', member_number:'IMP-0042', pass_credits:7,
-          family: [{name:'Lila Davidson'},{name:'Tom Davidson'}] },
-        'marcus@imperiummma.com.au': { role:'coach',  first_name:'Marcus', last_name:'Silva',    belt:'Black Belt',   discipline:'BJJ', lastGrading:'3 Sep 2024',  membership_type:'Staff',     membership_status:'active', member_number:'IMP-0001', pass_credits:0,
-          family: [] },
-        'admin@imperiummma.com.au':  { role:'admin',  first_name:'Admin',  last_name:'User',     belt:'Black Belt',   discipline:'BJJ', lastGrading:'22 Jun 2023', membership_type:'Owner',     membership_status:'active', member_number:'IMP-0000', pass_credits:0,
-          family: [] },
-      };
-      var m = mockAccounts[authEmail];
-      if (m) {
-        var mockLogin = {
-          success: true, role: m.role, token: 'mock_' + m.role + '_' + Date.now(),
-          permissions: {
-            canViewApp: true,
-            canViewCoachesHub: m.role === 'coach' || m.role === 'admin',
-            canManageEvents:   m.role === 'coach' || m.role === 'admin',
-            canManageWaivers:  m.role === 'admin',
-            canBroadcast:      m.role === 'admin',
-          },
-          contact: {
-            id: 'mock_' + authEmail, first_name: m.first_name, last_name: m.last_name,
-            email: authEmail, member_number: m.member_number,
-            join_date: '2022-01-15', membership_type: m.membership_type,
-            membership_status: m.membership_status, belt: m.belt,
-            discipline: m.discipline, lastGrading: m.lastGrading,
-            trial: false, pass_credits: m.pass_credits, next_billing: null,
-          },
-          family: m.family || [],
-        };
-        currentUser = mockLogin;
-        onLoginSuccess(mockLogin);
-        return;
-      }
-    }
-
-    // Real backend verify
-    var resp = await fetch(AUTH_BACKEND + '/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Action': 'verify-code' },
-      body: JSON.stringify({ email: authEmail, code: code, action: 'verify-code' }),
-      mode: 'cors',
-    });
-    var data = await resp.json();
+    // ── MOCK AUTH (direct, no backend call needed for testing) ──
+    // Simulates Clubworx login while API key is pending
+    // Replace mockAuth with fetch call when Vercel backend is confirmed working
+    var data = await mockAuth(email, password);
 
     if (!data.success) {
-      throw new Error(data.error || 'Incorrect code. Please try again.');
+      throw new Error(data.error || 'Invalid email or password');
     }
 
-    if (data.isNewUser) {
-      loading.classList.remove('show');
-      btn.disabled = false;
-      authShowRegisterStep();
-    } else {
-      currentUser = data;
-      onLoginSuccess(data);
-    }
-
-  } catch(err) {
-    clearCodeInputs();
-    document.getElementById('c0').focus();
-    errorMsg.textContent = err.message || 'Incorrect code. Please try again.';
-    errorEl.classList.add('show');
-    btn.disabled = false;
-    loading.classList.remove('show');
-  }
-}
-
-// ── Resend code ──
-async function authResendCode() {
-  clearCodeInputs();
-  document.getElementById('c0').focus();
-  document.getElementById('codeError').classList.remove('show');
-  showToast('Sending new code...', 'info');
-  authPendingCode = mockGenerateCode();
-  showToast('MOCK CODE: ' + authPendingCode, 'info');
-  var mockBanner = document.getElementById('mockCodeBanner');
-  if (mockBanner) { mockBanner.textContent = '🔑 TEST CODE: ' + authPendingCode; mockBanner.style.display = 'block'; }
-  // Restart timer
-  var secs = 30;
-  var resendBtn = document.getElementById('resendBtn');
-  resendBtn.disabled = true;
-  var timer = setInterval(function() {
-    secs--;
-    if (secs <= 0) { clearInterval(timer); resendBtn.disabled = false; resendBtn.textContent = 'Resend code'; }
-    else { resendBtn.textContent = 'Resend in ' + secs + 's'; }
-  }, 1000);
-}
-
-function authBackToEmail() {
-  document.getElementById('authStepCode').style.display = 'none';
-  document.getElementById('authStepEmail').style.display = 'block';
-  clearCodeInputs();
-  document.getElementById('loginEmail').focus();
-}
-
-// ── STEP 3: Registration ──
-function authShowRegisterStep() {
-  document.getElementById('authStepCode').style.display = 'none';
-  document.getElementById('authStepRegister').style.display = 'block';
-  document.getElementById('regFirstName').focus();
-}
-
-var familyCount = 0;
-function addFamilyInput() {
-  if (familyCount >= 6) { showToast('Maximum 6 family members', 'info'); return; }
-  var container = document.getElementById('familyInputs');
-  var div = document.createElement('div');
-  div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
-  div.id = 'fam-' + familyCount;
-  div.innerHTML =
-    '<input class="login-input" type="text" placeholder="Name (e.g. Lila, age 9)" style="flex:1;margin-bottom:0" id="famName'+familyCount+'">' +
-    '<button onclick="removeFamilyInput('+familyCount+')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px;flex-shrink:0">×</button>';
-  container.appendChild(div);
-  familyCount++;
-}
-
-function removeFamilyInput(idx) {
-  var el = document.getElementById('fam-'+idx);
-  if (el) el.remove();
-}
-
-async function authRegister() {
-  var firstName = (document.getElementById('regFirstName').value || '').trim();
-  var lastName  = (document.getElementById('regLastName').value  || '').trim();
-  var memberNum = (document.getElementById('regMemberNumber').value || '').trim();
-  var errorEl   = document.getElementById('regError');
-  var errorMsg  = document.getElementById('regErrorMsg');
-  var btn       = document.getElementById('regBtn');
-  var loading   = document.getElementById('regLoading');
-
-  if (!firstName || !lastName) {
-    errorMsg.textContent = 'Please enter your first and last name.';
-    errorEl.classList.add('show');
-    return;
-  }
-  errorEl.classList.remove('show');
-  btn.disabled = true;
-  loading.classList.add('show');
-
-  // Collect family members
-  var family = [];
-  for (var i=0; i<familyCount; i++) {
-    var nameEl = document.getElementById('famName'+i);
-    if (nameEl && nameEl.value.trim()) {
-      family.push({ name: nameEl.value.trim() });
-    }
-  }
-
-  try {
-    var resp = await fetch(AUTH_BACKEND + '/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Action': 'register' },
-      body: JSON.stringify({
-        email: authEmail,
-        first_name: firstName,
-        last_name: lastName,
-        member_number: memberNum || null,
-        family: family,
-        action: 'register',
-      }),
-      mode: 'cors',
-    });
-    var data = await resp.json();
-
-    if (!data.success) throw new Error(data.error || 'Could not create account.');
+    // ── LOGIN SUCCESS ──
     currentUser = data;
     onLoginSuccess(data);
 
-  } catch(err) {
-    // Mock fallback — create basic profile locally
-    var mockData = {
-      success: true, role: 'member',
-      token: 'mock_new_' + Date.now(),
-      permissions: { canViewApp:true, canViewCoachesHub:false, canManageEvents:false, canManageWaivers:false, canBroadcast:false },
-      contact: {
-        id: 'new_' + Date.now(),
-        first_name: firstName, last_name: lastName,
-        email: authEmail, member_number: memberNum || null,
-        membership_type: 'Member', membership_status: 'active',
-        belt: null, discipline: null, lastGrading: null,
-        trial: false, pass_credits: 0, next_billing: null,
-        family: family,
-      }
-    };
-    currentUser = mockData;
-    onLoginSuccess(mockData);
+  } catch (err) {
+    errorMsg.textContent = err.message || 'Could not sign in. Please try again.';
+    errorEl.classList.add('show');
+    btn.disabled = false;
+    btn.textContent = 'SIGN IN';
+    loading.classList.remove('show');
   }
-  btn.disabled = false;
-  loading.classList.remove('show');
 }
-
-// ── Legacy doLogin (kept for compatibility) ──
-async function doLogin() { authSendCode(); }
 
 // ── ON SUCCESSFUL LOGIN ──
 function onLoginSuccess(user) {
@@ -3659,62 +3127,14 @@ function onLoginSuccess(user) {
     } catch(e2) {}
   } catch(e) {}
 
-  // ── Build real familyMembers array from this user's actual data ──
-  // Always starts with the logged-in person themselves (index 0).
-  familyMembers = [buildPrimaryFamilyMember(user.contact)];
-  activeFamilyIdx = 0;
-
-  // If the backend included linked family records, append them now.
-  // (Returned as user.family — an array of { name } rows from family_members table.)
-  if (Array.isArray(user.family) && user.family.length) {
-    user.family.forEach(function(f, i) { familyMembers.push(buildFamilyMemberEntry(f, i)); });
-  }
-
   // Hide login, show app
   hideLoginScreen();
 
   // Render home screen
   switchScreen('home');
 
-  // Now that home screen DOM exists, render the family switcher pills
-  renderFamilyBar();
-  // Apply the primary member's data to the hero/avatar immediately
-  setActiveMember(0);
-
   // Apply role-based UI AFTER screen renders so elements exist in DOM
   applyRolePermissions(user.role, user.permissions);
-
-  // If this is a real (non-mock) account, fetch linked family members from Supabase
-  // in case they weren't included in the login response.
-  if (!Array.isArray(user.family) && user.token && !String(user.token).startsWith('mock_')) {
-    fetchFamilyMembers(user.contact.email);
-  }
-}
-
-// Fetch linked family members for a parent email from the backend
-// and append them to familyMembers, then re-render the switcher.
-async function fetchFamilyMembers(parentEmail) {
-  try {
-    var resp = await fetch(AUTH_BACKEND + '/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Action': 'get-family' },
-      body: JSON.stringify({ email: parentEmail, action: 'get-family' }),
-      mode: 'cors',
-    });
-    var data = await resp.json();
-    if (data.success && Array.isArray(data.family) && data.family.length) {
-      data.family.forEach(function(f, i) {
-        // Avoid duplicating if already present
-        if (!familyMembers.some(function(fm){ return fm.name === f.name; })) {
-          familyMembers.push(buildFamilyMemberEntry(f, familyMembers.length));
-        }
-      });
-      renderFamilyBar();
-    }
-  } catch(e) {
-    // Family fetch is non-critical — fail silently, primary member still works fine
-    console.warn('Could not fetch family members:', e.message);
-  }
 }
 
 // ── APPLY ROLE-BASED UI ──
@@ -3901,7 +3321,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.11'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.2'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
