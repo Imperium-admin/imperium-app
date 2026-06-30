@@ -3324,7 +3324,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.2'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.3'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
@@ -3357,7 +3357,7 @@ window.addEventListener('load', function() {
   try {
     var seen = localStorage.getItem('imperium_version');
     var isTesting = window.location.search.indexOf('showbanner') >= 0;
-    if (isTesting || (seen !== null && seen !== APP_VERSION)) {
+    if (isTesting || (seen !== APP_VERSION)) {
       setTimeout(showUpdateBanner, 300);
     }
     localStorage.setItem('imperium_version', APP_VERSION);
