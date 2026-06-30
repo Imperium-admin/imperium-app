@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Imperium MMA">
 <meta name="theme-color" content="#0a0a0a">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Imperium MMA Member App</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
@@ -1693,10 +1696,10 @@ function lockStaff() {
 
 // ── COMPETITIONS ──
 let competitions = [
-  {id:'4e45941d-ef3e-4899-84eb-19c35d67aff7',title:'Grappling Industries Melbourne',date:'2026-07-12',location:'Melbourne Showgrounds',     discipline:'bjj', eventType:'comp',    type:'bjj', tags:['BJJ','Gi & No-Gi','All Levels'],           regUrl:'https://grapplingindustries.com', regOpen:true,  notes:'Team reg closes 2 weeks prior. Speak to Coach Marcus about weight categories.',featured:true, visible:true, otherLabel:''},
-  {id:'5720670e-e90a-4a11-8f04-12a5b5de91f8',title:'IBJJF Sydney Open',             date:'2026-08-23',location:'Sydney Olympic Park',       discipline:'bjj', eventType:'comp',    type:'bjj', tags:['BJJ','Gi','IBJJF Rules','Adults & Juveniles'],regUrl:'https://ibjjf.com',               regOpen:true,  notes:'IBJJF membership required. Medical certificate needed.',                         featured:false,visible:true, otherLabel:''},
-  {id:'d5d5d0bc-fb78-4727-aaa6-71f33cbcaa7e',title:'Fightmaster Muay Thai — Rd 4',  date:'2026-09-06',location:'Dallas Brooks Centre, Melb',discipline:'muay',eventType:'comp',    type:'muay',tags:['Muay Thai','Amateur','C & B Class'],         regUrl:'https://fightmaster.com.au',      regOpen:false, notes:'Registration opens 6 weeks out. Speak to Coach Sam first.',                      featured:false,visible:true, otherLabel:''},
-  {id:'7e419717-1bf1-4177-b8e6-9a007f81b63b',title:'Kids Grappling League — Rd 3',  date:'2026-07-26',location:'Frankston Sports Centre',   discipline:'kids',eventType:'comp',    type:'kids',tags:['Kids BJJ','Ages 5–15','No-Gi'],              regUrl:'',                                regOpen:true,  notes:'Great first comp for kids. Medals for all participants.',                        featured:true, visible:true, otherLabel:''},
+  {id:'4e45941d-ef3e-4899-84eb-19c35d67aff7',title:'Grappling Industries Melbourne',date:'2026-07-12',time:'',location:'Melbourne Showgrounds',     discipline:'bjj', eventType:'comp',    type:'bjj', tags:['BJJ','Gi & No-Gi','All Levels'],           regUrl:'https://grapplingindustries.com', regOpen:true,  notes:'Team reg closes 2 weeks prior. Speak to Coach Marcus about weight categories.',featured:true, visible:true, otherLabel:''},
+  {id:'5720670e-e90a-4a11-8f04-12a5b5de91f8',title:'IBJJF Sydney Open',             date:'2026-08-23',time:'',location:'Sydney Olympic Park',       discipline:'bjj', eventType:'comp',    type:'bjj', tags:['BJJ','Gi','IBJJF Rules','Adults & Juveniles'],regUrl:'https://ibjjf.com',               regOpen:true,  notes:'IBJJF membership required. Medical certificate needed.',                         featured:false,visible:true, otherLabel:''},
+  {id:'d5d5d0bc-fb78-4727-aaa6-71f33cbcaa7e',title:'Fightmaster Muay Thai — Rd 4',  date:'2026-09-06',time:'',location:'Dallas Brooks Centre, Melb',discipline:'muay',eventType:'comp',    type:'muay',tags:['Muay Thai','Amateur','C & B Class'],         regUrl:'https://fightmaster.com.au',      regOpen:false, notes:'Registration opens 6 weeks out. Speak to Coach Sam first.',                      featured:false,visible:true, otherLabel:''},
+  {id:'7e419717-1bf1-4177-b8e6-9a007f81b63b',title:'Kids Grappling League — Rd 3',  date:'2026-07-26',time:'',location:'Frankston Sports Centre',   discipline:'kids',eventType:'comp',    type:'kids',tags:['Kids BJJ','Ages 5–15','No-Gi'],              regUrl:'',                                regOpen:true,  notes:'Great first comp for kids. Medals for all participants.',                        featured:true, visible:true, otherLabel:''},
 ];
 
 function daysUntil(dateStr) {
@@ -1726,6 +1729,7 @@ async function fetchEvents() {
           id:         e.id,
           title:      e.title,
           date:       e.date,
+          time:       e.time || '',
           location:   e.location || '',
           discipline: e.discipline || 'bjj',
           eventType:  (e.event_type && e.event_type !== '') ? e.event_type : 'comp',
@@ -1805,7 +1809,7 @@ function renderCompList() {
       (c.featured&&!past?'<span style="font-size:10px;font-weight:700;color:var(--gold);letter-spacing:1px">★ FEATURED</span>':'')+
       '</div>'+
       '<div class="comp-title">'+c.title+'</div>'+
-      '<div class="comp-meta"><i class="ti ti-map-pin" style="font-size:12px;vertical-align:-1px"></i> '+c.location+'<br><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> '+dateStr+'</div>'+
+      '<div class="comp-meta"><i class="ti ti-map-pin" style="font-size:12px;vertical-align:-1px"></i> '+c.location+'<br><i class="ti ti-calendar" style="font-size:12px;vertical-align:-1px"></i> '+dateStr+(c.time?' · '+c.time:'')+'</div>'+
       '<div class="comp-tags">'+c.tags.map(function(t){return '<span class="comp-tag">'+t+'</span>';}).join('')+'</div>'+
       (c.notes?'<div style="font-size:12px;color:var(--muted);margin-bottom:10px;background:rgba(255,255,255,0.03);border-radius:6px;padding:8px;border-left:2px solid '+typeColor+'">'+c.notes+'</div>':'')+
       '<div class="comp-actions">'+regBtn+
@@ -1880,6 +1884,7 @@ function saveEvent(idx) {
   // Read values from form
   var titleEl   = card.querySelector('[data-field="title"]');
   var dateEl    = card.querySelector('[data-field="date"]');
+  var timeEl    = card.querySelector('[data-field="time"]');
   var locEl     = card.querySelector('[data-field="location"]');
   var discEl    = card.querySelector('[data-field="discipline"]');
   var evtEl     = card.querySelector('[data-field="evtype"]');
@@ -1890,6 +1895,7 @@ function saveEvent(idx) {
 
   if (titleEl)   c.title      = titleEl.value;
   if (dateEl)    c.date       = dateEl.value;
+  if (timeEl)    c.time       = timeEl.value;
   if (locEl)     c.location   = locEl.value;
   if (discEl)    c.discipline = discEl.value;
   if (evtEl)     c.eventType  = evtEl.value;
@@ -1905,7 +1911,7 @@ function saveEvent(idx) {
   var url    = 'https://imperium-backend.vercel.app/api/events' + (isUUID ? '/' + c.id : '');
   var method = isUUID ? 'PUT' : 'POST';
   var body = {
-    title: c.title, date: c.date, location: c.location,
+    title: c.title, date: c.date, time: c.time || '', location: c.location,
     discipline: c.discipline, event_type: c.eventType,
     other_label: c.otherLabel || '', reg_url: c.regUrl || '',
     reg_open: c.regOpen || false, notes: c.notes || '',
@@ -1963,6 +1969,9 @@ function renderAdminComps() {
       '<div class="comp-admin-row"><input class="comp-admin-input" type="text" data-field="title" value="'+c.title+'" placeholder="Competition name"></div>'+
       '<div class="comp-admin-row">'+
       '<input class="comp-admin-input" type="date" data-field="date" value="'+c.date+'">'+
+      '<input class="comp-admin-input" type="text" data-field="time" value="'+(c.time||'')+'" placeholder="e.g. 7:00 PM">'+
+      '</div>'+
+      '<div class="comp-admin-row">'+
       '<input class="comp-admin-input" type="text" data-field="location" value="'+(c.location||'')+'" placeholder="Location">'+
       '</div>'+
       '<div class="comp-admin-row">'+
@@ -1992,7 +2001,7 @@ function renderAdminComps() {
 function addComp() {
   var future = new Date(); future.setFullYear(future.getFullYear()+1);
   var futureDate = future.toISOString().split('T')[0];
-  competitions.push({id:'c'+Date.now(),title:'New Event',date:futureDate,location:'',discipline:'other',eventType:'other',type:'other',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'New Event',featured:false,visible:true});
+  competitions.push({id:'c'+Date.now(),title:'New Event',date:futureDate,time:'',location:'',discipline:'other',eventType:'other',type:'other',tags:[],regUrl:'',regOpen:true,notes:'',otherLabel:'New Event',featured:false,visible:true});
   renderAdminComps();
   renderCompList();
   showToast('Competition added — fill in details and tap Save','info');
@@ -3235,10 +3244,14 @@ function checkExistingSession() {
     try { document.cookie = 'imp_remember=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'; } catch(e) {}
     try {
       var idbDel = indexedDB.open('imperiumDB', 1);
+      idbDel.onupgradeneeded = function(e) { e.target.result.createObjectStore('session'); };
       idbDel.onsuccess = function(e) {
-        var tx = e.target.result.transaction('session','readwrite');
-        tx.objectStore('session').delete('remember');
-        tx.objectStore('session').delete('data');
+        var db = e.target.result;
+        if (db.objectStoreNames.contains('session')) {
+          var tx = db.transaction('session','readwrite');
+          tx.objectStore('session').delete('remember');
+          tx.objectStore('session').delete('data');
+        }
       };
     } catch(e) {}
       return false;
@@ -3355,11 +3368,24 @@ window.addEventListener('pageshow', function(e) {
 
 window.addEventListener('load', function() {
   try {
-    var seen = localStorage.getItem('imperium_version');
     var isTesting = window.location.search.indexOf('showbanner') >= 0;
-    if (isTesting || (seen !== APP_VERSION)) {
-      setTimeout(showUpdateBanner, 300);
-    }
+    if (isTesting) { setTimeout(showUpdateBanner, 300); return; }
+    // Fetch a fresh copy to compare version — bypasses iOS PWA cache
+    fetch(window.location.pathname + '?v=' + Date.now(), {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache' }
+    })
+    .then(function(r) { return r.text(); })
+    .then(function(html) {
+      var match = html.match(/APP_VERSION\s*=\s*'([^']+)'/);
+      if (match && match[1] !== APP_VERSION) {
+        setTimeout(showUpdateBanner, 300);
+      }
+    })
+    .catch(function() {
+      var seen = localStorage.getItem('imperium_version');
+      if (seen !== APP_VERSION) { setTimeout(showUpdateBanner, 300); }
+    });
     localStorage.setItem('imperium_version', APP_VERSION);
   } catch(e) {}
 });
