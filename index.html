@@ -1044,7 +1044,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <div class="sl">Tonight's Attendees — 6:30 PM BJJ</div>
   <div id="attendeeList">
     <div class="attendee-item">
-      <div class="member-photo-placeholder" style="background:#8e44ad">SC</div>
+      <div class="member-photo-placeholder" style="background:#8e44ad;position:relative">SC<span style="position:absolute;top:-5px;right:-5px;font-size:12px;line-height:1">🎂</span></div>
       <div class="attendee-info"><div class="attendee-name">Sarah Chen</div><div class="attendee-meta">BJJ Blue Belt</div></div>
       <span class="attendee-status as-checked">Checked In</span>
     </div>
@@ -1055,7 +1055,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     </div>
     <div class="attendee-item">
       <div class="member-photo-placeholder" style="background:#2980b9">RO</div>
-      <div class="attendee-info"><div class="attendee-name">Ryan O'Brien</div><div class="attendee-meta">BJJ White Belt</div></div>
+      <div class="attendee-info"><div class="attendee-name" style="display:flex;align-items:center;gap:6px">Ryan O'Brien <span style="font-size:9px;font-weight:700;padding:1px 5px;border-radius:4px;background:rgba(231,76,60,0.12);color:#e74c3c;border:1px solid rgba(231,76,60,0.3);letter-spacing:0.5px">MIA</span></div><div class="attendee-meta">BJJ White Belt</div></div>
       <span class="attendee-status as-booked">Booked</span>
     </div>
     <div class="attendee-item" style="border-color:rgba(212,160,23,0.3)">
@@ -1064,7 +1064,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <span class="attendee-status as-trial">Trial</span>
     </div>
   </div>
-  <p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center"><i class="ti ti-camera" style="font-size:12px;vertical-align:-1px"></i> Member photos load from Clubworx profiles once connected</p>
+  <p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center"><i class="ti ti-camera" style="font-size:12px;vertical-align:-1px"></i> Member photos load from GymMaster profiles once connected</p>
   </div><!-- end staffContent -->
 </div>
 
@@ -1089,27 +1089,28 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
         </div>
       </div>
     </div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Belt / Grade</span><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px"><span style="font-size:13px;font-weight:600" id="profileBelt">BJJ Blue Belt</span><div id="profileLastGrading" style="display:none;font-size:11px;color:var(--muted)"></div></div></div>
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50" id="profileMembership">Unlimited · Active</span></div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Next Billing</span><span style="font-size:13px;font-weight:600">15 Jun 2026</span></div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600" id="profileCredits">7 remaining</span></div>
-    <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">General Waiver</span><span id="profileWaiverStatus" style="font-size:13px;font-weight:600">Checking...</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Next Billing</span><span style="font-size:13px;font-weight:600" id="profileBilling">15 Jun 2026</span></div>
+    <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600" id="profileCredits">7 remaining</span></div>
+  </div>
+  <div id="beltProgressSection">
+    <div class="sl">Belt Progress</div>
+    <div class="card" style="padding:14px 16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <div id="beltSwatch" style="width:14px;height:14px;border-radius:3px;background:#3498db;flex-shrink:0"></div>
+          <span id="profileBeltName" style="font-size:13px;font-weight:600;color:var(--text)">Blue Belt</span>
+        </div>
+        <div id="beltStripes" style="display:flex;gap:3px"></div>
+      </div>
+      <div id="profileLastGrading" style="font-size:11px;color:var(--muted);display:none"></div>
+    </div>
   </div>
   <div class="sl">Notifications</div>
   <div class="card">
     <div class="mr"><span style="font-size:13px">Class reminders</span><label class="mtoggle"><input type="checkbox" checked><span class="mtrack"></span><span class="mthumb"></span></label></div>
     <div class="mr"><span style="font-size:13px">Booking confirmations</span><label class="mtoggle"><input type="checkbox" checked><span class="mtrack"></span><span class="mthumb"></span></label></div>
     <div class="mr" style="border:none"><span style="font-size:13px">Gym announcements</span><label class="mtoggle"><input type="checkbox" checked><span class="mtrack"></span><span class="mthumb"></span></label></div>
-  </div>
-  <div class="sl">Demo — Switch Member View</div>
-  <div class="card" style="padding:12px">
-    <p style="font-size:12px;color:var(--muted);margin-bottom:10px">In the live app, names are set automatically from Clubworx login.</p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button onclick="setMember('Jake Davidson','JD','BJJ Blue Belt')" style="padding:7px 14px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font)">Jake D</button>
-      <button onclick="setMember('Sarah Chen','SC','BJJ White Belt')" style="padding:7px 14px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font)">Sarah C</button>
-      <button onclick="setMember('Marcus Webb','MW','Coach · BJJ Black Belt')" style="padding:7px 14px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font)">Marcus W</button>
-      <button onclick="setMember('Tommy Park','TP','Muay Thai · Intermediate')" style="padding:7px 14px;background:var(--card2);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;cursor:pointer;font-family:var(--font)">Tommy P</button>
-    </div>
   </div>
 </div>
 
@@ -1361,12 +1362,12 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 
 // ── MEMBER / FAMILY STATE ──
 const familyMembers = [
-  {name:'Jake Davidson', short:'Jake (You)',   initials:'JD', belt:'BJJ Blue Belt',    color:'#c0392b', type:'adult',
-   memberNo:'IMP-0042', since:'Jan 2022', membership:'Unlimited · Active', billing:'15 Jun 2026', credits:'7 remaining', lastGrading:'14 Mar 2025'},
-  {name:'Lila Davidson', short:'Lila (Age 9)', initials:'LJ', belt:'Kids BJJ · Minis', color:'#27ae60', type:'kids',
-   memberNo:'IMP-0087', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—', lastGrading:'8 Nov 2024'},
-  {name:'Tom Davidson',  short:'Tom (Age 12)', initials:'TJ', belt:'Kids BJJ · Teens', color:'#2980b9', type:'kids',
-   memberNo:'IMP-0091', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—', lastGrading:'8 Nov 2024'},
+  {name:'Jake Davidson', short:'Jake (You)',   initials:'JD', belt:'BJJ Blue Belt',    color:'#c0392b', type:'adult', discipline:'bjj',
+   memberNo:'IMP-0042', since:'Jan 2022', membership:'Unlimited · Active', billing:'15 Jun 2026', credits:'7 remaining', lastGrading:'14 Mar 2025', stripes:2},
+  {name:'Lila Davidson', short:'Lila (Age 9)', initials:'LJ', belt:'Kids BJJ · Minis', color:'#27ae60', type:'kids',  discipline:'kids bjj',
+   memberNo:'IMP-0087', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—', lastGrading:'8 Nov 2024', stripes:1},
+  {name:'Tom Davidson',  short:'Tom (Age 12)', initials:'TJ', belt:'Kids BJJ · Teens', color:'#2980b9', type:'kids',  discipline:'kids bjj',
+   memberNo:'IMP-0091', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—', lastGrading:'8 Nov 2024', stripes:1},
 ];
 let activeFamilyIdx = 0;
 
@@ -1613,11 +1614,19 @@ function renderTT(day) {
         row.appendChild(wbtn);
       }
     } else {
+      var isCoach = currentUser && (currentUser.role === 'coach' || currentUser.role === 'admin');
       var bookBtn = document.createElement('button');
       bookBtn.className = 'tt-book-btn';
       bookBtn.setAttribute('data-k', k);
       bookBtn.setAttribute('data-name', x.name);
       bookBtn.textContent = 'Book';
+      if (isCoach) {
+        var spotsLabel = document.createElement('span');
+        spotsLabel.className = spots <= 3 ? 'spots spots-few' : 'spots spots-ok';
+        spotsLabel.textContent = spots <= 3 ? spots + ' left' : spots + ' spots';
+        spotsLabel.style.cssText = 'margin-right:6px;font-size:11px';
+        row.appendChild(spotsLabel);
+      }
       row.appendChild(bookBtn);
     }
     c.appendChild(row);
@@ -2366,8 +2375,11 @@ function renderCheckinScreen() {
   var firstBooked = upcomingClasses.find(function(c){ return bookedIds.indexOf(c.id) >= 0; });
   if (firstBooked) {
     document.getElementById('nextClassName').textContent = firstBooked.name;
+    var isCoachMeta = currentUser && (currentUser.role === 'coach' || currentUser.role === 'admin');
     var booked_count = firstBooked.max - firstBooked.spots;
-    document.getElementById('nextClassMeta').textContent = firstBooked.time + ' · ' + firstBooked.meta + ' · ' + booked_count + '/' + firstBooked.max + ' booked';
+    var metaText = firstBooked.time + ' · ' + firstBooked.meta;
+    if (isCoachMeta) metaText += ' · ' + booked_count + '/' + firstBooked.max + ' booked';
+    document.getElementById('nextClassMeta').textContent = metaText;
     document.getElementById('checkinBtn').textContent = 'CHECK IN — ' + firstBooked.name.toUpperCase();
     document.getElementById('checkinBtn').classList.remove('done');
   }
@@ -2438,12 +2450,15 @@ function renderUpcomingList() {
         row.appendChild(wbtn);
       }
     } else {
-      var spotsEl = document.createElement('span');
-      spotsEl.className = c.spots <= 3 ? 'spots spots-few' : 'spots spots-ok';
-      spotsEl.textContent = c.spots <= 3 ? c.spots + ' left' : c.spots + ' spots';
+      var isCoachView = currentUser && (currentUser.role === 'coach' || currentUser.role === 'admin');
+      if (isCoachView) {
+        var spotsEl = document.createElement('span');
+        spotsEl.className = c.spots <= 3 ? 'spots spots-few' : 'spots spots-ok';
+        spotsEl.textContent = c.spots <= 3 ? c.spots + ' left' : c.spots + ' spots';
+      }
       row.style.cursor = 'pointer';
       (function(cls){ row.onclick = function(){ bookUpcoming(cls.id); }; })(c);
-      row.appendChild(spotsEl);
+      if (isCoachView) row.appendChild(spotsEl);
     }
     el.appendChild(row);
   });
@@ -2771,15 +2786,8 @@ function renderProfileWaiverStatus() {
 
 // ══ BOOKINGS SCREEN ══
 
-// Demo class history — past 7 days
-// In real app this comes from Clubworx attendance records
-var classHistory = [
-  {id:'h1', name:'BJJ Gi',          day:'Mon', date:'Yesterday', time:'8:00 PM', status:'checked-in'},
-  {id:'h2', name:'Muay Thai',       day:'Sat', date:'3 days ago', time:'10:00 AM', status:'checked-in'},
-  {id:'h3', name:'BJJ No-Gi',       day:'Thu', date:'4 days ago', time:'7:00 PM', status:'missed'},
-  {id:'h4', name:'Minis / Kids BJJ',day:'Tue', date:'6 days ago', time:'4:30 PM', status:'checked-in'},
-  {id:'h5', name:'Teens BJJ',       day:'Tue', date:'6 days ago', time:'5:10 PM', status:'missed'},
-];
+// Class history — populated from GymMaster when connected
+var classHistory = [];
 
 var currentBookingsTab = 'upcoming';
 
@@ -2828,30 +2836,7 @@ function renderBookingsScreen() {
   // ── HISTORY ──
   var histEl = document.getElementById('bookingsHistory');
   if (!histEl) return;
-  if (classHistory.length === 0) {
-    histEl.innerHTML = '<div class="empty-state"><i class="ti ti-history"></i><p>No class history yet</p><small>Your attended classes will appear here</small></div>';
-  } else {
-    var ciCount = classHistory.filter(function(h){ return h.status==='checked-in'; }).length;
-    histEl.innerHTML =
-      '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">' +
-      '<span style="font-size:12px;color:var(--muted)">Last 7 days</span>' +
-      '<span style="font-size:12px;font-weight:600;color:#4caf50">' + ciCount + ' classes attended</span>' +
-      '</div>' +
-      classHistory.map(function(h) {
-        var isCI = h.status === 'checked-in';
-        return '<div class="booking-card ' + h.status + '">' +
-          '<div class="booking-time-col">' +
-            '<div class="booking-time" style="color:' + (isCI ? '#4caf50' : 'var(--muted)') + '">' + h.time.replace(' AM','').replace(' PM','') + '</div>' +
-            '<div class="booking-day">' + h.day + '</div>' +
-          '</div>' +
-          '<div class="booking-info">' +
-            '<div class="booking-name">' + h.name + '</div>' +
-            '<div class="booking-meta">' + h.date + '</div>' +
-          '</div>' +
-          '<span class="booking-status ' + (isCI ? 'bs-checkedin' : 'bs-missed') + '">' + (isCI ? '✓ Checked In' : 'Not attended') + '</span>' +
-        '</div>';
-      }).join('');
-  }
+  histEl.innerHTML = '<div class="empty-state"><i class="ti ti-history"></i><p>No class history yet</p><small>Your attended classes will appear here once connected.</small></div>';
 
   // ── UPDATE HOME CARD ──
   renderHomeBookingsCard();
@@ -2941,32 +2926,74 @@ function renderProfileScreen() {
   var mt = document.getElementById('profileMeta');
   if (mt) mt.textContent = m.memberNo + ' · Member since ' + m.since;
 
-  // Membership details
+  // Membership
   var memEl = document.getElementById('profileMembership');
   if (memEl) memEl.textContent = m.membership;
 
+  // Next billing
+  var billEl = document.getElementById('profileBilling');
+  if (billEl) {
+    billEl.textContent = (isYou && m.billing) ? m.billing : '—';
+    billEl.style.color = (isYou && m.billing) ? 'var(--text)' : 'var(--muted)';
+  }
+
+  // Pass credits
   var credEl = document.getElementById('profileCredits');
   if (credEl) {
     credEl.textContent = m.credits;
     credEl.style.color = m.credits === '—' ? 'var(--muted)' : 'var(--red2)';
   }
 
-  // Belt / grade
-  var beltEl = document.getElementById('profileBelt');
-  if (beltEl) beltEl.textContent = m.belt;
-  var gradingEl = document.getElementById('profileLastGrading');
-  if (gradingEl) { var grading = m.lastGrading || (currentUser&&currentUser.contact&&currentUser.contact.lastGrading)||''; if(grading){gradingEl.textContent='Last grading: '+grading;gradingEl.style.display='block';}else{gradingEl.style.display='none';} }
-
   // Member type badge
   var badgeEl = document.getElementById('profileBadge');
   if (badgeEl) {
     badgeEl.textContent = isYou ? 'ACCOUNT HOLDER' : 'FAMILY MEMBER';
-    badgeEl.style.background = isYou ? 'rgba(192,57,43,0.15)' : 'rgba(39,174,96,0.15)';
-    badgeEl.style.color = isYou ? 'var(--red2)' : '#4caf50';
+    badgeEl.style.background = isYou ? 'rgba(192,57,43,0.15)' : 'rgba(52,152,219,0.12)';
+    badgeEl.style.color = isYou ? 'var(--red2)' : '#3498db';
   }
 
-  // Waiver status
-  renderProfileWaiverStatus();
+  // ── Belt Progress (BJJ only) ──
+  var beltSection = document.getElementById('beltProgressSection');
+  var discipline = (m.discipline || m.belt || '').toLowerCase();
+  var isBJJ = discipline.indexOf('bjj') >= 0 || discipline.indexOf('jiu') >= 0 || discipline.indexOf('grappling') >= 0 || discipline.indexOf('kids bjj') >= 0;
+  if (beltSection) beltSection.style.display = isBJJ ? 'block' : 'none';
+
+  if (isBJJ) {
+    // Belt colour swatch
+    var beltColours = { 'white': '#f0f0f0', 'blue': '#3498db', 'purple': '#8e44ad', 'brown': '#7b4a2d', 'black': '#111', 'yellow': '#f1c40f', 'orange': '#e67e22', 'green': '#27ae60' };
+    var beltLower = (m.belt || '').toLowerCase();
+    var swatchColor = '#888';
+    Object.keys(beltColours).forEach(function(k) { if (beltLower.indexOf(k) >= 0) swatchColor = beltColours[k]; });
+    var swatchEl = document.getElementById('beltSwatch');
+    if (swatchEl) {
+      swatchEl.style.background = swatchColor;
+      swatchEl.style.border = swatchColor === '#f0f0f0' ? '1px solid #444' : 'none';
+    }
+
+    // Belt name
+    var beltNameEl = document.getElementById('profileBeltName');
+    if (beltNameEl) beltNameEl.textContent = m.belt || 'Unknown';
+
+    // Stripes (reads m.stripes, defaults 0 if not set)
+    var stripes = typeof m.stripes === 'number' ? m.stripes : 0;
+    var stripesEl = document.getElementById('beltStripes');
+    if (stripesEl) {
+      stripesEl.innerHTML = '';
+      for (var s = 0; s < 4; s++) {
+        var dot = document.createElement('div');
+        dot.style.cssText = 'width:14px;height:5px;border-radius:2px;background:' + (s < stripes ? 'var(--text)' : 'var(--border)');
+        stripesEl.appendChild(dot);
+      }
+    }
+
+    // Last grading date
+    var gradingEl = document.getElementById('profileLastGrading');
+    if (gradingEl) {
+      var grading = m.lastGrading || (currentUser && currentUser.contact && currentUser.contact.lastGrading) || '';
+      if (grading) { gradingEl.textContent = 'Last grading: ' + grading; gradingEl.style.display = 'block'; }
+      else { gradingEl.style.display = 'none'; }
+    }
+  }
 }
 
 // ══════════════════════════════════════════
@@ -3337,7 +3364,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.4'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.7'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
