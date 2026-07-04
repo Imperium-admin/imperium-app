@@ -107,20 +107,42 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 .checkin-big.done{background:#1a6b2a}
 
 /* ─── PASSES ─── */
-.pass-tabs{display:flex;gap:6px;margin-bottom:14px}
-.pass-tab{flex:1;padding:8px;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;font-weight:600;text-align:center;transition:all .15s}
-.pass-tab.active{background:rgba(192,57,43,0.15);border-color:rgba(231,76,60,0.3);color:var(--red2)}
-.pass-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;margin-bottom:10px}
-.pass-card:hover{border-color:#555}
-.pass-card.selected{border-color:var(--red2);background:rgba(192,57,43,0.08)}
-.pass-card.popular::after{content:'POPULAR';position:absolute;top:10px;right:-18px;background:var(--gold);color:#000;font-size:9px;font-weight:700;letter-spacing:1px;padding:3px 26px;transform:rotate(35deg)}
-.pass-row{display:flex;align-items:center;gap:12px}
-.pass-icon-wrap{width:44px;height:44px;border-radius:8px;background:rgba(212,160,23,0.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.pass-name{font-family:var(--head);font-size:17px;letter-spacing:1px}
-.pass-detail{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
-.checkout-bar{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;align-items:center;justify-content:space-between;margin-top:4px;display:none}
-.btn-buy{padding:11px 22px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:var(--head);font-size:16px;letter-spacing:1px;cursor:pointer;transition:background .15s}
-.btn-buy:hover{background:var(--red2)}
+.pass-tabs{display:flex;background:#111;border-bottom:1px solid #1e1e1e;margin:0 -16px 0;padding:0 16px}
+.pass-tab{flex:1;padding:12px 6px;text-align:center;font-size:11px;font-weight:700;letter-spacing:1px;color:#555;border-bottom:2px solid transparent;text-transform:uppercase;cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;font-family:var(--font);transition:all .2s}
+.pass-tab.active{color:#C9A84C;border-bottom:2px solid #C9A84C}
+.pass-section-label{color:#7a9ab5;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:14px 0 10px;display:flex;align-items:center;gap:8px}
+.pass-section-label::after{content:'';flex:1;height:1px;background:rgba(52,152,219,0.1)}
+.pcard{background:linear-gradient(160deg,#141e2d,#0d1520);border:1px solid rgba(52,152,219,0.2);border-radius:14px;padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(52,152,219,0.4),transparent)}
+.pcard-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px}
+.pcard-name{color:#fff;font-size:15px;font-weight:700}
+.pcard-price{color:#3498db;font-size:17px;font-weight:700;text-align:right;line-height:1.2}
+.pcard-period{color:#555;font-size:10px;font-weight:400;display:block}
+.pcard-desc{color:#8a9aaa;font-size:12px;line-height:1.5;margin-bottom:10px}
+.pcard-includes{list-style:none;margin-bottom:12px}
+.pcard-includes li{color:#9aabb8;font-size:11px;padding:3px 0;display:flex;align-items:center;gap:6px}
+.pcard-includes li::before{content:'';width:5px;height:5px;background:#3498db;border-radius:50%;flex-shrink:0}
+.pcard-tag{display:inline-block;font-size:9px;padding:3px 9px;border-radius:20px;letter-spacing:1.5px;font-weight:700;margin-bottom:12px}
+.ptag-gold{background:rgba(201,168,76,0.12);color:#C9A84C;border:1px solid rgba(201,168,76,0.25)}
+.ptag-blue{background:rgba(52,152,219,0.18);color:#5ab0e8;border:1px solid rgba(52,152,219,0.35)}
+.ptag-grey{background:rgba(255,255,255,0.04);color:#8a9aaa;border:1px solid rgba(255,255,255,0.15)}
+.pcard-btn{display:block;width:100%;background:linear-gradient(135deg,#1565C0,#1a75d1);color:#fff;border:none;border-radius:9px;padding:12px;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;text-align:center;font-family:var(--font);transition:opacity .2s}
+.pcard-btn:active{opacity:.85}
+.pass-admin-bar{background:rgba(201,168,76,0.06);border:1px dashed rgba(201,168,76,0.25);border-radius:10px;padding:10px 14px;margin:14px 0 4px;display:flex;align-items:center}
+.pass-admin-bar span{color:#C9A84C;font-size:11px;font-weight:700;letter-spacing:1px}
+.pass-admin-add{margin-left:auto;background:rgba(201,168,76,0.12);border:1px solid rgba(201,168,76,0.35);color:#C9A84C;border-radius:7px;padding:5px 12px;font-size:11px;font-weight:700;cursor:pointer;font-family:var(--font)}
+.pcard-controls{display:flex;gap:6px;margin-top:12px;padding-top:12px;border-top:1px solid rgba(52,152,219,0.1)}
+.pctrl{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:7px;padding:7px;font-size:10px;color:#8a9aaa;cursor:pointer;text-align:center;font-weight:700;letter-spacing:.5px;font-family:var(--font)}
+.pctrl-hide{color:#2980b9;background:rgba(41,128,185,0.08);border-color:rgba(41,128,185,0.15)}
+.pctrl-del{color:#c0392b;background:rgba(192,57,43,0.08);border-color:rgba(192,57,43,0.15)}
+.pcard.pass-hidden{opacity:.45}
+.pass-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;display:flex;align-items:flex-end;justify-content:center}
+.pass-modal{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:16px 16px 0 0;padding:20px 16px 32px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto}
+.pass-modal h3{font-family:var(--head);font-size:18px;letter-spacing:1px;margin-bottom:16px;color:var(--text)}
+.pass-modal label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;margin-top:12px}
+.pass-modal input,.pass-modal select,.pass-modal textarea{width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--font);font-size:13px;outline:none}
+.pass-modal textarea{resize:vertical;min-height:60px}
+.pass-modal select option{background:var(--card)}
 
 /* ─── WAIVERS ─── */
 .waiver-item{display:flex;align-items:center;gap:14px;padding:14px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;transition:all .15s}
@@ -738,29 +760,57 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <!-- ════════════════════════════════════
      SCREEN: PASSES
 ════════════════════════════════════ -->
-<div class="screen" id="screen-passes">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-    <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">CLASS PASSES</h2>
-    <div class="badge-green"><i class="ti ti-link" style="font-size:11px"></i>Clubworx</div>
-  </div>
-  <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Prices pulled live from your Clubworx membership plans</p>
-  <div class="pass-tabs">
-    <button class="pass-tab active" onclick="setPassType(this,'adult')">Adult</button>
-    <button class="pass-tab" onclick="setPassType(this,'kids')">Kids</button>
-    <button class="pass-tab" onclick="setPassType(this,'casual')">Casual</button>
-  </div>
-  <div id="passCards"></div>
-  <div class="checkout-bar" id="checkoutBar">
-    <div><div style="font-size:11px;color:var(--muted);margin-bottom:2px">SELECTED</div><div id="checkoutLabel" style="font-size:13px;font-weight:600"></div></div>
-    <div style="display:flex;align-items:center;gap:12px">
-      <span style="font-family:var(--head);font-size:20px;color:var(--red2)" id="checkoutPrice"></span>
-      <button class="btn-buy" onclick="buyPass()">BUY NOW</button>
+<div class="screen" id="screen-passes" style="padding:0">
+  <!-- Header -->
+  <div style="padding:16px 16px 0;background:linear-gradient(135deg,#111,#1a1a1a);border-bottom:1px solid #222">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:3px">
+      <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px;color:#C9A84C">PASSES & MEMBERSHIPS</h2>
+    </div>
+    <p style="font-size:12px;color:#666;margin-bottom:12px">Purchase a pass or join a membership</p>
+    <!-- Tabs -->
+    <div class="pass-tabs">
+      <button class="pass-tab active" onclick="setPassTab(this,'adults')">Adults</button>
+      <button class="pass-tab" onclick="setPassTab(this,'kids')">Kids</button>
+      <button class="pass-tab" onclick="setPassTab(this,'memberships')">Memberships</button>
     </div>
   </div>
-  <div class="sl">Payment via Clubworx</div>
-  <div class="card" style="padding:12px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><i class="ti ti-credit-card" style="font-size:18px;color:var(--muted)"></i><span style="font-size:13px;font-weight:600">Saved Card</span><span style="margin-left:auto;font-size:13px;color:var(--muted)">Visa •••• 4242</span></div>
-    <div style="font-size:11px;color:var(--muted)">Processed securely via Clubworx / Ezidebit. Credits activate instantly.</div>
+  <!-- Tab content -->
+  <div style="padding:0 16px 100px" id="passTabContent"></div>
+  <!-- Edit modal -->
+  <div id="passModalOverlay" class="pass-modal-overlay" style="display:none" onclick="if(event.target===this)closePassModal()">
+    <div class="pass-modal" onclick="event.stopPropagation()">
+      <h3 id="passModalTitle">ADD PASS</h3>
+      <input type="hidden" id="peId">
+      <input type="hidden" id="peTab">
+      <label>Name</label>
+      <input type="text" id="peName" placeholder="e.g. 10 Class Pass">
+      <label>Price (e.g. $220 or $180)</label>
+      <input type="text" id="pePrice" placeholder="$220">
+      <label>Price period (leave blank for passes, /month for memberships)</label>
+      <input type="text" id="pePeriod" placeholder="/month">
+      <label>Short description</label>
+      <textarea id="peDesc" placeholder="One or two sentences describing this pass"></textarea>
+      <label>Includes (one item per line)</label>
+      <textarea id="peIncludes" placeholder="Unlimited BJJ classes&#10;Open mat access&#10;Grading eligibility"></textarea>
+      <label>Tag label (optional — leave blank for none)</label>
+      <input type="text" id="peTagLabel" placeholder="e.g. Most Popular">
+      <label>Tag colour</label>
+      <select id="peTagColour">
+        <option value="">None</option>
+        <option value="gold">Gold — Most Popular / promotional</option>
+        <option value="blue">Blue — Best Value / feature</option>
+        <option value="grey">Grey — neutral e.g. Per Class</option>
+      </select>
+      <label>Purchase URL</label>
+      <input type="text" id="peUrl" placeholder="https://...">
+      <label style="display:flex;align-items:center;gap:8px;margin-top:14px">
+        <input type="checkbox" id="peVisible" checked style="width:auto"> Visible to members
+      </label>
+      <div style="display:flex;gap:8px;margin-top:20px">
+        <button class="pcard-btn" style="background:var(--card2);color:var(--muted);letter-spacing:0;text-transform:none;font-size:13px" onclick="closePassModal()">Cancel</button>
+        <button class="pcard-btn" id="passModalSaveBtn" onclick="savePass()">Save</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -1492,40 +1542,242 @@ function toggleWaiver(i, v) { waivers[i].visible=v; renderWaiverList(); renderAd
 function addWaiver() { waivers.push({id:'w'+Date.now(),title:'New Waiver',desc:'Description',type:'external',url:'',required:false,completed:false,visible:false}); renderAdminWaivers(); renderWaiverList(); showToast('Waiver added — edit name & URL above','info'); }
 
 // ── PASSES ──
-const passData = {
-  adult:  [{id:'a10',name:'10 Class Pass',detail:'Adult · Valid 6 months · BJJ & Muay Thai',popular:true},{id:'acasual',name:'Casual Class',detail:'Adult · Single visit · Any class',popular:false}],
-  kids:   [{id:'k10',name:'10 Class Pass',detail:'Kids · Valid 6 months · BJJ or Muay Thai',popular:true},{id:'kcasual',name:'Casual Class',detail:'Kids · Single visit',popular:false}],
-  casual: [{id:'ca',name:'Adult Casual',detail:'Single adult class',popular:false},{id:'ck',name:'Kids Casual',detail:'Single kids class',popular:false},{id:'cf',name:'Family Casual',detail:'2 adults + up to 3 kids',popular:true}]
-};
-let selPass = null, curPassType = 'adult';
+var curPassTab = 'adults';
+var passesData = { adults: [], kids: [], memberships: [] };
+var passesLoaded = false;
 
-function setPassType(el, type) {
-  document.querySelectorAll('.pass-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active'); curPassType = type; selPass = null;
-  document.getElementById('checkoutBar').style.display = 'none';
-  renderPasses(type);
+// Seed data shown while Supabase loads or if offline
+var passesSeed = {
+  adults: [
+    {id:'seed-a1',tab:'adults',name:'Casual Class',price:'$25',price_period:'',description:'Drop in for any single class. No commitment required.',includes:['Any single class','All disciplines'],tag_label:'PER CLASS',tag_colour:'grey',url:'',visible:true,sort_order:1},
+    {id:'seed-a2',tab:'adults',name:'10 Class Pass',price:'$220',price_period:'',description:'Pre-purchase 10 classes at a discounted rate.',includes:['10 classes — any discipline','Valid for 6 months'],tag_label:'MOST POPULAR',tag_colour:'gold',url:'',visible:true,sort_order:2},
+    {id:'seed-a3',tab:'adults',name:'20 Class Pass',price:'$400',price_period:'',description:'Best value class pack for regular training.',includes:['20 classes — any discipline','Valid for 12 months'],tag_label:'BEST VALUE',tag_colour:'blue',url:'',visible:true,sort_order:3},
+  ],
+  kids: [
+    {id:'seed-k1',tab:'kids',name:'Kids Casual Class',price:'$20',price_period:'',description:'Drop in for any single kids class. Ages 5–15.',includes:['Any single kids class','Ages 5–15'],tag_label:'PER CLASS',tag_colour:'grey',url:'',visible:true,sort_order:1},
+    {id:'seed-k2',tab:'kids',name:'Kids 10 Class Pass',price:'$180',price_period:'',description:'10 classes for kids at a discounted rate.',includes:['10 classes for kids','Valid for 6 months'],tag_label:'MOST POPULAR',tag_colour:'gold',url:'',visible:true,sort_order:2},
+  ],
+  memberships: [
+    {id:'seed-m1',tab:'memberships',name:'Unlimited BJJ',price:'$180',price_period:'/month',description:'Train as much as you want across all BJJ classes.',includes:['Unlimited BJJ classes','All levels welcome','Open mat access','Grading eligibility'],tag_label:'',tag_colour:'',url:'',visible:true,sort_order:1},
+    {id:'seed-m2',tab:'memberships',name:'2x Week BJJ',price:'$120',price_period:'/month',description:'Perfect for members balancing training with a busy schedule.',includes:['2 classes per week','All BJJ levels','Grading eligibility'],tag_label:'',tag_colour:'',url:'',visible:true,sort_order:2},
+    {id:'seed-m3',tab:'memberships',name:'Unlimited Muay Thai',price:'$160',price_period:'/month',description:'Unlimited access to all Muay Thai classes.',includes:['Unlimited Muay Thai classes','Bag work sessions included','All experience levels'],tag_label:'',tag_colour:'',url:'',visible:true,sort_order:3},
+    {id:'seed-m4',tab:'memberships',name:'All Access',price:'$220',price_period:'/month',description:'Unlimited access to every class across all disciplines.',includes:['Unlimited BJJ classes','Unlimited Muay Thai classes','Open mat access','Grading eligibility'],tag_label:'BEST VALUE',tag_colour:'gold',url:'',visible:true,sort_order:4},
+  ]
+};
+
+async function fetchPasses() {
+  try {
+    var role = (currentUser && currentUser.role) || 'member';
+    var res = await fetch(API_BASE + '/api/passes', {
+      headers: { 'X-User-Role': role }
+    });
+    var json = await res.json();
+    if (json.success && json.passes && json.passes.length > 0) {
+      passesData = { adults: [], kids: [], memberships: [] };
+      json.passes.forEach(function(p) {
+        if (passesData[p.tab]) passesData[p.tab].push(p);
+      });
+      passesLoaded = true;
+    } else {
+      passesData = passesSeed;
+    }
+  } catch(e) {
+    passesData = passesSeed;
+  }
+  renderPassTab(curPassTab);
 }
-function renderPasses(type) {
-  document.getElementById('passCards').innerHTML = passData[type].map(p =>
-    `<div class="pass-card${p.popular?' popular':''}" id="pc-${p.id}" onclick="selectPass('${p.id}')">
-      <div class="pass-row">
-        <div class="pass-icon-wrap"><i class="ti ti-ticket" style="font-size:22px;color:var(--gold)"></i></div>
-        <div style="flex:1"><div class="pass-name">${p.name}</div><div class="pass-detail">${p.detail}</div></div>
-        <div class="badge-green" style="font-size:10px"><i class="ti ti-refresh" style="font-size:10px"></i>Live Price</div>
-      </div>
-    </div>`).join('');
+
+function setPassTab(el, tab) {
+  document.querySelectorAll('.pass-tab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+  curPassTab = tab;
+  renderPassTab(tab);
 }
-function selectPass(id) {
-  const all = [...passData.adult,...passData.kids,...passData.casual];
-  selPass = all.find(p => p.id===id);
-  document.querySelectorAll('.pass-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('pc-'+id).classList.add('selected');
-  const bar = document.getElementById('checkoutBar');
-  bar.style.display = 'flex';
-  document.getElementById('checkoutLabel').textContent = selPass.name;
-  document.getElementById('checkoutPrice').textContent = 'From Clubworx';
+
+function renderPassTab(tab) {
+  var isAdmin = currentUser && currentUser.role === 'admin';
+  var cards = passesData[tab] || [];
+  var sectionLabel = tab === 'memberships' ? 'Choose a Membership' : (tab === 'kids' ? 'Kids Casual & Class Packs' : 'Casual & Class Packs');
+  var btnLabel = tab === 'memberships' ? 'Sign Up' : 'Buy Now';
+  var html = '';
+
+  if (isAdmin) {
+    var addLabel = tab === 'memberships' ? '+ Add Membership' : '+ Add Pass';
+    html += '<div class="pass-admin-bar"><span>⚙ ADMIN</span><button class="pass-admin-add" onclick="openPassModal(null,\''+tab+'\')">'+addLabel+'</button></div>';
+  }
+
+  html += '<div class="pass-section-label">'+sectionLabel+'</div>';
+
+  if (cards.length === 0) {
+    html += '<div class="empty-state"><i class="ti ti-ticket"></i><p>No passes yet</p><small>'+(isAdmin?'Use the + button above to add your first pass.':'Check back soon.')+'</small></div>';
+  } else {
+    cards.forEach(function(p) {
+      // Determine visibility in admin view
+      var hiddenClass = (!p.visible && isAdmin) ? ' pass-hidden' : '';
+      if (!p.visible && !isAdmin) return; // members never see hidden
+
+      var tagHtml = '';
+      if (p.tag_label) {
+        var tagClass = p.tag_colour === 'gold' ? 'ptag-gold' : (p.tag_colour === 'blue' ? 'ptag-blue' : 'ptag-grey');
+        tagHtml = '<span class="pcard-tag '+tagClass+'">'+p.tag_label+'</span><br>';
+      }
+
+      var includesHtml = '';
+      var includesArr = Array.isArray(p.includes) ? p.includes : (typeof p.includes === 'string' ? p.includes.split('\n') : []);
+      if (includesArr.length) {
+        includesHtml = '<ul class="pcard-includes">'+includesArr.filter(function(i){return i.trim();}).map(function(i){return '<li>'+i.trim()+'</li>';}).join('')+'</ul>';
+      }
+
+      var priceHtml = p.price_period
+        ? '<div class="pcard-price">'+p.price+'<span class="pcard-period">'+p.price_period+'</span></div>'
+        : '<span class="pcard-price">'+p.price+'</span>';
+
+      var buyFn = p.url ? 'window.open(\''+p.url+'\',\'_blank\')' : 'showToast(\'Purchase URL not configured yet\',\'info\')';
+
+      var controlsHtml = '';
+      if (isAdmin) {
+        var hideLabel = p.visible ? '◉ Hide' : '◎ Show';
+        controlsHtml = '<div class="pcard-controls">'
+          +'<button class="pctrl" onclick="openPassModal(\''+p.id+'\',\''+tab+'\')">✏ Edit</button>'
+          +'<button class="pctrl pctrl-hide" onclick="togglePassVisibility(\''+p.id+'\','+(!p.visible)+')">'+hideLabel+'</button>'
+          +'<button class="pctrl pctrl-del" onclick="deletePass(\''+p.id+'\')">✕ Delete</button>'
+          +'</div>';
+      }
+
+      html += '<div class="pcard'+hiddenClass+'" id="pcard-'+p.id+'">'
+        +'<div class="pcard-top"><span class="pcard-name">'+p.name+'</span>'+priceHtml+'</div>'
+        +'<div class="pcard-desc">'+p.description+'</div>'
+        +includesHtml
+        +tagHtml
+        +'<button class="pcard-btn" onclick="'+buyFn+'">'+btnLabel+'</button>'
+        +controlsHtml
+        +'</div>';
+    });
+  }
+
+  document.getElementById('passTabContent').innerHTML = html;
 }
-function buyPass() { showToast('Opening Clubworx checkout...','info'); setTimeout(()=>showToast('Pass activated — credits added ✓','success'),2200); }
+
+function openPassModal(id, tab) {
+  var p = id ? (passesData[tab]||[]).find(function(x){return x.id===id;}) : null;
+  document.getElementById('peId').value        = p ? p.id : '';
+  document.getElementById('peTab').value       = tab;
+  document.getElementById('peName').value      = p ? p.name : '';
+  document.getElementById('pePrice').value     = p ? p.price : '';
+  document.getElementById('pePeriod').value    = p ? (p.price_period||'') : (tab==='memberships'?'/month':'');
+  document.getElementById('peDesc').value      = p ? p.description : '';
+  var inc = p ? (Array.isArray(p.includes) ? p.includes.join('\n') : (p.includes||'')) : '';
+  document.getElementById('peIncludes').value  = inc;
+  document.getElementById('peTagLabel').value  = p ? (p.tag_label||'') : '';
+  document.getElementById('peTagColour').value = p ? (p.tag_colour||'') : '';
+  document.getElementById('peUrl').value       = p ? (p.url||'') : '';
+  document.getElementById('peVisible').checked = p ? p.visible : true;
+  document.getElementById('passModalTitle').textContent = p ? 'EDIT PASS' : 'ADD PASS';
+  document.getElementById('passModalOverlay').style.display = 'flex';
+}
+
+function closePassModal() {
+  document.getElementById('passModalOverlay').style.display = 'none';
+}
+
+async function savePass() {
+  var id       = document.getElementById('peId').value;
+  var tab      = document.getElementById('peTab').value;
+  var name     = document.getElementById('peName').value.trim();
+  var price    = document.getElementById('pePrice').value.trim();
+  if (!name || !price) { showToast('Name and price are required','error'); return; }
+
+  var body = {
+    tab:          tab,
+    name:         name,
+    price:        price,
+    price_period: document.getElementById('pePeriod').value.trim(),
+    description:  document.getElementById('peDesc').value.trim(),
+    includes:     document.getElementById('peIncludes').value.split('\n').filter(function(l){return l.trim();}),
+    tag_label:    document.getElementById('peTagLabel').value.trim().toUpperCase(),
+    tag_colour:   document.getElementById('peTagColour').value,
+    url:          document.getElementById('peUrl').value.trim(),
+    visible:      document.getElementById('peVisible').checked,
+    sort_order:   (passesData[tab]||[]).length,
+  };
+
+  try {
+    var role = (currentUser && currentUser.role) || 'admin';
+    var url  = id ? API_BASE+'/api/passes/'+id : API_BASE+'/api/passes';
+    var method = id ? 'PUT' : 'POST';
+    var res  = await fetch(url, {
+      method: method,
+      headers: { 'Content-Type':'application/json', 'X-User-Role': role },
+      body: JSON.stringify(body)
+    });
+    var json = await res.json();
+    if (json.success) {
+      closePassModal();
+      showToast(id ? 'Pass updated' : 'Pass added', 'success');
+      await fetchPasses();
+    } else {
+      showToast(json.error || 'Could not save pass', 'error');
+    }
+  } catch(e) {
+    // Offline — update local seed data
+    if (id) {
+      var arr = passesData[tab] || [];
+      var idx = arr.findIndex(function(x){return x.id===id;});
+      if (idx >= 0) { body.id = id; arr[idx] = body; }
+    } else {
+      body.id = 'local-' + Date.now();
+      if (!passesData[tab]) passesData[tab] = [];
+      passesData[tab].push(body);
+    }
+    closePassModal();
+    showToast(id ? 'Pass updated (offline)' : 'Pass added (offline)', 'success');
+    renderPassTab(tab);
+  }
+}
+
+async function togglePassVisibility(id, newVisible) {
+  var tab = curPassTab;
+  try {
+    var role = (currentUser && currentUser.role) || 'admin';
+    var res = await fetch(API_BASE+'/api/passes/'+id, {
+      method: 'PUT',
+      headers: { 'Content-Type':'application/json', 'X-User-Role': role },
+      body: JSON.stringify({ visible: newVisible })
+    });
+    var json = await res.json();
+    if (json.success) {
+      await fetchPasses();
+      showToast(newVisible ? 'Pass visible' : 'Pass hidden', 'success');
+    }
+  } catch(e) {
+    var arr = passesData[tab] || [];
+    var p = arr.find(function(x){return x.id===id;});
+    if (p) p.visible = newVisible;
+    renderPassTab(tab);
+    showToast(newVisible ? 'Pass visible (offline)' : 'Pass hidden (offline)', 'success');
+  }
+}
+
+async function deletePass(id) {
+  var tab = curPassTab;
+  if (!confirm('Delete this pass permanently?')) return;
+  try {
+    var role = (currentUser && currentUser.role) || 'admin';
+    var res = await fetch(API_BASE+'/api/passes/'+id, {
+      method: 'DELETE',
+      headers: { 'X-User-Role': role }
+    });
+    var json = await res.json();
+    if (json.success) {
+      await fetchPasses();
+      showToast('Pass deleted', 'success');
+    }
+  } catch(e) {
+    passesData[tab] = (passesData[tab]||[]).filter(function(x){return x.id!==id;});
+    renderPassTab(tab);
+    showToast('Pass deleted (offline)', 'success');
+  }
+}
 
 // ── TIMETABLE ──
 const ttData = {
@@ -2039,7 +2291,7 @@ function switchScreen(id) {
   const nb = document.getElementById('nav-'+baseId);
   if (nb) nb.classList.add('active');
   if (id==='timetable')   renderTT(curDay);
-  if (id==='passes')      renderPasses(curPassType);
+  if (id==='passes')      fetchPasses();
   if (id==='checkin')     renderCheckinScreen();
   if (id==='waiver')      renderWaiverList();
   if (id==='admin-waivers') {
@@ -3302,7 +3554,7 @@ function checkExistingSession() {
 
 // ── INIT ──
 renderTT('Mon');
-renderPasses('adult');
+fetchPasses();
 renderWaiverList();
 setTimeout(fetchEvents, 1000); // delay allows iOS PWA to finish loading
 renderCheckinScreen();
@@ -3364,7 +3616,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.7'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.8'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
