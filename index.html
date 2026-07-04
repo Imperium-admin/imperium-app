@@ -1688,6 +1688,7 @@ async function savePass() {
   if (!name || !price) { showToast('Name and price are required','error'); return; }
 
   var body = {
+    id:           id || undefined,
     tab:          tab,
     name:         name,
     price:        price,
@@ -1702,10 +1703,9 @@ async function savePass() {
   };
 
   try {
-    var role = (currentUser && currentUser.role) || 'admin';
-    var url  = id ? API_BASE+'/api/passes/'+id : API_BASE+'/api/passes';
+    var role   = (currentUser && currentUser.role) || 'admin';
     var method = id ? 'PUT' : 'POST';
-    var res  = await fetch(url, {
+    var res    = await fetch(API_BASE+'/api/passes', {
       method: method,
       headers: { 'Content-Type':'application/json', 'X-User-Role': role },
       body: JSON.stringify(body)
@@ -1739,10 +1739,10 @@ async function togglePassVisibility(id, newVisible) {
   var tab = curPassTab;
   try {
     var role = (currentUser && currentUser.role) || 'admin';
-    var res = await fetch(API_BASE+'/api/passes/'+id, {
+    var res = await fetch(API_BASE+'/api/passes', {
       method: 'PUT',
       headers: { 'Content-Type':'application/json', 'X-User-Role': role },
-      body: JSON.stringify({ visible: newVisible })
+      body: JSON.stringify({ id: id, visible: newVisible })
     });
     var json = await res.json();
     if (json.success) {
@@ -1763,9 +1763,10 @@ async function deletePass(id) {
   if (!confirm('Delete this pass permanently?')) return;
   try {
     var role = (currentUser && currentUser.role) || 'admin';
-    var res = await fetch(API_BASE+'/api/passes/'+id, {
+    var res = await fetch(API_BASE+'/api/passes', {
       method: 'DELETE',
-      headers: { 'X-User-Role': role }
+      headers: { 'Content-Type':'application/json', 'X-User-Role': role },
+      body: JSON.stringify({ id: id })
     });
     var json = await res.json();
     if (json.success) {
@@ -3616,7 +3617,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.8'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.9'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
