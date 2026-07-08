@@ -1406,6 +1406,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
 <div class="toast" id="toast"></div>
 
 <script>
+// ── CONSTANTS ──
+var API_BASE = 'https://imperium-backend.vercel.app';
 // ══════════════════════════════════════════════
 // IMPERIUM MMA APP — JAVASCRIPT
 // ══════════════════════════════════════════════
@@ -3622,7 +3624,6 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var API_BASE = 'https://imperium-backend.vercel.app';
 var APP_VERSION = '7.10'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
