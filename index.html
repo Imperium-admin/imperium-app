@@ -1974,7 +1974,7 @@ var eventsLoaded = false;
 async function fetchEvents() {
   try {
     var role = currentUser ? currentUser.role : 'member';
-    var response = await fetch('https://imperium-backend.vercel.app/api/events', {
+    var response = await fetch(API_BASE + '/api/events', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -2118,7 +2118,7 @@ function confirmDeleteEvent() {
   renderCompList();
   var isUUID = typeof delId === 'string' && delId.length === 36 && delId.indexOf('-') > 0;
   if (isUUID) {
-    fetch('https://imperium-backend.vercel.app/api/events/' + delId, {
+    fetch(API_BASE + '/api/events/' + delId, {
       method: 'DELETE',
       headers: {'Content-Type':'application/json','X-User-Role': currentUser ? currentUser.role : 'admin'},
       mode: 'cors',
@@ -2170,7 +2170,7 @@ function saveEvent(idx) {
   renderCompList();
 
   var isUUID = typeof c.id === 'string' && c.id.length === 36 && c.id.indexOf('-') > 0;
-  var url    = 'https://imperium-backend.vercel.app/api/events' + (isUUID ? '/' + c.id : '');
+  var url    = API_BASE + '/api/events' + (isUUID ? '/' + c.id : '');
   var method = isUUID ? 'PUT' : 'POST';
   var body = {
     title: c.title, date: c.date, time: c.time || '', location: c.location,
@@ -2189,13 +2189,18 @@ function saveEvent(idx) {
   .then(function(data) {
     if (data.success && data.event && data.event.id) {
       competitions[idx].id = data.event.id;
+      renderCompList();
+      showToast('Event saved ✓', 'success');
+    } else {
+      renderCompList();
+      showToast('Save failed: ' + (data.error || 'Unknown error'), 'error');
+      console.error('saveEvent error:', JSON.stringify(data));
     }
-    renderCompList();
-    showToast('Event saved ✓', 'success');
   })
-  .catch(function() {
+  .catch(function(err) {
     renderCompList();
-    showToast('Saved locally ✓', 'info');
+    showToast('Network error — check console', 'error');
+    console.error('saveEvent network error:', err);
   });
 }
 
@@ -3617,7 +3622,8 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.9'; // bumped with each new release — I do this automatically
+var API_BASE = 'https://imperium-backend.vercel.app';
+var APP_VERSION = '7.10'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
