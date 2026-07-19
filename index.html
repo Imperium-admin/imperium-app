@@ -514,14 +514,14 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <div class="login-field">
       <label class="login-label" for="loginPassword">Password</label>
       <input class="login-input" type="password" id="loginPassword"
-        placeholder="Your Clubworx password" autocomplete="current-password"
+        placeholder="Your GymMaster password" autocomplete="current-password"
         onkeydown="if(event.key==='Enter') doLogin()">
     </div>
 
     <button class="login-btn" id="loginBtn" onclick="doLogin()">SIGN IN</button>
 
     <div class="login-forgot">
-      <a href="https://app.clubworx.com/users/password/new" target="_blank">
+      <a href="https://imperiummma.gymmasteronline.com/portal/#!/forgot-password" target="_blank">
         Forgot your password?
       </a>
     </div>
@@ -532,7 +532,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     </div>
   </div>
 
-  <div class="login-version">Imperium MMA · Powered by Clubworx</div>
+  <div class="login-version">Imperium MMA · Powered by GymMaster</div>
 </div>
 
 <div class="overlay" id="overlay" onclick="closeNotif()"></div>
@@ -608,16 +608,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <!-- FAMILY SWITCHER — shows when account has linked family members -->
   <div class="family-bar" id="familyBar">
     <div class="family-pill active" onclick="setActiveMember(0)" id="fp-0">
-      <div class="family-pill-avatar" style="background:#c0392b">JD</div>
-      <span class="family-pill-name">Jake (You)</span>
-    </div>
-    <div class="family-pill" onclick="setActiveMember(1)" id="fp-1">
-      <div class="family-pill-avatar" style="background:#27ae60">LJ</div>
-      <span class="family-pill-name">Lila (Age 9)</span>
-    </div>
-    <div class="family-pill" onclick="setActiveMember(2)" id="fp-2">
-      <div class="family-pill-avatar" style="background:#2980b9">TJ</div>
-      <span class="family-pill-name">Tom (Age 12)</span>
+      <div class="family-pill-avatar" style="background:#c0392b">??</div>
+      <span class="family-pill-name">You</span>
     </div>
   </div>
   <div class="badge-red" style="margin-bottom:10px" id="memberBadge">ACTIVE MEMBER</div>
@@ -711,7 +703,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <div class="tt-day" onclick="setDay(this,'Sun')">Sun</div>
   </div>
   <div id="ttClasses"></div>
-  <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Timetable connects to your live Clubworx schedule once the backend is set up.</div>
+  <div class="info-box"><i class="ti ti-info-circle" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> Timetable connects to your live GymMaster schedule.</div>
 </div>
 
 
@@ -823,7 +815,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <h2 style="font-family:var(--head);letter-spacing:2px;font-size:20px">WAIVERS</h2>
       <button id="btnWaiverAdmin" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;font-family:var(--font);display:none" onclick="switchScreen('admin-waivers')"><i class="ti ti-settings" style="font-size:14px"></i>Admin</button>
     </div>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Complete any required forms. Stored in your Clubworx member record.</p>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px">Complete any required forms. Stored in your GymMaster member record.</p>
     <div id="waiverListItems"></div>
   </div>
 </div>
@@ -869,7 +861,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
         <button class="pin-key" onclick="waiverPinPress('del')" style="font-size:16px">⌫</button>
       </div>
       <div class="pin-error" id="waiverPinError"></div>
-      <p style="font-size:11px;color:var(--muted);margin-top:16px">Uses same admin PIN as Events · Clubworx role once connected</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:16px">Uses same admin PIN as Events · Role verified via GymMaster</p>
     </div>
   </div>
 
@@ -888,8 +880,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   <div class="info-box">
     <div style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--text)">How this works</div>
     <div style="font-size:12px;color:var(--muted);line-height:1.8">
-      <div><i class="ti ti-forms" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> <b style="color:var(--text)">In-app form</b> — built into the app, signed &amp; stored in Clubworx</div>
-      <div style="margin-top:4px"><i class="ti ti-external-link" style="font-size:13px;vertical-align:-1px;color:var(--gold)"></i> <b style="color:var(--text)">External link</b> — paste any URL (Clubworx form, Google Form, DocuSign)</div>
+      <div><i class="ti ti-forms" style="font-size:13px;vertical-align:-1px;color:var(--blue)"></i> <b style="color:var(--text)">In-app form</b> — built into the app, signed &amp; stored in GymMaster</div>
+      <div style="margin-top:4px"><i class="ti ti-external-link" style="font-size:13px;vertical-align:-1px;color:var(--gold)"></i> <b style="color:var(--text)">External link</b> — paste any URL (GymMaster form, Google Form, DocuSign)</div>
       <div style="margin-top:4px"><i class="ti ti-eye-off" style="font-size:13px;vertical-align:-1px;color:var(--muted)"></i> <b style="color:var(--text)">Toggle off</b> — hides waiver without deleting it</div>
     </div>
     </div><!-- end waiverAdminContent -->
@@ -1028,7 +1020,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
         <button class="pin-key" onclick="pinPress('del')" style="font-size:16px">⌫</button>
       </div>
       <div class="pin-error" id="pinError"></div>
-      <p style="font-size:11px;color:var(--muted);margin-top:16px">Demo PIN: 1234 &nbsp;·&nbsp; In the live app this uses your Clubworx staff login</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:16px">Staff access · Role verified via GymMaster login</p>
     </div>
   </div>
 
@@ -1133,7 +1125,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <div style="width:56px;height:56px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-family:var(--head);font-size:22px" id="profileAvatar">JD</div>
       <div style="flex:1">
         <div style="font-family:var(--head);font-size:20px;letter-spacing:1px" id="profileName">JAKE DAVIDSON</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px" id="profileMeta">IMP-0042 · Member since Jan 2022</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px" id="profileMeta">Member</div>
         <div style="margin-top:6px">
           <span id="profileBadge" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:rgba(192,57,43,0.15);color:var(--red2);letter-spacing:1px">ACCOUNT HOLDER</span>
         </div>
@@ -1228,7 +1220,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
         <button class="pin-key" onclick="compPinPress('del')" style="font-size:16px">⌫</button>
       </div>
       <div class="pin-error" id="compPinError"></div>
-      <p style="font-size:11px;color:var(--muted);margin-top:16px">Demo PIN: 1234 &nbsp;·&nbsp; Uses Clubworx staff role once connected</p>
+      <p style="font-size:11px;color:var(--muted);margin-top:16px">Staff access · Role verified via GymMaster login</p>
     </div>
   </div>
 
@@ -1349,7 +1341,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
           <button class="pin-key" onclick="bcastPinPress('del')" style="font-size:16px">⌫</button>
         </div>
         <div class="pin-error" id="broadcastPinError" style="text-align:center;margin-top:10px"></div>
-        <p style="font-size:11px;color:var(--border);text-align:center;margin-top:12px">Demo PIN: 5678</p>
+        <p style="font-size:11px;color:var(--border);text-align:center;margin-top:12px">Admin access only · Verified via GymMaster login</p>
       </div>
     </div>
 
@@ -1414,12 +1406,8 @@ var API_BASE = 'https://imperium-backend.vercel.app';
 
 // ── MEMBER / FAMILY STATE ──
 const familyMembers = [
-  {name:'Jake Davidson', short:'Jake (You)',   initials:'JD', belt:'BJJ Blue Belt',    color:'#c0392b', type:'adult', discipline:'bjj',
-   memberNo:'IMP-0042', since:'Jan 2022', membership:'Unlimited · Active', billing:'15 Jun 2026', credits:'7 remaining', lastGrading:'14 Mar 2025', stripes:2},
-  {name:'Lila Davidson', short:'Lila (Age 9)', initials:'LJ', belt:'Kids BJJ · Minis', color:'#27ae60', type:'kids',  discipline:'kids bjj',
-   memberNo:'IMP-0087', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—', lastGrading:'8 Nov 2024', stripes:1},
-  {name:'Tom Davidson',  short:'Tom (Age 12)', initials:'TJ', belt:'Kids BJJ · Teens', color:'#2980b9', type:'kids',  discipline:'kids bjj',
-   memberNo:'IMP-0091', since:'Mar 2023', membership:'Kids · Active',      billing:'15 Jun 2026', credits:'—', lastGrading:'8 Nov 2024', stripes:1},
+  {name:'Member', short:'You', initials:'??', belt:'', color:'#c0392b', type:'adult', discipline:'bjj',
+   memberNo:'', since:'', membership:'Active', billing:'', credits:'', lastGrading:'', stripes:0},
 ];
 let activeFamilyIdx = 0;
 
@@ -1497,7 +1485,7 @@ function openWaiver(id) {
       <div class="waiver-text-box">I acknowledge that participation in Brazilian Jiu-Jitsu, Muay Thai, and related activities at Imperium MMA involves physical contact and inherent risks of injury. I voluntarily assume all such risks. I confirm I am physically capable of participating and have disclosed all relevant medical conditions above. I agree to follow all gym rules and instructor directions at all times. I release Imperium MMA, its coaches, and staff from liability for injury or loss arising from my participation. I consent to emergency medical treatment if required. This waiver is governed by the laws of Victoria, Australia, and remains in effect for the duration of my membership.</div>
       <div class="check-row"><input type="checkbox"><span>I have read and agree to the full waiver above.</span></div>
       <div class="check-row"><input type="checkbox"><span>All information is accurate. I am 18+ or signing as parent/guardian of a minor.</span></div>
-      <div class="check-row"><input type="checkbox"><span>I consent to this waiver being stored in my Clubworx member record.</span></div>
+      <div class="check-row"><input type="checkbox"><span>I consent to this waiver being stored in my GymMaster member record.</span></div>
       <button class="btn-submit" onclick="submitWaiver('w1')">SIGN & SUBMIT</button>
     </div>`;
   } else if (w.id === 'w3') {
@@ -3294,54 +3282,6 @@ function loginNext() {
   document.getElementById('loginPassword').focus();
 }
 
-// ── MOCK AUTH (used while Vercel backend is being configured) ──
-// Three test accounts — any password works
-// jake@example.com        → Member
-// marcus@imperiummma.com.au → Coach  
-// admin@imperiummma.com.au  → Admin
-async function mockAuth(email, password) {
-  // Simulate network delay
-  await new Promise(function(r){ setTimeout(r, 800); });
-
-  // Support role-based auto-restore
-  if (email === 'admin' || email === 'admin@imperiummma.com.au') email = 'admin@imperiummma.com.au';
-  if (email === 'coach' || email === 'marcus@imperiummma.com.au') email = 'marcus@imperiummma.com.au';
-  if (email === 'member' || email === 'jake@example.com') email = 'jake@example.com';
-
-  var accounts = {
-    'jake@example.com': {
-      success: true, role: 'member', token: 'mock_member_' + Date.now(),
-      permissions: { canViewApp:true, canViewCoachesHub:false, canManageEvents:false, canManageWaivers:false, canBroadcast:false },
-      contact: { id:'c001', first_name:'Jake', last_name:'Davidson', email:'jake@example.com',
-                 member_number:'IMP-0042', join_date:'2022-01-15', membership_type:'Unlimited',
-                 membership_status:'active', belt:'Blue Belt', discipline:'BJJ',
-                 trial:false, pass_credits:7, next_billing:'2026-06-15' }
-    },
-    'marcus@imperiummma.com.au': {
-      success: true, role: 'coach', token: 'mock_coach_' + Date.now(),
-      permissions: { canViewApp:true, canViewCoachesHub:true, canManageEvents:true, canManageWaivers:false, canBroadcast:false },
-      contact: { id:'c002', first_name:'Marcus', last_name:'Coach', email:'marcus@imperiummma.com.au',
-                 member_number:'IMP-0003', join_date:'2020-06-01', membership_type:'Staff',
-                 membership_status:'active', belt:'Black Belt', discipline:'BJJ',
-                 trial:false, pass_credits:0, next_billing:null }
-    },
-    'admin@imperiummma.com.au': {
-      success: true, role: 'admin', token: 'mock_admin_' + Date.now(),
-      permissions: { canViewApp:true, canViewCoachesHub:true, canManageEvents:true, canManageWaivers:true, canBroadcast:true },
-      contact: { id:'c003', first_name:'Admin', last_name:'User', email:'admin@imperiummma.com.au',
-                 member_number:'IMP-0001', join_date:'2019-01-01', membership_type:'Owner',
-                 membership_status:'active', belt:'Black Belt', discipline:'BJJ',
-                 trial:false, pass_credits:0, next_billing:null }
-    },
-  };
-
-  var account = accounts[email.toLowerCase().trim()];
-  if (!account) {
-    return { success:false, error:'Invalid email or password' };
-  }
-  return account;
-}
-
 // ── MAIN LOGIN FUNCTION ──
 async function doLogin() {
   var email    = (document.getElementById('loginEmail').value    || '').trim();
@@ -3351,7 +3291,6 @@ async function doLogin() {
   var btn      = document.getElementById('loginBtn');
   var loading  = document.getElementById('loginLoading');
 
-  // Validate
   if (!email || !password) {
     errorMsg.textContent = 'Please enter your email and password.';
     errorEl.classList.add('show');
@@ -3365,19 +3304,17 @@ async function doLogin() {
   loading.classList.add('show');
 
   try {
-    // ── MOCK AUTH (direct, no backend call needed for testing) ──
-    // Simulates Clubworx login while API key is pending
-    // Replace mockAuth with fetch call when Vercel backend is confirmed working
-    var data = await mockAuth(email, password);
-
+    var res = await fetch(API_BASE + '/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Action': 'login' },
+      body: JSON.stringify({ email: email, password: password }),
+    });
+    var data = await res.json();
     if (!data.success) {
-      throw new Error(data.error || 'Invalid email or password');
+      throw new Error(data.error || 'Invalid email or password. Please check your GymMaster credentials.');
     }
-
-    // ── LOGIN SUCCESS ──
     currentUser = data;
     onLoginSuccess(data);
-
   } catch (err) {
     errorMsg.textContent = err.message || 'Could not sign in. Please try again.';
     errorEl.classList.add('show');
@@ -3389,15 +3326,17 @@ async function doLogin() {
 
 // ── ON SUCCESSFUL LOGIN ──
 function onLoginSuccess(user) {
-  // Store session in localStorage
   try {
     var sessionObj = {
-      email:       user.contact.email,
-      name:        user.contact.first_name + ' ' + user.contact.last_name,
+      email:       user.contact ? user.contact.email : (user.email || ''),
+      name:        user.contact ? (user.contact.first_name + ' ' + user.contact.last_name) : '',
       role:        user.role,
       permissions: user.permissions,
       token:       user.token,
+      memberid:    user.memberid,
+      expires:     user.expires,
       loginTime:   Date.now(),
+      contact:     user.contact || null,
     };
     var sessionStr = JSON.stringify(sessionObj);
     try { localStorage.setItem('imperium_session', sessionStr); } catch(e2) {}
@@ -3406,7 +3345,6 @@ function onLoginSuccess(user) {
       var cookieExp = new Date(Date.now() + 7*24*60*60*1000).toUTCString();
       document.cookie = 'imp_session=' + encodeURIComponent(sessionStr) + '; expires=' + cookieExp + '; path=/; SameSite=Lax';
     } catch(e2) {}
-    // Store role for auto-restore when iOS clears localStorage
     var roleVal = sessionObj.role || 'member';
     try { localStorage.setItem('imperium_remember', roleVal); } catch(e2) {}
     try { sessionStorage.setItem('imperium_remember', roleVal); } catch(e2) {}
@@ -3414,7 +3352,6 @@ function onLoginSuccess(user) {
       var remExp = new Date(Date.now() + 30*24*60*60*1000).toUTCString();
       document.cookie = 'imp_remember=' + encodeURIComponent(roleVal) + '; expires=' + remExp + '; path=/; SameSite=Lax';
     } catch(e2) {}
-    // Store in IndexedDB — survives iOS PWA memory clearing
     try {
       var idbReq = indexedDB.open('imperiumDB', 1);
       idbReq.onupgradeneeded = function(e) { e.target.result.createObjectStore('session'); };
@@ -3426,14 +3363,82 @@ function onLoginSuccess(user) {
     } catch(e2) {}
   } catch(e) {}
 
+  // Populate real profile data from GymMaster into familyMembers[0]
+  if (user.contact) {
+    var c = user.contact;
+    var fullName = (c.first_name + ' ' + c.last_name).trim().toUpperCase();
+    var initials = (c.first_name ? c.first_name[0] : '') + (c.last_name ? c.last_name[0] : '');
+    familyMembers[0].name     = c.first_name + ' ' + c.last_name;
+    familyMembers[0].initials = initials.toUpperCase();
+    familyMembers[0].memberNo = c.id ? 'GM-' + c.id : 'IMP-0001';
+    familyMembers[0].since    = c.join_date ? new Date(c.join_date).getFullYear() : '';
+    familyMembers[0].dob      = c.dob || null;
+    familyMembers[0].photo    = c.photo || null;
+
+    // Update hero greeting
+    var heroGreeting = document.getElementById('heroGreeting');
+    if (heroGreeting) heroGreeting.innerHTML = 'WELCOME BACK,<br>' + (c.first_name || '').toUpperCase();
+
+    // Update top avatar
+    var topAvatar = document.getElementById('topAvatar');
+    if (topAvatar) topAvatar.textContent = initials.toUpperCase();
+
+    // Update family pill for account holder
+    var fp0 = document.getElementById('fp-0');
+    if (fp0) {
+      var pillAvatar = fp0.querySelector('.family-pill-avatar');
+      var pillName   = fp0.querySelector('.family-pill-name');
+      if (pillAvatar) pillAvatar.textContent = initials.toUpperCase();
+      if (pillName)   pillName.textContent   = c.first_name + ' (You)';
+    }
+
+    // Populate linked family members if present
+    if (c.linked_members && c.linked_members.length > 0) {
+      var familyBar = document.getElementById('familyBar');
+      // Keep account holder pill, rebuild family pills
+      var existingPills = familyBar ? familyBar.querySelectorAll('.family-pill:not(#fp-0)') : [];
+      existingPills.forEach(function(p) { p.remove(); });
+      familyMembers.splice(1); // remove old placeholder family members
+
+      c.linked_members.forEach(function(lm, idx) {
+        var fmInitials = (lm.firstname ? lm.firstname[0] : '') + (lm.surname ? lm.surname[0] : '');
+        var colors = ['#27ae60','#2980b9','#8e44ad','#e67e22','#e74c3c'];
+        var fmColor = colors[idx % colors.length];
+        familyMembers.push({
+          name: lm.firstname + ' ' + lm.surname,
+          short: lm.firstname,
+          initials: fmInitials.toUpperCase(),
+          color: fmColor,
+          type: 'family',
+          discipline: 'bjj',
+          memberNo: 'GM-' + lm.id,
+          since: '',
+          membership: 'Active',
+          billing: '—',
+          credits: '—',
+          lastGrading: '',
+          stripes: 0,
+          belt: '',
+          dob: null,
+        });
+
+        if (familyBar) {
+          var pill = document.createElement('div');
+          pill.className = 'family-pill';
+          pill.id = 'fp-' + (idx + 1);
+          pill.setAttribute('onclick', 'setActiveMember(' + (idx + 1) + ')');
+          pill.innerHTML = '<div class="family-pill-avatar" style="background:' + fmColor + '">' + fmInitials.toUpperCase() + '</div><span class="family-pill-name">' + lm.firstname + '</span>';
+          familyBar.appendChild(pill);
+        }
+      });
+    }
+  }
+
   // Hide login, show app
   hideLoginScreen();
-
-  // Render home screen
   switchScreen('home');
-
-  // Apply role-based UI AFTER screen renders so elements exist in DOM
   applyRolePermissions(user.role, user.permissions);
+  renderProfileScreen();
 }
 
 // ── APPLY ROLE-BASED UI ──
@@ -3553,6 +3558,13 @@ function checkExistingSession() {
       document.cookie = 'imp_session=' + encodeURIComponent(refreshed) + '; expires=' + exp + '; path=/; SameSite=Lax';
     } catch(e) {}
     currentUser = session;
+    // If session has contact data, restore profile
+    if (session.contact) {
+      setTimeout(function() {
+        onLoginSuccess(session);
+      }, 100);
+      return true;
+    }
     return true;
   } catch(e) {
     return false;
@@ -3584,11 +3596,9 @@ if (!checkExistingSession()) {
   } catch(e) {}
 
   if (rememberRole) {
-    // Auto-restore silently from sync storage
-    mockAuth(rememberRole + '@imperiummma.com.au', 'auto').then(function(data) {
-      if (data.success) { onLoginSuccess(data); }
-      else { tryIndexedDBRestore(); }
-    }).catch(function() { tryIndexedDBRestore(); });
+    // Have stored session — restore directly without re-authenticating
+    // The full session object was stored, so we can restore from it
+    tryIndexedDBRestore();
   } else {
     tryIndexedDBRestore();
   }
@@ -3602,15 +3612,37 @@ function tryIndexedDBRestore() {
     var req = indexedDB.open('imperiumDB', 1);
     req.onupgradeneeded = function(e) { e.target.result.createObjectStore('session'); };
     req.onsuccess = function(e) {
-      var tx = e.target.result.transaction('session','readonly');
-      var get = tx.objectStore('session').get('remember');
+      var tx  = e.target.result.transaction('session','readonly');
+      var get = tx.objectStore('session').get('data');
       get.onsuccess = function() {
-        var role = get.result;
-        if (role) {
-          mockAuth(role + '@imperiummma.com.au', 'auto').then(function(data) {
-            if (data.success) { onLoginSuccess(data); }
-            else { showLoginScreen(); }
-          }).catch(function() { showLoginScreen(); });
+        if (get.result) {
+          try {
+            var session = JSON.parse(get.result);
+            // Check token hasn't expired (GymMaster tokens last ~1 hour)
+            // We store sessions for 7 days but the GM token needs refreshing
+            // If session is less than 50 minutes old, restore directly
+            var age = Date.now() - (session.loginTime || 0);
+            var FIFTY_MIN = 50 * 60 * 1000;
+            if (age < FIFTY_MIN && session.role && session.permissions) {
+              currentUser = session;
+              hideLoginScreen();
+              switchScreen('home');
+              applyRolePermissions(session.role, session.permissions);
+              if (session.contact) {
+                // Restore profile data
+                onLoginSuccess(session);
+              }
+            } else {
+              // Session too old — show login with "session expired" message
+              showLoginScreen();
+              var errorEl  = document.getElementById('loginError');
+              var errorMsg = document.getElementById('loginErrorMsg');
+              if (errorEl && errorMsg) {
+                errorMsg.textContent = 'Session expired — please log in again.';
+                errorEl.classList.add('show');
+              }
+            }
+          } catch(e2) { showLoginScreen(); }
         } else {
           showLoginScreen();
         }
@@ -3624,7 +3656,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.10'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.11'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
