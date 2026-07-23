@@ -1771,45 +1771,69 @@ async function deletePass(id) {
 }
 
 // ── TIMETABLE ──
-const ttData = {
-  Mon:[
-    {time:'12:00 PM',dur:'60min',name:'BJJ Gi',            coach:'All Coaches',type:'bjj', spots:14,max:25},
-    {time:'5:15 PM', dur:'45min',name:'Kids Muay Thai',    coach:'All Coaches',type:'kids',spots:10,max:15},
-    {time:'6:00 PM', dur:'60min',name:'Muay Thai',         coach:'All Coaches',type:'muay',spots:14,max:25},
-    {time:'7:00 PM', dur:'60min',name:'BJJ No-Gi',         coach:'All Coaches',type:'bjj', spots:14,max:25},
-    {time:'8:00 PM', dur:'60min',name:'BJJ Gi',            coach:'All Coaches',type:'bjj', spots:14,max:25},
-  ],
-  Tue:[
-    {time:'4:30 PM', dur:'45min',name:'Minis / Kids BJJ',  coach:'All Coaches',type:'kids',spots:10,max:15},
-    {time:'5:10 PM', dur:'50min',name:'Teens BJJ',         coach:'All Coaches',type:'kids',spots:10,max:15},
-    {time:'6:00 PM', dur:'60min',name:'BJJ No-Gi',         coach:'All Coaches',type:'bjj', spots:14,max:25},
-    {time:'7:00 PM', dur:'30min',name:'BJJ Open Mat',      coach:'All Coaches',type:'bjj', spots:20,max:30},
-    {time:'8:00 PM', dur:'60min',name:'Muay Thai',         coach:'All Coaches',type:'muay',spots:14,max:25},
-  ],
-  Wed:[
-    {time:'12:00 PM',dur:'60min',name:'BJJ No-Gi',         coach:'All Coaches',type:'bjj', spots:14,max:25},
-    {time:'5:15 PM', dur:'45min',name:'Kids Muay Thai',    coach:'All Coaches',type:'kids',spots:10,max:15},
-    {time:'6:00 PM', dur:'60min',name:'Muay Thai',         coach:'All Coaches',type:'muay',spots:14,max:25},
-    {time:'7:00 PM', dur:'60min',name:'BJJ Gi',            coach:'All Coaches',type:'bjj', spots:14,max:25},
-    {time:'8:00 PM', dur:'60min',name:'BJJ No-Gi Leg Locks',coach:'All Coaches',type:'bjj',spots:14,max:25},
-  ],
-  Thu:[
-    {time:'4:30 PM', dur:'45min',name:'Minis / Kids BJJ',  coach:'All Coaches',type:'kids',spots:10,max:15},
-    {time:'5:10 PM', dur:'50min',name:'Teens BJJ',         coach:'All Coaches',type:'kids',spots:10,max:15},
-    {time:'6:00 PM', dur:'60min',name:'BJJ Gi',            coach:'All Coaches',type:'bjj', spots:14,max:25},
-    {time:'7:00 PM', dur:'30min',name:'BJJ Open Mat',      coach:'All Coaches',type:'bjj', spots:20,max:30},
-    {time:'8:00 PM', dur:'60min',name:'Muay Thai',         coach:'All Coaches',type:'muay',spots:14,max:25},
-  ],
-  Fri:[
-    {time:'6:00 PM', dur:'90min',name:'BJJ Open Mat (Gi & No-Gi)',coach:'All Coaches',type:'bjj',spots:25,max:35},
-  ],
-  Sat:[
-    {time:'9:15 AM', dur:'45min',name:'Teens BJJ',         coach:'All Coaches',type:'kids',spots:10,max:15},
-    {time:'10:00 AM',dur:'60min',name:'Muay Thai',         coach:'All Coaches',type:'muay',spots:14,max:25},
-    {time:'11:00 AM',dur:'60min',name:'BJJ Gi',            coach:'All Coaches',type:'bjj', spots:14,max:25},
-  ],
-  Sun:[],
-};
+// Timetable data — populated from GymMaster on load
+var ttData = { Mon:[], Tue:[], Wed:[], Thu:[], Fri:[], Sat:[], Sun:[] };
+var ttLoaded = false;
+
+async function fetchTimetable() {
+  try {
+    var token = currentUser && currentUser.token ? currentUser.token : '';
+    var headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    var today = new Date();
+    var monday = new Date(today);
+    monday.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    var weekStr = monday.toISOString().split('T')[0];
+
+    var res = await fetch(API_BASE + '/api/timetable?week=' + weekStr, { headers: headers });
+    var data = await res.json();
+
+    if (data.success && data.timetable && data.timetable.length > 0) {
+      ttData = { Mon:[], Tue:[], Wed:[], Thu:[], Fri:[], Sat:[], Sun:[] };
+      var dayMap = { 'Monday':'Mon','Tuesday':'Tue','Wednesday':'Wed','Thursday':'Thu','Friday':'Fri','Saturday':'Sat','Sunday':'Sun' };
+
+      data.timetable.forEach(function(cls) {
+        var dayKey = dayMap[cls.dayofweek] || cls.dayofweek;
+        if (!ttData[dayKey]) ttData[dayKey] = [];
+
+        var nameL = (cls.name || cls.classname || '').toLowerCase();
+        var type = 'bjj';
+        if (nameL.indexOf('muay') >= 0 || nameL.indexOf('thai') >= 0 || nameL.indexOf('striking') >= 0) type = 'muay';
+        else if (nameL.indexOf('kids') >= 0 || nameL.indexOf('minis') >= 0 || nameL.indexOf('teen') >= 0) type = 'kids';
+
+        var startStr = cls.starttime || '';
+        var endStr   = cls.endtime   || '';
+        var timeFormatted = cls.start_str || startStr.substring(0,5);
+
+        var dur = '';
+        if (startStr && endStr) {
+          var start = startStr.split(':').map(Number);
+          var end   = endStr.split(':').map(Number);
+          var mins  = (end[0]*60+end[1]) - (start[0]*60+start[1]);
+          dur = mins + 'min';
+        }
+
+        ttData[dayKey].push({
+          id:    cls.id,
+          time:  timeFormatted,
+          dur:   dur,
+          name:  cls.name || cls.classname || 'Class',
+          coach: cls.staffname || 'Coach',
+          type:  type,
+          spots: cls.spacesfree !== undefined ? cls.spacesfree : 10,
+          max:   cls.max_students || 0,
+          date:  cls.arrival || weekStr,
+        });
+      });
+      ttLoaded = true;
+    }
+  } catch (err) {
+    console.error('fetchTimetable error:', err.message);
+  }
+  renderTT(curDay);
+}
+
 // bkd is now an alias — timetable bookings feed into the master bookedIds list
 let curDay = 'Mon';
 
@@ -2313,7 +2337,8 @@ function switchScreen(id) {
     renderAdminComps();
   }
   if (id==='profile')     renderProfileScreen();
-  if (id==='bookings')    renderBookingsScreen();
+  if (id==='timetable')   fetchTimetable();
+  if (id==='bookings')    { fetchUpcomingBookings(); renderBookingsScreen(); }
   if (id==='admin-comps') {
     // Reset lock each time admin-comps is opened
     compAdminUnlocked = false; compPinEntry = '';
@@ -3045,6 +3070,183 @@ function setBookingsTab(el, tab) {
   currentBookingsTab = tab;
   document.getElementById('bookingsUpcoming').style.display = tab==='upcoming' ? 'block' : 'none';
   document.getElementById('bookingsHistory').style.display  = tab==='history'  ? 'block' : 'none';
+  if (tab === 'history') fetchPastBookings();
+}
+
+// ── FETCH REAL BOOKINGS FROM GYMMASTER ──
+async function fetchUpcomingBookings() {
+  if (!currentUser || !currentUser.token) return;
+  try {
+    var res = await fetch(API_BASE + '/api/bookings', {
+      headers: {
+        'Authorization': 'Bearer ' + currentUser.token,
+        'Content-Type': 'application/json',
+      }
+    });
+    var data = await res.json();
+    if (!data.success) return;
+
+    var bookings = data.bookings || {};
+    var classBookings = bookings.classbookings || [];
+
+    // Map GymMaster bookings to upcomingClasses format
+    upcomingClasses = classBookings.map(function(b) {
+      var nameL = (b.name || '').toLowerCase();
+      var type = 'bjj';
+      if (nameL.indexOf('muay') >= 0 || nameL.indexOf('thai') >= 0) type = 'muay';
+      else if (nameL.indexOf('kids') >= 0 || nameL.indexOf('minis') >= 0 || nameL.indexOf('teen') >= 0) type = 'kids';
+
+      return {
+        id:       String(b.id),
+        name:     b.name || 'Class',
+        time:     b.start_str || b.starttime || '',
+        meta:     b.dayofweek + ' · ' + (b.day || '') + ' · ' + (b.location || ''),
+        type:     type,
+        spots:    b.spacesfree || 0,
+        max:      b.max_students || 0,
+        coach:    b.staffname || '',
+        gmId:     b.id,
+        parentId: b.parentid || b.id,
+      };
+    });
+
+    bookedIds = upcomingClasses.map(function(c) { return c.id; });
+    renderBookingsScreen();
+    renderHomeBookingsCard();
+  } catch (err) {
+    console.error('fetchUpcomingBookings error:', err.message);
+  }
+}
+
+async function fetchPastBookings() {
+  if (!currentUser || !currentUser.token) return;
+  try {
+    var res = await fetch(API_BASE + '/api/bookings/past', {
+      headers: { 'Authorization': 'Bearer ' + currentUser.token }
+    });
+    var data = await res.json();
+    if (!data.success) return;
+
+    var past = Array.isArray(data.result) ? data.result : [];
+    var histEl = document.getElementById('bookingsHistory');
+    if (!histEl) return;
+
+    if (past.length === 0) {
+      histEl.innerHTML = '<div class="empty-state"><i class="ti ti-history"></i><p>No class history yet</p><small>Your attended classes will appear here once connected.</small></div>';
+      return;
+    }
+
+    histEl.innerHTML = past.slice(0, 20).map(function(b) {
+      var attended = b.attended;
+      return '<div class="booking-card ' + (attended ? 'checked-in' : 'missed') + '">' +
+        '<div class="booking-time-col">' +
+          '<div class="booking-time" style="color:' + (attended ? '#4caf50' : 'var(--muted)') + '">' + (b.start_str || '').replace('AM','').replace('PM','') + '</div>' +
+          '<div class="booking-day">' + (b.dayofweek || '').substring(0,3) + '</div>' +
+        '</div>' +
+        '<div class="booking-info">' +
+          '<div class="booking-name">' + (b.name || 'Class') + '</div>' +
+          '<div class="booking-meta">' + (b.day_str || b.day || '') + '</div>' +
+        '</div>' +
+        '<span class="booking-status ' + (attended ? 'bs-checkedin' : 'bs-missed') + '">' + (attended ? '✓ Attended' : 'Not attended') + '</span>' +
+      '</div>';
+    }).join('');
+  } catch (err) {
+    console.error('fetchPastBookings error:', err.message);
+  }
+}
+
+// ── FETCH REAL PROFILE FROM GYMMASTER ──
+async function fetchMemberProfile() {
+  if (!currentUser || !currentUser.token) return;
+  try {
+    var res = await fetch(API_BASE + '/api/member/profile', {
+      headers: { 'Authorization': 'Bearer ' + currentUser.token }
+    });
+    var data = await res.json();
+    if (!data.success || !data.profile) return;
+
+    var p = data.profile;
+
+    // Update membership on profile screen
+    var memEl = document.getElementById('profileMembership');
+    if (memEl && p.membership) {
+      memEl.textContent = p.membership.name + ' · ' + p.membership.status;
+      memEl.style.color = '#4caf50';
+    }
+
+    var billEl = document.getElementById('profileBilling');
+    if (billEl) {
+      var billing = p.next_billing && p.next_billing !== 'Open Ended' ? p.next_billing : '—';
+      billEl.textContent = billing;
+    }
+
+    var credEl = document.getElementById('profileCredits');
+    if (credEl) {
+      credEl.textContent = p.pass_credits > 0 ? p.pass_credits + ' remaining' : '—';
+      credEl.style.color = p.pass_credits > 0 ? 'var(--red2)' : 'var(--muted)';
+    }
+
+    // Update belt progress if applicable
+    var beltSection = document.getElementById('beltProgressSection');
+    if (beltSection) {
+      if (p.show_belt && p.belt) {
+        beltSection.style.display = 'block';
+
+        var beltColours = {
+          'white': '#f0f0f0', 'yellow': '#f1c40f', 'orange': '#e67e22',
+          'green': '#27ae60', 'blue': '#3498db', 'purple': '#8e44ad',
+          'brown': '#7b4a2d', 'black': '#333'
+        };
+        var beltLower = p.belt.toLowerCase();
+        var swatchColor = '#888';
+        Object.keys(beltColours).forEach(function(k) {
+          if (beltLower.indexOf(k) >= 0) swatchColor = beltColours[k];
+        });
+
+        var swatchEl = document.getElementById('beltSwatch');
+        if (swatchEl) {
+          swatchEl.style.background = swatchColor;
+          swatchEl.style.border = swatchColor === '#f0f0f0' ? '1px solid #444' : 'none';
+        }
+
+        var beltNameEl = document.getElementById('profileBeltName');
+        if (beltNameEl) beltNameEl.textContent = p.belt;
+
+        var stripesEl = document.getElementById('beltStripes');
+        if (stripesEl) {
+          stripesEl.innerHTML = '';
+          for (var s = 0; s < 4; s++) {
+            var dot = document.createElement('div');
+            dot.style.cssText = 'width:14px;height:5px;border-radius:2px;background:' + (s < p.stripes ? 'var(--text)' : 'var(--border)');
+            stripesEl.appendChild(dot);
+          }
+        }
+
+        var gradingEl = document.getElementById('profileLastGrading');
+        if (gradingEl) {
+          if (p.last_grading) {
+            var gDate = new Date(p.last_grading);
+            var gStr  = gDate.toLocaleDateString('en-AU', { day:'numeric', month:'short', year:'numeric' });
+            gradingEl.textContent = 'Last grading: ' + gStr;
+            gradingEl.style.display = 'block';
+          } else {
+            gradingEl.style.display = 'none';
+          }
+        }
+
+        // Update familyMembers[0] belt data for family switcher
+        familyMembers[0].belt        = p.belt;
+        familyMembers[0].stripes     = p.stripes;
+        familyMembers[0].discipline  = p.discipline ? p.discipline.toLowerCase() : 'bjj';
+        familyMembers[0].lastGrading = p.last_grading || '';
+
+      } else {
+        beltSection.style.display = 'none';
+      }
+    }
+  } catch (err) {
+    console.error('fetchMemberProfile error:', err.message);
+  }
 }
 
 function renderBookingsScreen() {
@@ -3439,6 +3641,13 @@ function onLoginSuccess(user) {
   switchScreen('home');
   applyRolePermissions(user.role, user.permissions);
   renderProfileScreen();
+
+  // Fetch real data from GymMaster
+  setTimeout(function() {
+    fetchTimetable();
+    fetchUpcomingBookings();
+    fetchMemberProfile();
+  }, 500);
 }
 
 // ── APPLY ROLE-BASED UI ──
@@ -3656,7 +3865,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.11'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.12'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
