@@ -1132,8 +1132,8 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       </div>
     </div>
     <div class="mr"><span style="font-size:13px;color:var(--muted)">Membership</span><span style="font-size:13px;font-weight:600;color:#4caf50" id="profileMembership">Unlimited · Active</span></div>
-    <div class="mr"><span style="font-size:13px;color:var(--muted)">Next Billing</span><span style="font-size:13px;font-weight:600" id="profileBilling">15 Jun 2026</span></div>
-    <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600" id="profileCredits">7 remaining</span></div>
+    <div class="mr"><span style="font-size:13px;color:var(--muted)">Next Billing</span><span style="font-size:13px;font-weight:600" id="profileBilling">—</span></div>
+    <div class="mr" style="border:none"><span style="font-size:13px;color:var(--muted)">Pass Credits</span><span style="font-size:13px;font-weight:600" id="profileCredits">—</span></div>
   </div>
   <div id="beltProgressSection">
     <div class="sl">Belt Progress</div>
@@ -3380,51 +3380,53 @@ function renderProfileScreen() {
     badgeEl.style.color = isYou ? 'var(--red2)' : '#3498db';
   }
 
-  // ── Belt Progress (BJJ only) ──
+  // ── Belt Progress ──
+  // Always show the section — fetchMemberProfile will populate or hide it
   var beltSection = document.getElementById('beltProgressSection');
-  var discipline = (m.discipline || '').toLowerCase();
-  var isBJJ = discipline.indexOf('bjj') >= 0 || discipline.indexOf('jiu') >= 0 || discipline.indexOf('kids') >= 0;
-  // If discipline not yet loaded, hide belt section until fetchMemberProfile completes
-  if (beltSection) beltSection.style.display = (isBJJ && m.belt) ? 'block' : 'none';
+  if (beltSection) {
+    var discipline = (m.discipline || '').toLowerCase();
+    var hasBelt = m.belt && m.belt.length > 0;
+    var isBJJ = discipline.indexOf('bjj') >= 0 || discipline.indexOf('kids') >= 0;
 
-  if (isBJJ && m.belt) {
-    // Belt colour swatch
-    var beltColours = { 'white': '#f0f0f0', 'blue': '#3498db', 'purple': '#8e44ad', 'brown': '#7b4a2d', 'black': '#111', 'yellow': '#f1c40f', 'orange': '#e67e22', 'green': '#27ae60' };
-    var beltLower = (m.belt || '').toLowerCase();
-    var swatchColor = '#888';
-    Object.keys(beltColours).forEach(function(k) { if (beltLower.indexOf(k) >= 0) swatchColor = beltColours[k]; });
-    var swatchEl = document.getElementById('beltSwatch');
-    if (swatchEl) {
-      swatchEl.style.background = swatchColor;
-      swatchEl.style.border = swatchColor === '#f0f0f0' ? '1px solid #444' : 'none';
+    if (hasBelt && isBJJ) {
+      // Have real data — show populated
+      beltSection.style.display = 'block';
+      var beltColours = { 'white':'#f0f0f0','blue':'#3498db','purple':'#8e44ad','brown':'#7b4a2d','black':'#111','yellow':'#f1c40f','orange':'#e67e22','green':'#27ae60' };
+      var beltLower = m.belt.toLowerCase();
+      var swatchColor = '#888';
+      Object.keys(beltColours).forEach(function(k) { if (beltLower.indexOf(k) >= 0) swatchColor = beltColours[k]; });
+      var swatchEl = document.getElementById('beltSwatch');
+      if (swatchEl) { swatchEl.style.background = swatchColor; swatchEl.style.border = swatchColor === '#f0f0f0' ? '1px solid #444' : 'none'; }
+      var beltNameEl = document.getElementById('profileBeltName');
+      if (beltNameEl) beltNameEl.textContent = m.belt;
+      var stripes = typeof m.stripes === 'number' ? m.stripes : 0;
+      var stripesEl = document.getElementById('beltStripes');
+      if (stripesEl) {
+        stripesEl.innerHTML = '';
+        for (var s = 0; s < 4; s++) {
+          var dot = document.createElement('div');
+          dot.style.cssText = 'width:14px;height:5px;border-radius:2px;background:' + (s < stripes ? 'var(--text)' : 'var(--border)');
+          stripesEl.appendChild(dot);
+        }
+      }
+      var gradingEl = document.getElementById('profileLastGrading');
+      if (gradingEl) {
+        if (m.lastGrading) { gradingEl.textContent = 'Last grading: ' + m.lastGrading; gradingEl.style.display = 'block'; }
+        else { gradingEl.style.display = 'none'; }
+      }
+    } else if (discipline && !isBJJ) {
+      // Confirmed non-BJJ discipline — hide entirely
+      beltSection.style.display = 'none';
+    } else {
+      // No discipline data yet — show loading placeholder
+      beltSection.style.display = 'block';
+      var beltNameEl2 = document.getElementById('profileBeltName');
+      if (beltNameEl2) beltNameEl2.textContent = 'Loading...';
     }
-
-    // Belt name
-    var beltNameEl = document.getElementById('profileBeltName');
-    if (beltNameEl) beltNameEl.textContent = m.belt || 'Not set';
+  }
 
     // Stripes (reads m.stripes, defaults 0 if not set)
     var stripes = typeof m.stripes === 'number' ? m.stripes : 0;
-    var stripesEl = document.getElementById('beltStripes');
-    if (stripesEl) {
-      stripesEl.innerHTML = '';
-      for (var s = 0; s < 4; s++) {
-        var dot = document.createElement('div');
-        dot.style.cssText = 'width:14px;height:5px;border-radius:2px;background:' + (s < stripes ? 'var(--text)' : 'var(--border)');
-        stripesEl.appendChild(dot);
-      }
-    }
-
-    // Last grading date
-    var gradingEl = document.getElementById('profileLastGrading');
-    if (gradingEl) {
-      var grading = m.lastGrading || (currentUser && currentUser.contact && currentUser.contact.lastGrading) || '';
-      if (grading) { gradingEl.textContent = 'Last grading: ' + grading; gradingEl.style.display = 'block'; }
-      else { gradingEl.style.display = 'none'; }
-    }
-  }
-}
-
 // ══════════════════════════════════════════
 // LOGIN SYSTEM
 // ══════════════════════════════════════════
