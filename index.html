@@ -1794,7 +1794,8 @@ async function fetchTimetable() {
       var dayMap = { 'Monday':'Mon','Tuesday':'Tue','Wednesday':'Wed','Thursday':'Thu','Friday':'Fri','Saturday':'Sat','Sunday':'Sun' };
 
       data.timetable.forEach(function(cls) {
-        var dayKey = dayMap[cls.dayofweek] || cls.dayofweek;
+        var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        var dayKey = cls.dayofweek ? (dayMap[cls.dayofweek] || cls.dayofweek) : (cls.arrival ? days[new Date(cls.arrival + 'T00:00:00').getDay()] : 'Mon');
         if (!ttData[dayKey]) ttData[dayKey] = [];
 
         var nameL = (cls.name || cls.classname || '').toLowerCase();
@@ -1804,7 +1805,7 @@ async function fetchTimetable() {
 
         var startStr = cls.starttime || '';
         var endStr   = cls.endtime   || '';
-        var timeFormatted = cls.start_str || startStr.substring(0,5);
+        var timeFormatted = cls.start_str ? cls.start_str.toUpperCase() : (cls.starttime || '').substring(0,5);
 
         var dur = '';
         if (startStr && endStr) {
@@ -1818,7 +1819,7 @@ async function fetchTimetable() {
           id:    cls.id,
           time:  timeFormatted,
           dur:   dur,
-          name:  cls.name || cls.classname || 'Class',
+          name:  cls.classname || cls.bookingname || cls.name || 'Class',
           coach: cls.staffname || 'Coach',
           type:  type,
           spots: cls.spacesfree !== undefined ? cls.spacesfree : 10,
@@ -3865,7 +3866,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.12'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.13'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
