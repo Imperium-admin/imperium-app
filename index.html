@@ -3806,29 +3806,19 @@ function tryIndexedDBRestore() {
         if (get.result) {
           try {
             var session = JSON.parse(get.result);
-            // Check token hasn't expired (GymMaster tokens last ~1 hour)
-            // We store sessions for 7 days but the GM token needs refreshing
-            // If session is less than 50 minutes old, restore directly
-            var age = Date.now() - (session.loginTime || 0);
-            var FIFTY_MIN = 50 * 60 * 1000;
-            if (age < FIFTY_MIN && session.role && session.permissions) {
+            if (session.role && session.permissions && session.email) {
+              // Restore UI immediately from cached session
               currentUser = session;
               hideLoginScreen();
               switchScreen('home');
               applyRolePermissions(session.role, session.permissions);
-              if (session.contact) {
-                // Restore profile data
-                onLoginSuccess(session);
-              }
+              if (session.contact) onLoginSuccess(session);
+
+              // Then silently refresh the GymMaster token in background
+              // This ensures API calls work even if stored token is expired
+              refreshGymMasterToken(session);
             } else {
-              // Session too old — show login with "session expired" message
               showLoginScreen();
-              var errorEl  = document.getElementById('loginError');
-              var errorMsg = document.getElementById('loginErrorMsg');
-              if (errorEl && errorMsg) {
-                errorMsg.textContent = 'Session expired — please log in again.';
-                errorEl.classList.add('show');
-              }
             }
           } catch(e2) { showLoginScreen(); }
         } else {
@@ -3843,8 +3833,54 @@ function tryIndexedDBRestore() {
   }
 }
 
+// Silent token refresh — re-authenticates with GymMaster using stored credentials
+// Since we don't store passwords, we use the memberid + staff key to get a fresh token
+async function refreshGymMasterToken(session) {
+  try {
+    var res = await fetch(API_BASE + '/api/auth', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Action': 'refresh' },
+      body: JSON.stringify({ memberid: session.memberid }),
+    });
+    var data = await res.json();
+    if (data.success && data.token) {
+      currentUser.token   = data.token;
+      currentUser.expires = data.expires;
+      // Update stored session with new token
+      try {
+        var updated = JSON.stringify(currentUser);
+        localStorage.setItem('imperium_session', updated);
+        var idbReq = indexedDB.open('imperiumDB', 1);
+        idbReq.onupgradeneeded = function(ev) { ev.target.result.createObjectStore('session'); };
+        idbReq.onsuccess = function(ev) {
+          var tx2 = ev.target.result.transaction('session','readwrite');
+          tx2.objectStore('session').put(updated, 'data');
+        };
+      } catch(e2) {}
+      // Now fetch fresh data with new token
+      fetchMemberProfile();
+      fetchUpcomingBookings();
+      fetchTimetable();
+    } else {
+      // Token refresh failed — show session expired
+      showLoginScreen();
+      var errorEl  = document.getElementById('loginError');
+      var errorMsg = document.getElementById('loginErrorMsg');
+      if (errorEl && errorMsg) {
+        errorMsg.textContent = 'Session expired — please log in again.';
+        errorEl.classList.add('show');
+      }
+    }
+  } catch(err) {
+    console.error('Token refresh error:', err.message);
+    // If refresh fails silently, try fetching anyway in case token still works
+    fetchMemberProfile();
+    fetchUpcomingBookings();
+  }
+}
+
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.16'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.17'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
