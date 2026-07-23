@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1355,19 +1355,17 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <div class="ch email" onclick="this.classList.toggle('on')"><i class="ti ti-mail" style="font-size:13px"></i>Email</div>
     </div>
 
-    <div style="margin-top:14px">
-      <label class="bcast-label">Audience</label>
-      <select class="bcast-input" id="bcastAudience" onchange="updateCount()" style="margin-bottom:0">
-        <option value="87">All Active Members (87)</option>
-        <option value="43">BJJ Members Only (43)</option>
-        <option value="31">Muay Thai Members Only (31)</option>
-        <option value="28">Kids BJJ Members (28)</option>
-        <option value="19">Kids Muay Thai Members (19)</option>
-        <option value="12">Class Pass Holders (12)</option>
-        <option value="8">Trial Members (8)</option>
-        <option value="14">Lapsed Members (14)</option>
-      </select>
-    </div>
+      <div style="margin-top:14px">
+        <label class="bcast-label">Audience</label>
+        <select class="bcast-input" id="bcastAudience" onchange="updateCount()" style="margin-bottom:0">
+          <option value="all">All Active Members</option>
+          <option value="bjj">BJJ Members Only</option>
+          <option value="muay">Muay Thai Members Only</option>
+          <option value="kids_bjj">Kids BJJ Members</option>
+          <option value="kids_muay">Kids Muay Thai / Strikers</option>
+          <option value="trial">Trial Members</option>
+        </select>
+      </div>
 
     <div style="margin-top:14px">
       <label class="bcast-label">Title</label>
@@ -1382,7 +1380,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
     <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between">
       <span style="font-size:12px;color:var(--muted)">
         <i class="ti ti-users" style="font-size:13px;vertical-align:-1px"></i>
-        <span id="bcastCount">87 members</span>
+      <span id="bcastCount">All active members</span>
       </span>
       <button style="padding:11px 24px;background:var(--red);border:none;border-radius:8px;color:#fff;font-family:var(--head);font-size:15px;letter-spacing:1px;cursor:pointer" onclick="sendBroadcast()">SEND NOW</button>
     </div>
@@ -1518,19 +1516,31 @@ function submitWaiver(id) {
 }
 
 function renderAdminWaivers() {
-  document.getElementById('adminWaiverList').innerHTML = waivers.map((w,i) => `
-    <div class="admin-waiver-item">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
-        <span class="tag ${w.type==='external'?'tag-ext':'tag-form'}">${w.type==='external'?'External Link':'In-app Form'}</span>
-        ${w.required?'<span class="tag tag-req">Required</span>':''}
-        <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
-          <span style="font-size:12px;color:var(--muted)">${w.visible?'Visible':'Hidden'}</span>
-          <label class="mtoggle"><input type="checkbox" ${w.visible?'checked':''} onchange="waivers[${i}].visible=this.checked;renderWaiverList()"><span class="mtrack"></span><span class="mthumb"></span></label>
-        </div>
-      </div>
-      <div class="admin-row"><input type="text" value="${w.title}" placeholder="Waiver name" onchange="waivers[${i}].title=this.value;renderWaiverList()"></div>
-      <div class="admin-row"><input type="text" value="${w.type==='external'?(w.url||''):(w.desc||'')}" placeholder="${w.type==='external'?'Paste URL here':'Short description'}" onchange="${w.type==='external'?`waivers[${i}].url=this.value`:`waivers[${i}].desc=this.value;renderWaiverList()`}"></div>
-    </div>`).join('');
+  document.getElementById('adminWaiverList').innerHTML = waivers.map(function(w, i) {
+    return '<div class="admin-waiver-item">' +
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">' +
+        '<span class="tag ' + (w.type==='external'?'tag-ext':'tag-form') + '">' + (w.type==='external'?'External Link':'In-app Form') + '</span>' +
+        (w.required ? '<span class="tag tag-req">Required</span>' : '') +
+        '<div style="margin-left:auto;display:flex;align-items:center;gap:8px">' +
+          '<span style="font-size:12px;color:var(--muted)">' + (w.visible?'Visible':'Hidden') + '</span>' +
+          '<label class="mtoggle"><input type="checkbox" ' + (w.visible?'checked':'') + ' onchange="waivers[' + i + '].visible=this.checked;renderWaiverList()"><span class="mtrack"></span><span class="mthumb"></span></label>' +
+        '</div>' +
+      '</div>' +
+      '<div class="admin-row"><input type="text" value="' + w.title + '" placeholder="Waiver name" onchange="waivers[' + i + '].title=this.value;renderWaiverList()"></div>' +
+      '<div class="admin-row"><input type="text" value="' + (w.type==='external'?(w.url||''):(w.desc||'')) + '" placeholder="' + (w.type==='external'?'Paste URL here':'Short description') + '" onchange="' + (w.type==='external'?'waivers['+i+'].url=this.value':'waivers['+i+'].desc=this.value;renderWaiverList()') + '"></div>' +
+      '<div style="margin-top:8px;text-align:right">' +
+        '<button onclick="deleteWaiver(' + i + ')" style="background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.3);color:var(--red2);border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font)">✕ Delete Waiver</button>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function deleteWaiver(i) {
+  if (!confirm('Delete this waiver permanently?')) return;
+  waivers.splice(i, 1);
+  renderAdminWaivers();
+  renderWaiverList();
+  showToast('Waiver deleted', 'success');
 }
 
 function toggleWaiver(i, v) { waivers[i].visible=v; renderWaiverList(); renderAdminWaivers(); showToast(v?'Waiver visible to members':'Waiver hidden','info'); }
@@ -2381,55 +2391,32 @@ function setMsgTab(el, tab) {
   document.getElementById('msgBroadcast').style.display = tab==='broadcast'?'block':'none';
 }
 function updateCount() {
-  const s=document.getElementById('bcastAudience');
-  const m=s.options[s.selectedIndex].text.match(/\((\d+)\)/);
-  document.getElementById('bcastCount').textContent=(m?m[1]:87)+' members';
+  var s = document.getElementById('bcastAudience');
+  var labels = {
+    'all': 'All active members',
+    'bjj': 'BJJ members only',
+    'muay': 'Muay Thai members only',
+    'kids_bjj': 'Kids BJJ members',
+    'kids_muay': 'Kids Muay Thai / Strikers',
+    'trial': 'Trial members',
+  };
+  var val = s.options[s.selectedIndex].value;
+  document.getElementById('bcastCount').textContent = labels[val] || 'All active members';
 }
-// Separate Admin PIN for Broadcast — coaches cannot access this
-const BROADCAST_ADMIN_PIN = '5678'; // ← Set your own admin-only PIN here
-var broadcastPinEntry = '';
-var broadcastAdminUnlocked = false;
-
+// Broadcast — admin only, no PIN needed since we have real GymMaster auth
 function openBroadcast() {
-  // Always re-lock broadcast PIN when opening — fresh auth each time
-  broadcastAdminUnlocked = false;
-  broadcastPinEntry = '';
-  updateBcastPinDots();
-  document.getElementById('broadcastPinLock').style.display = 'block';
-  document.getElementById('broadcastPinContent').style.display = 'none';
-  document.getElementById('broadcastPinError').textContent = '';
+  if (!currentUser || currentUser.role !== 'admin') {
+    showToast('Admin access only', 'error');
+    return;
+  }
+  document.getElementById('broadcastPinLock').style.display = 'none';
+  document.getElementById('broadcastPinContent').style.display = 'block';
   document.getElementById('broadcastModal').classList.add('open');
-  // Don't use shared overlay — broadcast modal handles its own backdrop
   renderRecentBroadcasts();
 }
-function updateBcastPinDots() {
-  for (var i=0; i<4; i++) {
-    var d = document.getElementById('bpd'+i);
-    if (d) d.classList.toggle('filled', i < broadcastPinEntry.length);
-  }
-}
-function bcastPinPress(key) {
-  if (key==='clr') { broadcastPinEntry=''; updateBcastPinDots(); document.getElementById('broadcastPinError').textContent=''; return; }
-  if (key==='del') { broadcastPinEntry=broadcastPinEntry.slice(0,-1); updateBcastPinDots(); return; }
-  if (broadcastPinEntry.length>=4) return;
-  broadcastPinEntry+=key;
-  updateBcastPinDots();
-  if (broadcastPinEntry.length===4) setTimeout(checkBcastPin, 180);
-}
-function checkBcastPin() {
-  if (broadcastPinEntry === BROADCAST_ADMIN_PIN) {
-    broadcastAdminUnlocked = true;
-    document.getElementById('broadcastPinLock').style.display = 'none';
-    document.getElementById('broadcastPinContent').style.display = 'block';
-    document.getElementById('broadcastPinError').textContent = '';
-  } else {
-    document.getElementById('broadcastPinError').textContent = 'Incorrect PIN — admin access only';
-    broadcastPinEntry = ''; updateBcastPinDots();
-    var dots = document.getElementById('broadcastPinDots');
-    dots.style.animation = 'shake .35s ease';
-    setTimeout(function(){ dots.style.animation=''; }, 400);
-  }
-}
+function updateBcastPinDots() {}
+function bcastPinPress(key) {}
+function checkBcastPin() {}
 function closeBroadcastModal(e) {
   if (e && e.target !== document.getElementById('broadcastModal')) return;
   document.getElementById('broadcastModal').classList.remove('open');
@@ -3857,7 +3844,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.15'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.16'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
