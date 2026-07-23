@@ -1841,7 +1841,8 @@ async function fetchTimetable() {
 }
 
 // bkd is now an alias — timetable bookings feed into the master bookedIds list
-let curDay = 'Mon';
+var dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var curDay = dayNames[new Date().getDay()];
 
 function renderTT(day) {
   var c = document.getElementById('ttClasses'), cl = ttData[day]||[];
@@ -2343,7 +2344,14 @@ function switchScreen(id) {
     renderAdminComps();
   }
   if (id==='profile')     renderProfileScreen();
-  if (id==='timetable')   fetchTimetable();
+  if (id==='timetable') {
+    // Set active tab to today
+    curDay = dayNames[new Date().getDay()];
+    document.querySelectorAll('.tt-day').forEach(function(d) {
+      d.classList.toggle('active', d.textContent === curDay);
+    });
+    fetchTimetable();
+  }
   if (id==='bookings')    { fetchUpcomingBookings(); renderBookingsScreen(); }
   if (id==='admin-comps') {
     // Reset lock each time admin-comps is opened
@@ -2604,45 +2612,11 @@ function setCtab(el) { document.querySelectorAll('.ctab').forEach(b=>b.classList
 // ── BOOKING SYSTEM ──
 // All upcoming classes — single source of truth
 // ── MASTER CLASS REGISTRY — Imperium MMA real timetable ──
-var upcomingClasses = [
-  // MONDAY
-  {id:'Mon-0',time:'12:00 PM',name:'BJJ Gi',              meta:'Mon 12pm · All Coaches',    spots:14,max:25,isLate:false,type:'bjj'},
-  {id:'Mon-1',time:'5:15 PM', name:'Kids Muay Thai',      meta:'Mon 5:15pm · All Coaches',  spots:10,max:15,isLate:false,type:'kids'},
-  {id:'Mon-2',time:'6:00 PM', name:'Muay Thai',           meta:'Mon 6pm · All Coaches',     spots:14,max:25,isLate:true, type:'muay'},
-  {id:'Mon-3',time:'7:00 PM', name:'BJJ No-Gi',           meta:'Mon 7pm · All Coaches',     spots:14,max:25,isLate:false,type:'bjj'},
-  {id:'Mon-4',time:'8:00 PM', name:'BJJ Gi',              meta:'Mon 8pm · All Coaches',     spots:14,max:25,isLate:false,type:'bjj'},
-  // TUESDAY
-  {id:'Tue-0',time:'4:30 PM', name:'Minis / Kids BJJ',   meta:'Tue 4:30pm · All Coaches',  spots:10,max:15,isLate:false,type:'kids'},
-  {id:'Tue-1',time:'5:10 PM', name:'Teens BJJ',           meta:'Tue 5:10pm · All Coaches',  spots:10,max:15,isLate:false,type:'kids'},
-  {id:'Tue-2',time:'6:00 PM', name:'BJJ No-Gi',           meta:'Tue 6pm · All Coaches',     spots:14,max:25,isLate:true, type:'bjj'},
-  {id:'Tue-3',time:'7:00 PM', name:'BJJ Open Mat',        meta:'Tue 7pm · All Coaches',     spots:20,max:30,isLate:false,type:'bjj'},
-  {id:'Tue-4',time:'8:00 PM', name:'Muay Thai',           meta:'Tue 8pm · All Coaches',     spots:14,max:25,isLate:false,type:'muay'},
-  // WEDNESDAY
-  {id:'Wed-0',time:'12:00 PM',name:'BJJ No-Gi',           meta:'Wed 12pm · All Coaches',    spots:14,max:25,isLate:false,type:'bjj'},
-  {id:'Wed-1',time:'5:15 PM', name:'Kids Muay Thai',      meta:'Wed 5:15pm · All Coaches',  spots:10,max:15,isLate:false,type:'kids'},
-  {id:'Wed-2',time:'6:00 PM', name:'Muay Thai',           meta:'Wed 6pm · All Coaches',     spots:14,max:25,isLate:true, type:'muay'},
-  {id:'Wed-3',time:'7:00 PM', name:'BJJ Gi',              meta:'Wed 7pm · All Coaches',     spots:14,max:25,isLate:false,type:'bjj'},
-  {id:'Wed-4',time:'8:00 PM', name:'BJJ No-Gi Leg Locks', meta:'Wed 8pm · All Coaches',     spots:14,max:25,isLate:false,type:'bjj'},
-  // THURSDAY
-  {id:'Thu-0',time:'4:30 PM', name:'Minis / Kids BJJ',   meta:'Thu 4:30pm · All Coaches',  spots:10,max:15,isLate:false,type:'kids'},
-  {id:'Thu-1',time:'5:10 PM', name:'Teens BJJ',           meta:'Thu 5:10pm · All Coaches',  spots:10,max:15,isLate:false,type:'kids'},
-  {id:'Thu-2',time:'6:00 PM', name:'BJJ Gi',              meta:'Thu 6pm · All Coaches',     spots:14,max:25,isLate:true, type:'bjj'},
-  {id:'Thu-3',time:'7:00 PM', name:'BJJ Open Mat',        meta:'Thu 7pm · All Coaches',     spots:20,max:30,isLate:false,type:'bjj'},
-  {id:'Thu-4',time:'8:00 PM', name:'Muay Thai',           meta:'Thu 8pm · All Coaches',     spots:14,max:25,isLate:false,type:'muay'},
-  // FRIDAY
-  {id:'Fri-0',time:'6:00 PM', name:'BJJ Open Mat (Gi & No-Gi)',meta:'Fri 6pm · All Coaches',spots:25,max:35,isLate:true,type:'bjj'},
-  // SATURDAY
-  {id:'Sat-0',time:'9:15 AM', name:'Teens BJJ',           meta:'Sat 9:15am · All Coaches',  spots:10,max:15,isLate:false,type:'kids'},
-  {id:'Sat-1',time:'10:00 AM',name:'Muay Thai',           meta:'Sat 10am · All Coaches',    spots:14,max:25,isLate:false,type:'muay'},
-  {id:'Sat-2',time:'11:00 AM',name:'BJJ Gi',              meta:'Sat 11am · All Coaches',    spots:14,max:25,isLate:false,type:'bjj'},
-];
+// upcomingClasses — populated from GymMaster on login
+var upcomingClasses = [];
 
-// Per-member booking store — each family member has their own list
-var memberBookings = {
-  0: ['Mon-2'],  // Jake — Muay Thai 6pm Mon pre-booked for demo
-  1: [],         // Lila — no bookings
-  2: [],         // Tom — no bookings
-};
+// Per-member booking store — populated from GymMaster
+var memberBookings = { 0: [], 1: [], 2: [] };
 
 // bookedIds always points to the active member's list
 var bookedIds = memberBookings[0];
@@ -3421,11 +3395,12 @@ function renderProfileScreen() {
 
   // ── Belt Progress (BJJ only) ──
   var beltSection = document.getElementById('beltProgressSection');
-  var discipline = (m.discipline || m.belt || '').toLowerCase();
-  var isBJJ = discipline.indexOf('bjj') >= 0 || discipline.indexOf('jiu') >= 0 || discipline.indexOf('grappling') >= 0 || discipline.indexOf('kids bjj') >= 0;
-  if (beltSection) beltSection.style.display = isBJJ ? 'block' : 'none';
+  var discipline = (m.discipline || '').toLowerCase();
+  var isBJJ = discipline.indexOf('bjj') >= 0 || discipline.indexOf('jiu') >= 0 || discipline.indexOf('kids') >= 0;
+  // If discipline not yet loaded, hide belt section until fetchMemberProfile completes
+  if (beltSection) beltSection.style.display = (isBJJ && m.belt) ? 'block' : 'none';
 
-  if (isBJJ) {
+  if (isBJJ && m.belt) {
     // Belt colour swatch
     var beltColours = { 'white': '#f0f0f0', 'blue': '#3498db', 'purple': '#8e44ad', 'brown': '#7b4a2d', 'black': '#111', 'yellow': '#f1c40f', 'orange': '#e67e22', 'green': '#27ae60' };
     var beltLower = (m.belt || '').toLowerCase();
@@ -3439,7 +3414,7 @@ function renderProfileScreen() {
 
     // Belt name
     var beltNameEl = document.getElementById('profileBeltName');
-    if (beltNameEl) beltNameEl.textContent = m.belt || 'Unknown';
+    if (beltNameEl) beltNameEl.textContent = m.belt || 'Not set';
 
     // Stripes (reads m.stripes, defaults 0 if not set)
     var stripes = typeof m.stripes === 'number' ? m.stripes : 0;
@@ -3882,7 +3857,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.14'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.15'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
@@ -3915,6 +3890,7 @@ window.addEventListener('load', function() {
   try {
     var isTesting = window.location.search.indexOf('showbanner') >= 0;
     if (isTesting) { setTimeout(showUpdateBanner, 300); return; }
+    var seen = localStorage.getItem('imperium_version');
     // Fetch a fresh copy to compare version — bypasses iOS PWA cache
     fetch(window.location.pathname + '?v=' + Date.now(), {
       cache: 'no-store',
@@ -3923,15 +3899,17 @@ window.addEventListener('load', function() {
     .then(function(r) { return r.text(); })
     .then(function(html) {
       var match = html.match(/APP_VERSION\s*=\s*'([^']+)'/);
-      if (match && match[1] !== APP_VERSION) {
+      var serverVersion = match ? match[1] : null;
+      if (serverVersion && serverVersion !== APP_VERSION) {
         setTimeout(showUpdateBanner, 300);
       }
+      // Only update stored version AFTER checking
+      localStorage.setItem('imperium_version', APP_VERSION);
     })
     .catch(function() {
-      var seen = localStorage.getItem('imperium_version');
       if (seen !== APP_VERSION) { setTimeout(showUpdateBanner, 300); }
+      localStorage.setItem('imperium_version', APP_VERSION);
     });
-    localStorage.setItem('imperium_version', APP_VERSION);
   } catch(e) {}
 });
 </script>
