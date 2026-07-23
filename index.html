@@ -614,7 +614,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
   </div>
   <div class="badge-red" style="margin-bottom:10px" id="memberBadge">ACTIVE MEMBER</div>
     <h2 id="heroGreeting" style="font-size:22px;line-height:1.15">WELCOME BACK,<br>JAKE</h2>
-    <p id="heroSub">Mordialloc · BJJ Blue Belt · Member since 2022</p>
+    <p id="heroSub">Mordialloc · Member</p>
   </div>
 
   <!-- MY BOOKINGS SUMMARY CARD — taps through to full bookings screen -->
@@ -1141,7 +1141,7 @@ body{display:flex;flex-direction:column;align-items:center;padding-bottom:80px}
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:8px">
           <div id="beltSwatch" style="width:14px;height:14px;border-radius:3px;background:#3498db;flex-shrink:0"></div>
-          <span id="profileBeltName" style="font-size:13px;font-weight:600;color:var(--text)">Blue Belt</span>
+          <span id="profileBeltName" style="font-size:13px;font-weight:600;color:var(--text)">—</span>
         </div>
         <div id="beltStripes" style="display:flex;gap:3px"></div>
       </div>
@@ -1426,7 +1426,12 @@ function setActiveMember(idx) {
   const first = m.name.split(' ')[0].toUpperCase();
   const isYou = idx === 0;
   document.getElementById('heroGreeting').innerHTML = (isYou ? 'WELCOME BACK,<br>' : 'VIEWING PROFILE:<br>') + first;
-  document.getElementById('heroSub').textContent = 'Mordialloc · ' + m.belt + ' · Member since 2022';
+  // Build hero subtitle from real data
+  var heroSubParts = ['Mordialloc'];
+  if (m.belt) heroSubParts.push(m.belt);
+  if (m.since) heroSubParts.push('Member since ' + m.since);
+  else if (m.join_date) heroSubParts.push('Member since ' + new Date(m.join_date).getFullYear());
+  document.getElementById('heroSub').textContent = heroSubParts.join(' · ');
   document.getElementById('topAvatar').textContent = m.initials;
   document.getElementById('topAvatar').style.background = m.color;
   document.getElementById('memberBadge').textContent = isYou ? 'ACTIVE MEMBER' : 'FAMILY MEMBER';
@@ -3211,7 +3216,7 @@ async function fetchMemberProfile() {
         }
 
         var beltNameEl = document.getElementById('profileBeltName');
-        if (beltNameEl) beltNameEl.textContent = p.belt;
+        if (beltNameEl) beltNameEl.textContent = p.belt || 'Not set';
 
         var stripesEl = document.getElementById('beltStripes');
         if (stripesEl) {
@@ -3240,6 +3245,17 @@ async function fetchMemberProfile() {
         familyMembers[0].stripes     = p.stripes;
         familyMembers[0].discipline  = p.discipline ? p.discipline.toLowerCase() : 'bjj';
         familyMembers[0].lastGrading = p.last_grading || '';
+        familyMembers[0].join_date   = p.join_date || null;
+        if (p.join_date) familyMembers[0].since = new Date(p.join_date).getFullYear();
+
+        // Update hero subtitle with real belt and join year
+        var heroSubEl = document.getElementById('heroSub');
+        if (heroSubEl) {
+          var parts = ['Mordialloc'];
+          if (p.belt) parts.push(p.belt);
+          if (p.join_date) parts.push('Member since ' + new Date(p.join_date).getFullYear());
+          heroSubEl.textContent = parts.join(' · ');
+        }
 
       } else {
         beltSection.style.display = 'none';
@@ -3866,7 +3882,7 @@ function tryIndexedDBRestore() {
 }
 
 // ── UPDATE BANNER ──
-var APP_VERSION = '7.13'; // bumped with each new release — I do this automatically
+var APP_VERSION = '7.14'; // bumped with each new release — I do this automatically
 
 function showUpdateBanner() {
   var banner = document.getElementById('updateBanner');
